@@ -6,7 +6,7 @@ name: CI
 # events but only for the master branch
 on:
   push:
-    branches: [ master dev ]
+    branches: [ dev ]
   pull_request:
     branches: [ master ]
 
@@ -21,4 +21,4 @@ jobs:
         
     - name: Run test suite
       run: |
-        make
+        PYTHONPATH=. make
