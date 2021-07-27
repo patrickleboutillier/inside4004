@@ -14,4 +14,4 @@ JMS('assert:r14_eq_r15')
 
 HLT()
 
-from tests import *
+from test import *

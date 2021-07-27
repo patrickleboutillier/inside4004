@@ -28,4 +28,4 @@ test_add(9, 10, 1, 4, 1)
 HLT()
 
 
-from tests import *
+from test import *

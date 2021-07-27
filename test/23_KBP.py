@@ -21,4 +21,4 @@ for a in range(16):
 HLT()
 
 
-from tests import *
+from test import *

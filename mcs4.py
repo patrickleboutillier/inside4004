@@ -9,8 +9,7 @@ class MCS4:
         self.RAM = [None, [i4002.i4002(0, 0), i4002.i4002(0, 1)]]
         self.CPU = i4004.i4004(self)
         if self.PROM[0].load() == 0:
-            print("ERROR: No instructions loaded!", file=sys.stderr)
-            sys.exit(1)            
+            sys.exit("ERROR: No instructions loaded!")           
 
     def getROM(self, chip, addr):
         return self.PROM[chip].getROM(addr)

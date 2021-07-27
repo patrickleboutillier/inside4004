@@ -1,11 +1,11 @@
 from asm import *
 
 
-def test_iac(a, b, co):
+def test_dac(a, b, co):
     CLC()
     LDM(a)
     FIM(p7, b)
-    IAC()
+    DAC()
     XCH(r14)    # Save ACC to r14
     if co: 
         JMS('assert:cy_set')
@@ -15,9 +15,9 @@ def test_iac(a, b, co):
 
 
 for a in range(16):
-    b = a + 1 
-    test_iac(a, b & 0xF, b & 0x10)
+    b = a - 1 
+    test_dac(a, b & 0xF, not (b & 0x10))
 HLT()
 
 
-from tests import *
+from test import *

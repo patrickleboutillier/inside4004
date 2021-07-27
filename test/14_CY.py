@@ -20,4 +20,4 @@ LD(r11) ; JMS('assert:acc_eq_r15')
 
 HLT()
 
-from tests import *
+from test import *

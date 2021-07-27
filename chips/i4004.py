@@ -153,8 +153,7 @@ class i4004:
 
     # ERR is used for signaling error conditions. It is mainly ued in the test suite.
     def ERR(self):
-        print("ERROR!", file=sys.stderr)
-        sys.exit(1)
+        sys.exit("ERROR!")
 
     def JCN(self):
         inst = self.fetchInst()

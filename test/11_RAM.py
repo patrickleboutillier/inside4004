@@ -52,4 +52,4 @@ XCH(r2)
 BBL(0)
 
 
-from tests import *
+from test import *
