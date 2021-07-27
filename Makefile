@@ -7,7 +7,7 @@ test:
 		else \
 			echo "NOK!" ; \
 			cat /tmp/out ; \
-			exit ; \
+			exit 1 ; \
 		fi ; \
 	done
 
