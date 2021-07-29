@@ -1,52 +1,101 @@
 import fileinput
 import sys
 import chips.i4001 as i4001, chips.i4002 as i4002, chips.i4004 as i4004
+from hdl import *
 
 
 class MCS4:
     def __init__(self):
-        self.PROM = [i4001.i4001(0), i4001.i4001(1)]
-        self.RAM = [None, [i4002.i4002(0, 0), i4002.i4002(0, 1)]]
-        self.CPU = i4004.i4004(self)
-        if self.PROM[0].load() == 0:
-            sys.exit("ERROR: No instructions loaded!")           
+        self.data = bus("DATA")
+        self.rom_chip = 0                   # This represents the currently active ROM chip
+        self.rom_line = wire("ROM_LINE")
+        self.ram_chip = 0                   # This represents the currently active RAM chip
+        self.ram_lines = bus("RAM_LINES")
+        self.PROM = [i4001.i4001(0, self.data), i4001.i4001(1, self.data)]
+        self.RAM = [None, [i4002.i4002(0, 0, self.data), i4002.i4002(0, 1, self.data)]]
+        self.CPU = i4004.i4004(self, self.data, self.ram_lines)
+        if self.PROM[0].program() == 0:
+            sys.exit("ERROR: No instructions loaded!") 
+        elif len(self.PROM) > 1:
+            for p in self.PROM[1:]:
+                p.program()
 
-    def getROM(self, chip, addr):
-        return self.PROM[chip].getROM(addr)
+    def setROMAddrHigh(self, addr):
+        self.rom_chip = addr
 
-    def getRAM(self):
-        (chip, reg, char) = self.CPU.decodeRAMAddr()
-        return self.RAM[self.CPU.cm_ram][chip].getRAM(reg, char)
+    def setROMAddrMed(self, addr):
+        self.data.v(addr)
+        self.PROM[self.rom_chip].setROMAddrHigh()
 
-    def setRAM(self, byte):
-        (chip, reg, char) = self.CPU.decodeRAMAddr()
-        self.RAM[self.CPU.cm_ram][chip].setRAM(reg, char, byte)
+    def setROMAddrLow(self, addr):
+        self.data.v(addr)
+        self.PROM[self.rom_chip].setROMAddrLow()
 
-    def getStatus(self, char):
-        (chip, reg, _) = self.CPU.decodeRAMAddr()
-        return self.RAM[self.CPU.cm_ram][chip].getStatus(reg, char)
+    def setROMAddr(self, addrh, addrm, addrl):
+        self.setROMAddrHigh(addrh)
+        self.setROMAddrMed(addrm)
+        self.setROMAddrLow(addrl)
 
-    def setStatus(self, char, byte):
-        (chip, reg, _) = self.CPU.decodeRAMAddr()
-        self.RAM[self.CPU.cm_ram][chip].setStatus(reg, char, byte)
+    def getROMHigh(self):
+        self.PROM[self.rom_chip].enableROMHigh()
+        return self.data.v()
+
+    def getROMLow(self):
+        self.PROM[self.rom_chip].enableROMLow()
+        return self.data.v()
+
+    def getROM(self, addrh, addrm, addrl):
+        self.setROMAddr(addrh, addrm, addrl)
+        return (self.getROMHigh(), self.getROMLow())
 
     def getIO(self, chip):
-        return self.PROM[chip].getIO()
+        self.PROM[chip].enableIO()
+        return self.data.v()
 
     def setIO(self, chip, nib):
-        self.PROM[chip].setIO(nib)
+        self.data.v(nib)
+        self.PROM[chip].setIO()
+
+    def setRAMAddrHigh(self, addrh):
+        self.ram_chip = addrh >> 2
+        self.data.v(addrh)
+        self.RAM[self.ram_lines.v()][self.ram_chip].setReg()
+
+    def setRAMAddrLow(self, addrl):
+        self.data.v(addrl)
+        self.RAM[self.ram_lines.v()][self.ram_chip].setChar()
+
+    def setRAMAddr(self, addrh, addrl):
+        self.setRAMAddrHigh(addrh)
+        self.setRAMAddrLow(addrl)
+
+    def getRAM(self):
+        self.RAM[self.ram_lines.v()][self.ram_chip].enableRAM()
+        return self.data.v()
+
+    def setRAM(self, byte):
+        self.data.v(byte)
+        self.RAM[self.ram_lines.v()][self.ram_chip].setRAM()
+
+    def getStatus(self, char):
+        self.RAM[self.ram_lines.v()][self.ram_chip].enableStatus(char)
+        return self.data.v()
+
+    def setStatus(self, char, byte):
+        self.data.v(byte)
+        self.RAM[self.ram_lines.v()][self.ram_chip].setStatus(char)
 
     def setOutput(self, nib):
-        self.RAM[self.CPU.cm_ram].setOutput(nib)
+        self.data.v(nib)
+        self.RAM[self.ram_lines.v()][self.ram_chip].setOutput()
 
-    def fetchInst(self, pc):
-        chip = pc >> 8
-        addr = pc & 0xFF
-        return self.PROM[chip].getROM(addr)
+    def fetchInst(self, ph, pm, pl):
+        self.setROMAddr(ph, pm, pl)
+        return self.getROM(ph, pm, pl)
 
-    def loadROM(sel):
+    def programROM(sel):
         for prom in self.PROM:
-            self.prom.load()
+            self.prom.program()
 
     def run(self):
         self.CPU.run()

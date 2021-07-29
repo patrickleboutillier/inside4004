@@ -1,42 +1,51 @@
 import sys
+from hdl import *
 
 
 class i4004:
-    def __init__(self, mcs4):
+    def __init__(self, mcs4, data, ram_lines):
         self.mcs4 = mcs4
-        self.sp = 0 
+        self.data = data
+        self.sp = 0
         self.stack = [0, 0, 0, 0]
         self.index_reg = [0] * 16
         self.cy = 0
         self.acc = 0
         self.opr = 0
         self.opa = 0
-        self.cm_ram = 1
-        self.ram_addr = 0
-        self.test = 0 
+        self.cm_ram = reg(bus(), wire(), ram_lines, "CM-RAM")
+        # Initialize CM-RAM to 1 (see DCL)
+        self.cm_ram.bi().v(1)
+        self.cm_ram.s().v(1)
+        self.cm_ram.s().v(0)
+        self.test = 0
 
-    def getPC(self):
-        return self.stack[self.sp]
+    def getPH(self):
+        return self.stack[self.sp] >> 8
 
-    def setPC(self, h, ml):
-        if h is None:
-            h = self.getPC() >> 8
-        self.stack[self.sp] = h << 8 | ml
+    def getPM(self):
+        return self.stack[self.sp] >> 4 & 0xF
+
+    def getPL(self):
+        return self.stack[self.sp] & 0xF
+
+    def setPH(self, ph):
+        self.stack[self.sp] = ph << 8 | self.stack[self.sp] & 0x0FF
+
+    def setPM(self, pm):
+        self.stack[self.sp] = pm << 4 | self.stack[self.sp] & 0xF0F
+
+    def setPL(self, pl):
+        self.stack[self.sp] = pl | self.stack[self.sp] & 0xFF0
 
     def incPC(self):
         self.stack[self.sp] += 1
 
     def fetchInst(self, incPC=True):
-        inst = self.mcs4.fetchInst(self.getPC())
+        (insth, instl) = self.mcs4.fetchInst(self.getPH(), self.getPM(), self.getPL())
         if incPC:
             self.incPC()
-        return inst 
-
-    def decodeRAMAddr(self):
-        chip = self.ram_addr >> 6
-        reg = self.ram_addr >> 4 & 0b0011
-        char = self.ram_addr & 0xF
-        return (chip, reg, char)
+        return (insth, instl)
 
     def decodeInst(self):
         if self.opr == 0b0000:
@@ -156,7 +165,7 @@ class i4004:
         sys.exit("ERROR!")
 
     def JCN(self):
-        inst = self.fetchInst()
+        (insth, instl) = self.fetchInst()
         invert = bool(self.opa & 0b1000)
         (zero, cy, test) = (self.opa & 0b0100, self.opa & 0b0010, self.opa & 0b0001)
         jump = False
@@ -167,33 +176,39 @@ class i4004:
         if test and (self.test ^ invert):
             jump = True
         if jump:
-            self.setPC(None, inst)            
+            self.setPM(insth)
+            self.setPL(instl)            
 
     def FIM(self):
-        data = self.fetchInst()
-        self.index_reg[self.opa & 0b1110] = data >> 4
-        self.index_reg[self.opa | 0b0001] = data & 0xF
+        (datah, datal) = self.fetchInst()
+        self.index_reg[self.opa & 0b1110] = datah
+        self.index_reg[self.opa | 0b0001] = datal
     
     def SRC(self):
-        self.ram_addr = self.index_reg[self.opa & 0b1110] << 4 | self.index_reg[self.opa | 0b0001]
+        self.mcs4.setRAMAddr(self.index_reg[self.opa & 0b1110], self.index_reg[self.opa | 0b0001])
 
     def FIN(self):
-        chip = self.getPC() >> 8
-        addr = self.index_reg[0] << 4 | self.index_reg[1]
-        self.setPC(None, self.mcs4.getROM(chip, addr))
+        (addrh, addrl) = self.mcs4.getROM(self.getPH(), self.index_reg[0], self.index_reg[1])
+        self.setPM(addrh)
+        self.setPL(addrl)
 
     def JIN(self):
-        addr = (self.index_reg[self.opa & 0b1110]) << 4 | self.index_reg[self.opa | 0b0001]
-        self.setPC(None, addr)
+        self.setPM(self.index_reg[self.opa & 0b1110])
+        self.setPL(self.index_reg[self.opa | 0b0001])
 
     def JUN(self):
-        self.setPC(self.opa, self.fetchInst())
+        self.setPH(self.opa)
+        (insth, instl) = self.fetchInst()
+        self.setPM(insth)
+        self.setPL(instl)
 
     def JMS(self):
-        inst = self.fetchInst()
+        (insth, instl) = self.fetchInst()
         # Now PC points to the instruction after the jump
         self.sp += 1
-        self.setPC(self.opa, inst)
+        self.setPH(self.opa)
+        self.setPM(insth)
+        self.setPL(instl)
 
     def INC(self):
         sum = self.index_reg[self.opa] + 1
@@ -202,9 +217,10 @@ class i4004:
     def ISZ(self):
         sum = self.index_reg[self.opa] + 1
         self.index_reg[self.opa] = sum & 0xF
-        inst = self.fetchInst()
+        (insth, instl) = self.fetchInst()
         if self.index_reg[self.opa]:
-            self.setPC(None, inst)
+            self.setPM(insth)
+            self.setPL(instl)
 
     def ADD(self):
         sum = self.acc + self.index_reg[self.opa] + self.cy
@@ -345,36 +361,35 @@ class i4004:
             self.acc = 15
 
     def DCL(self):
-      if self.acc & 0b0111 == 0:
-        self.cm_ram = 1
-      if self.acc & 0b0111 == 1:
-        self.cm_ram = 2
-      if self.acc & 0b0111 == 2:
-        self.cm_ram = 4
-      if self.acc & 0b0111 == 3:
-        self.cm_ram = 3
-      if self.acc & 0b0111 == 4:
-        self.cm_ram = 8
-      if self.acc & 0b0111 == 5:
-        self.cm_ram = 10
-      if self.acc & 0b0111 == 6:
-        self.cm_ram = 12
-      if self.acc & 0b0111 == 7:
-        self.cm_ram = 14
-
+        self.cm_ram.s().v(1)
+        if self.acc & 0b0111 == 0:
+            self.cm_ram.bi().v(1)
+        elif self.acc & 0b0111 == 1:
+            self.cm_ram.bi().v(2)
+        elif self.acc & 0b0111 == 2:
+            self.cm_ram.bi().v(4)
+        elif self.acc & 0b0111 == 3:
+            self.cm_ram.bi().v(3)
+        elif self.acc & 0b0111 == 4:
+            self.cm_ram.bi().v(8)
+        elif self.acc & 0b0111 == 5:
+            self.cm_ram.bi().v(10)
+        elif self.acc & 0b0111 == 6:
+            self.cm_ram.bi().v(12)
+        elif self.acc & 0b0111 == 7:
+            self.cm_ram.bi().v(14)
+        self.cm_ram.s().v(0)
 
     def run(self):
         nb = 0
         while (True):
-            inst = self.fetchInst()
-            self.opr = inst >> 4
-            self.opa = inst & 0xF
+            (self.opr, self.opa) = self.fetchInst()
             self.mcs4.dump(nb)
             self.decodeInst()
             nb += 1
 
     def dump(self, inst):
         print("\nINST #{}".format(inst))
-        print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4}  RAM(CM/ADDR):{:04b}/{:<3}".format(self.opr, self.opa, self.sp, 
-            self.getPC(), self.cm_ram, self.ram_addr), end = '')
+        print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4}  RAM(CM):{:04b}".format(self.opr, self.opa, self.sp, 
+            (self.getPH()*16*16 + self.getPM()*16 + self.getPL()), self.cm_ram.bo().v()), end = '')
         print("  ACC/CY:{:04b}/{}  INDEX:{}".format(self.acc, self.cy, "".join(["{:x}".format(x) for x in self.index_reg])))

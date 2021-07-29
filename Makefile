@@ -1,6 +1,12 @@
-.PHONY: test
-test:
-	@for t in test/[0-9]*.py ; do echo -n "$$t: " ; \
+.PHONY: hdl asm
+
+test: hdl asm
+
+hdl:
+	python -m unittest discover -s test/hdl
+
+asm:
+	@for t in test/asm/[0-9]*.py ; do echo -n "$$t: " ; \
 		python $$t > /tmp/asm ; \
 		python mcs4.py /tmp/asm > /tmp/out 2>&1 ; \
 		if [ "$$?" = 0 ] ; then \
