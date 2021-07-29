@@ -7,7 +7,7 @@ class i4004:
         self.mcs4 = mcs4
         self.data = data
         self.sp = 0
-        self.stack = [0, 0, 0, 0]
+        self.stack = [{'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}]
         self.index_reg = [0] * 16
         self.cy = 0
         self.acc = 0
@@ -21,25 +21,29 @@ class i4004:
         self.test = 0
 
     def getPH(self):
-        return self.stack[self.sp] >> 8
+        return self.stack[self.sp]['h']
 
     def getPM(self):
-        return self.stack[self.sp] >> 4 & 0xF
+        return self.stack[self.sp]['m']
 
     def getPL(self):
-        return self.stack[self.sp] & 0xF
+        return self.stack[self.sp]['l']
 
     def setPH(self, ph):
-        self.stack[self.sp] = ph << 8 | self.stack[self.sp] & 0x0FF
+        self.stack[self.sp]['h'] = ph
 
     def setPM(self, pm):
-        self.stack[self.sp] = pm << 4 | self.stack[self.sp] & 0xF0F
+        self.stack[self.sp]['m'] = pm
 
     def setPL(self, pl):
-        self.stack[self.sp] = pl | self.stack[self.sp] & 0xFF0
+        self.stack[self.sp]['l'] = pl
 
     def incPC(self):
-        self.stack[self.sp] += 1
+        pc = self.stack[self.sp]['h'] << 8 | self.stack[self.sp]['m'] << 4 | self.stack[self.sp]['l']
+        pc += 1  
+        self.stack[self.sp]['h'] = pc >> 8
+        self.stack[self.sp]['m'] = pc >> 4 & 0xF
+        self.stack[self.sp]['l'] = pc & 0xF
 
     def fetchInst(self, incPC=True):
         (insth, instl) = self.mcs4.fetchInst(self.getPH(), self.getPM(), self.getPL())
