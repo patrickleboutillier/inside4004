@@ -1,4 +1,5 @@
 import sys
+import chips.i4004parts.addr as addr
 from hdl import *
 
 
@@ -6,8 +7,7 @@ class i4004:
     def __init__(self, mcs4, data, ram_lines):
         self.mcs4 = mcs4
         self.data = data
-        self.sp = 0
-        self.stack = [{'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}]
+        self.addr = addr.addr(data)
         self.index_reg = [0] * 16
         self.cy = 0
         self.acc = 0
@@ -20,35 +20,11 @@ class i4004:
         self.cm_ram.s().v(0)
         self.test = 0
 
-    def getPH(self):
-        return self.stack[self.sp]['h']
-
-    def getPM(self):
-        return self.stack[self.sp]['m']
-
-    def getPL(self):
-        return self.stack[self.sp]['l']
-
-    def setPH(self, ph):
-        self.stack[self.sp]['h'] = ph
-
-    def setPM(self, pm):
-        self.stack[self.sp]['m'] = pm
-
-    def setPL(self, pl):
-        self.stack[self.sp]['l'] = pl
-
-    def incPC(self):
-        pc = self.stack[self.sp]['h'] << 8 | self.stack[self.sp]['m'] << 4 | self.stack[self.sp]['l']
-        pc += 1  
-        self.stack[self.sp]['h'] = pc >> 8
-        self.stack[self.sp]['m'] = pc >> 4 & 0xF
-        self.stack[self.sp]['l'] = pc & 0xF
 
     def fetchInst(self, incPC=True):
-        (insth, instl) = self.mcs4.fetchInst(self.getPH(), self.getPM(), self.getPL())
+        (insth, instl) = self.mcs4.fetchInst(self.addr.getPH(), self.addr.getPM(), self.addr.getPL())
         if incPC:
-            self.incPC()
+            self.addr.incPC()
         return (insth, instl)
 
     def decodeInst(self):
@@ -180,8 +156,8 @@ class i4004:
         if test and (self.test ^ invert):
             jump = True
         if jump:
-            self.setPM(insth)
-            self.setPL(instl)            
+            self.addr.setPM(insth)
+            self.addr.setPL(instl)            
 
     def FIM(self):
         (datah, datal) = self.fetchInst()
@@ -190,29 +166,30 @@ class i4004:
     
     def SRC(self):
         self.mcs4.setRAMAddr(self.index_reg[self.opa & 0b1110], self.index_reg[self.opa | 0b0001])
+        self.mcs4.setIOAddr(self.index_reg[self.opa & 0b1110])
 
     def FIN(self):
-        (addrh, addrl) = self.mcs4.getROM(self.getPH(), self.index_reg[0], self.index_reg[1])
-        self.setPM(addrh)
-        self.setPL(addrl)
+        (addrh, addrl) = self.mcs4.getROM(self.addr.getPH(), self.index_reg[0], self.index_reg[1])
+        self.addr.setPM(addrh)
+        self.addr.setPL(addrl)
 
     def JIN(self):
-        self.setPM(self.index_reg[self.opa & 0b1110])
-        self.setPL(self.index_reg[self.opa | 0b0001])
+        self.addr.setPM(self.index_reg[self.opa & 0b1110])
+        self.addr.setPL(self.index_reg[self.opa | 0b0001])
 
     def JUN(self):
-        self.setPH(self.opa)
+        self.addr.setPH(self.opa)
         (insth, instl) = self.fetchInst()
-        self.setPM(insth)
-        self.setPL(instl)
+        self.addr.setPM(insth)
+        self.addr.setPL(instl)
 
     def JMS(self):
         (insth, instl) = self.fetchInst()
         # Now PC points to the instruction after the jump
-        self.sp += 1
-        self.setPH(self.opa)
-        self.setPM(insth)
-        self.setPL(instl)
+        self.addr.incSP()
+        self.addr.setPH(self.opa)
+        self.addr.setPM(insth)
+        self.addr.setPL(instl)
 
     def INC(self):
         sum = self.index_reg[self.opa] + 1
@@ -223,8 +200,8 @@ class i4004:
         self.index_reg[self.opa] = sum & 0xF
         (insth, instl) = self.fetchInst()
         if self.index_reg[self.opa]:
-            self.setPM(insth)
-            self.setPL(instl)
+            self.addr.setPM(insth)
+            self.addr.setPL(instl)
 
     def ADD(self):
         sum = self.acc + self.index_reg[self.opa] + self.cy
@@ -245,7 +222,7 @@ class i4004:
         self.acc = tmp
 
     def BBL(self):
-        self.sp -= 1
+        self.addr.decSP()
         self.acc = self.opa 
 
     def LDM(self):
@@ -259,8 +236,7 @@ class i4004:
         self.mcs4.setOutput(self.acc)
 
     def WRR(self):
-        chip = self.ram_addr >> 4
-        self.mcs4.setIO(chip, self.acc)
+        self.mcs4.setIO(self.acc)
 
     def WR0(self):
         self.mcs4.setStatus(0, self.acc)
@@ -283,8 +259,7 @@ class i4004:
         self.acc = self.mcs4.getRAM()
 
     def RDR(self):
-        chip = self.ram_addr >> 4
-        self.acc = self.mcs4.getIO(chip)
+        self.acc = self.mcs4.getIO()
 
     def ADM(self):
         sum = self.acc + self.mcs4.getRAM() + self.cy
@@ -394,6 +369,6 @@ class i4004:
 
     def dump(self, inst):
         print("\nINST #{}".format(inst))
-        print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4}  RAM(CM):{:04b}".format(self.opr, self.opa, self.sp, 
-            (self.getPH()*16*16 + self.getPM()*16 + self.getPL()), self.cm_ram.bo().v()), end = '')
+        print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4}  RAM(CM):{:04b}".format(self.opr, self.opa, self.addr.sp, 
+            (self.addr.getPH()*16*16 + self.addr.getPM()*16 + self.addr.getPL()), self.cm_ram.bo().v()), end = '')
         print("  ACC/CY:{:04b}/{}  INDEX:{}".format(self.acc, self.cy, "".join(["{:x}".format(x) for x in self.index_reg])))

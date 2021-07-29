@@ -7,13 +7,20 @@ from hdl import *
 class MCS4:
     def __init__(self):
         self.data = bus("DATA")
-        self.rom_chip = 0                   # This represents the currently active ROM chip
+        self.rom_chip_rom = 0               # This represents the currently active ROM chip (for ROM access)
+        self.rom_chip_io = 0                # This represents the currently active ROM chip (for IO)
         self.rom_line = wire("ROM_LINE")
         self.ram_chip = 0                   # This represents the currently active RAM chip
         self.ram_lines = bus("RAM_LINES")
-        self.PROM = [i4001.i4001(0, self.data), i4001.i4001(1, self.data)]
+        self.PROM = [i4001.i4001(0, self.data), i4001.i4001(1, self.data), i4001.i4001(2, self.data), i4001.i4001(3, self.data)]
         self.RAM = [None, [i4002.i4002(0, 0, self.data), i4002.i4002(0, 1, self.data)]]
         self.CPU = i4004.i4004(self, self.data, self.ram_lines)
+        # Install buffers between the RAM outputs and the ROM inputs
+        for i in range(4):
+            buf(self.RAM[1][0].output().bo().wire(i), self.PROM[0].input().wire(i)) 
+            buf(self.RAM[1][1].output().bo().wire(i), self.PROM[1].input().wire(i))
+            buf(self.PROM[2].output().bo().wire(i), self.PROM[3].input().wire(i))         
+
         if self.PROM[0].program() == 0:
             sys.exit("ERROR: No instructions loaded!") 
         elif len(self.PROM) > 1:
@@ -21,15 +28,15 @@ class MCS4:
                 p.program()
 
     def setROMAddrHigh(self, addr):
-        self.rom_chip = addr
+        self.rom_chip_rom = addr
 
     def setROMAddrMed(self, addr):
         self.data.v(addr)
-        self.PROM[self.rom_chip].setROMAddrHigh()
+        self.PROM[self.rom_chip_rom].setROMAddrHigh()
 
     def setROMAddrLow(self, addr):
         self.data.v(addr)
-        self.PROM[self.rom_chip].setROMAddrLow()
+        self.PROM[self.rom_chip_rom].setROMAddrLow()
 
     def setROMAddr(self, addrh, addrm, addrl):
         self.setROMAddrHigh(addrh)
@@ -37,24 +44,27 @@ class MCS4:
         self.setROMAddrLow(addrl)
 
     def getROMHigh(self):
-        self.PROM[self.rom_chip].enableROMHigh()
+        self.PROM[self.rom_chip_rom].enableROMHigh()
         return self.data.v()
 
     def getROMLow(self):
-        self.PROM[self.rom_chip].enableROMLow()
+        self.PROM[self.rom_chip_rom].enableROMLow()
         return self.data.v()
 
     def getROM(self, addrh, addrm, addrl):
         self.setROMAddr(addrh, addrm, addrl)
         return (self.getROMHigh(), self.getROMLow())
 
-    def getIO(self, chip):
-        self.PROM[chip].enableIO()
+    def setIOAddr(self, addr):
+        self.rom_chip_io = addr
+
+    def getIO(self):
+        self.PROM[self.rom_chip_io].enableIO()
         return self.data.v()
 
-    def setIO(self, chip, nib):
+    def setIO(self, nib):
         self.data.v(nib)
-        self.PROM[chip].setIO()
+        self.PROM[self.rom_chip_io].setIO()
 
     def setRAMAddrHigh(self, addrh):
         self.ram_chip = addrh >> 2

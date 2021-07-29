@@ -8,7 +8,14 @@ class i4001:
         self.addrh = 0
         self.addrl = 0
         self.rom = [0] * 256
-        self.io = 0
+        self._input = bus()
+        self._output = reg(bus(), wire(), bus(), "OUTPUT")
+
+    def input(self):
+        return self._input
+
+    def output(self):
+        return self._output
 
     def program(self):
         addr = 0
@@ -34,10 +41,12 @@ class i4001:
         self.data.v(self.rom[self.addrh << 4 | self.addrl] & 0xF)
 
     def enableIO(self):
-        self.data.v(self.io)
+        self.data.v(self._input.v())
 
-    def setIO(sel):
-        self.io = self.data.v()
+    def setIO(self):
+        self._output.bi().v(self.data.v())
+        self._output.s().v(1)
+        self._output.s().v(0)
 
     def dump(self):
-        print("ROM {:x}: IO:{:04b}  ".format(self.id, self.io), end = "")
+        print("ROM {:x}: INPUT.OUTPUT:{:04b}/{:04b}  ".format(self.id, self._input.v(), self._output.bo().v()), end = "")
