@@ -3,7 +3,7 @@ from hdl import *
 
 class mem(sensor):
     def __init__(self, i, s, o, name=""):
-        sensor.__init__(self, name, i, s, o)
+        sensor.__init__(self, name, i, s)
         self._i = i
         self._s = s
         self._o = o
