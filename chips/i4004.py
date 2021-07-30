@@ -11,8 +11,8 @@ class i4004:
         self.index_reg = [0] * 16
         self.cy = 0
         self.acc = 0
-        self.opr = 0
-        self.opa = 0
+        self.opr = reg(data, wire(), bus(), "OPR")
+        self.opa = reg(data, wire(), bus(), "OPA")
         self.cm_ram = reg(bus(), wire(), ram_lines, "CM-RAM")
         # Initialize CM-RAM to 1 (see DCL)
         self.cm_ram.bi().v(1)
@@ -28,107 +28,107 @@ class i4004:
         return (insth, instl)
 
     def decodeInst(self):
-        if self.opr == 0b0000:
-            if self.opa == 0b0000:
+        if self.opr.bo().v() == 0b0000:
+            if self.opa.bo().v() == 0b0000:
                 self.NOP()
-            elif self.opa == 0b0001:
+            elif self.opa.bo().v() == 0b0001:
                 self.HLT()
-            elif self.opa == 0b0010:
+            elif self.opa.bo().v() == 0b0010:
                 self.ERR()
 
-        elif self.opr == 0b0001:
+        elif self.opr.bo().v() == 0b0001:
             self.JCN()
-        elif self.opr == 0b0010:
-            if not (self.opa & 0b1):
+        elif self.opr.bo().v() == 0b0010:
+            if not (self.opa.bo().v() & 0b1):
                 self.FIM()
-            elif self.opa & 0b1:
+            elif self.opa.bo().v() & 0b1:
                 self.SRC()
-        elif self.opr == 0b0011:
-            if not (self.opa & 0b1):
+        elif self.opr.bo().v() == 0b0011:
+            if not (self.opa.bo().v() & 0b1):
                 self.FIN()
-            elif self.opa & 0b1:
+            elif self.opa.bo().v() & 0b1:
                 self.JIN()
-        elif self.opr == 0b0100:
+        elif self.opr.bo().v() == 0b0100:
             self.JUN()
-        elif self.opr == 0b0101:
+        elif self.opr.bo().v() == 0b0101:
             self.JMS()
-        elif self.opr == 0b0110:
+        elif self.opr.bo().v() == 0b0110:
             self.INC()
-        elif self.opr == 0b0111:
+        elif self.opr.bo().v() == 0b0111:
             self.ISZ()
-        elif self.opr == 0b1000:
+        elif self.opr.bo().v() == 0b1000:
             self.ADD()
-        elif self.opr == 0b1001:
+        elif self.opr.bo().v() == 0b1001:
             self.SUB()
-        elif self.opr == 0b1010:
+        elif self.opr.bo().v() == 0b1010:
             self.LD()
-        elif self.opr == 0b1011:
+        elif self.opr.bo().v() == 0b1011:
             self.XCH()
-        elif self.opr == 0b1100:
+        elif self.opr.bo().v() == 0b1100:
             self.BBL()
-        elif self.opr == 0b1101:
+        elif self.opr.bo().v() == 0b1101:
             self.LDM()
 
-        elif self.opr == 0b1110:
-            if self.opa == 0b0000:
+        elif self.opr.bo().v() == 0b1110:
+            if self.opa.bo().v() == 0b0000:
                 self.WRM()
-            elif self.opa == 0b0001:
+            elif self.opa.bo().v() == 0b0001:
                 self.WMP()
-            elif self.opa == 0b0010:
+            elif self.opa.bo().v() == 0b0010:
                 self.WRR()
-            elif self.opa == 0b0100:
+            elif self.opa.bo().v() == 0b0100:
                 self.WR0()
-            elif self.opa == 0b0101:
+            elif self.opa.bo().v() == 0b0101:
                 self.WR1()
-            elif self.opa == 0b0110:
+            elif self.opa.bo().v() == 0b0110:
                 self.WR2()
-            elif self.opa == 0b0111:
+            elif self.opa.bo().v() == 0b0111:
                 self.WR3()
-            elif self.opa == 0b1000:
+            elif self.opa.bo().v() == 0b1000:
                 self.SBM()
-            elif self.opa == 0b1001:
+            elif self.opa.bo().v() == 0b1001:
                 self.RDM()
-            elif self.opa == 0b1010:
+            elif self.opa.bo().v() == 0b1010:
                 self.RDR()
-            elif self.opa == 0b1011:
+            elif self.opa.bo().v() == 0b1011:
                 self.ADM()
-            elif self.opa == 0b1100:
+            elif self.opa.bo().v() == 0b1100:
                 self.RD0()
-            elif self.opa == 0b1101:
+            elif self.opa.bo().v() == 0b1101:
                 self.RD1()
-            elif self.opa == 0b1110:
+            elif self.opa.bo().v() == 0b1110:
                 self.RD2()
-            elif self.opa == 0b1111:
+            elif self.opa.bo().v() == 0b1111:
                 self.RD3()
 
-        elif self.opr == 0b1111:
-            if self.opa == 0b0000:
+        elif self.opr.bo().v() == 0b1111:
+            if self.opa.bo().v() == 0b0000:
                 self.CLB()
-            elif self.opa == 0b0001:
+            elif self.opa.bo().v() == 0b0001:
                 self.CLC()
-            elif self.opa == 0b0010:
+            elif self.opa.bo().v() == 0b0010:
                 self.IAC()
-            elif self.opa == 0b0011:
+            elif self.opa.bo().v() == 0b0011:
                 self.CMC()
-            elif self.opa == 0b0100:
+            elif self.opa.bo().v() == 0b0100:
                 self.CMA()
-            elif self.opa == 0b0101:
+            elif self.opa.bo().v() == 0b0101:
                 self.RAL()
-            elif self.opa == 0b0110:
+            elif self.opa.bo().v() == 0b0110:
                 self.RAR()
-            elif self.opa == 0b0111:
+            elif self.opa.bo().v() == 0b0111:
                 self.TCC()
-            elif self.opa == 0b1000:
+            elif self.opa.bo().v() == 0b1000:
                 self.DAC()
-            elif self.opa == 0b1001:
+            elif self.opa.bo().v() == 0b1001:
                 self.TCS()
-            elif self.opa == 0b1010:
+            elif self.opa.bo().v() == 0b1010:
                 self.STC()
-            elif self.opa == 0b1011:
+            elif self.opa.bo().v() == 0b1011:
                 self.DAA()
-            elif self.opa == 0b1100:
+            elif self.opa.bo().v() == 0b1100:
                 self.KBP()
-            elif self.opa == 0b1101:
+            elif self.opa.bo().v() == 0b1101:
                 self.DCL()
 
 
@@ -146,8 +146,8 @@ class i4004:
 
     def JCN(self):
         (insth, instl) = self.fetchInst()
-        invert = bool(self.opa & 0b1000)
-        (zero, cy, test) = (self.opa & 0b0100, self.opa & 0b0010, self.opa & 0b0001)
+        invert = bool(self.opa.bo().v() & 0b1000)
+        (zero, cy, test) = (self.opa.bo().v() & 0b0100, self.opa.bo().v() & 0b0010, self.opa.bo().v() & 0b0001)
         jump = False
         if zero and ((~self.acc & 0b1) ^ invert):
             jump = True
@@ -161,12 +161,12 @@ class i4004:
 
     def FIM(self):
         (datah, datal) = self.fetchInst()
-        self.index_reg[self.opa & 0b1110] = datah
-        self.index_reg[self.opa | 0b0001] = datal
+        self.index_reg[self.opa.bo().v() & 0b1110] = datah
+        self.index_reg[self.opa.bo().v() | 0b0001] = datal
     
     def SRC(self):
-        self.mcs4.setRAMAddr(self.index_reg[self.opa & 0b1110], self.index_reg[self.opa | 0b0001])
-        self.mcs4.setIOAddr(self.index_reg[self.opa & 0b1110])
+        self.mcs4.setRAMAddr(self.index_reg[self.opa.bo().v() & 0b1110], self.index_reg[self.opa.bo().v() | 0b0001])
+        self.mcs4.setIOAddr(self.index_reg[self.opa.bo().v() & 0b1110])
 
     def FIN(self):
         (addrh, addrl) = self.mcs4.getROM(self.addr.getPH(), self.index_reg[0], self.index_reg[1])
@@ -174,11 +174,11 @@ class i4004:
         self.addr.setPL(addrl)
 
     def JIN(self):
-        self.addr.setPM(self.index_reg[self.opa & 0b1110])
-        self.addr.setPL(self.index_reg[self.opa | 0b0001])
+        self.addr.setPM(self.index_reg[self.opa.bo().v() & 0b1110])
+        self.addr.setPL(self.index_reg[self.opa.bo().v() | 0b0001])
 
     def JUN(self):
-        self.addr.setPH(self.opa)
+        self.addr.setPH(self.opa.bo().v())
         (insth, instl) = self.fetchInst()
         self.addr.setPM(insth)
         self.addr.setPL(instl)
@@ -187,46 +187,46 @@ class i4004:
         (insth, instl) = self.fetchInst()
         # Now PC points to the instruction after the jump
         self.addr.incSP()
-        self.addr.setPH(self.opa)
+        self.addr.setPH(self.opa.bo().v())
         self.addr.setPM(insth)
         self.addr.setPL(instl)
 
     def INC(self):
-        sum = self.index_reg[self.opa] + 1
-        self.index_reg[self.opa] = sum & 0xF
+        sum = self.index_reg[self.opa.bo().v()] + 1
+        self.index_reg[self.opa.bo().v()] = sum & 0xF
 
     def ISZ(self):
-        sum = self.index_reg[self.opa] + 1
-        self.index_reg[self.opa] = sum & 0xF
+        sum = self.index_reg[self.opa.bo().v()] + 1
+        self.index_reg[self.opa.bo().v()] = sum & 0xF
         (insth, instl) = self.fetchInst()
-        if self.index_reg[self.opa]:
+        if self.index_reg[self.opa.bo().v()]:
             self.addr.setPM(insth)
             self.addr.setPL(instl)
 
     def ADD(self):
-        sum = self.acc + self.index_reg[self.opa] + self.cy
+        sum = self.acc + self.index_reg[self.opa.bo().v()] + self.cy
         self.cy = sum >> 4
         self.acc = sum & 0xF
 
     def SUB(self):
-        sum = self.acc + (~self.index_reg[self.opa] & 0xF) + (~self.cy & 0b1)
+        sum = self.acc + (~self.index_reg[self.opa.bo().v()] & 0xF) + (~self.cy & 0b1)
         self.cy = sum >> 4
         self.acc = sum & 0xF
 
     def LD(self):
-        self.acc = self.index_reg[self.opa]
+        self.acc = self.index_reg[self.opa.bo().v()]
 
     def XCH(self):
-        tmp = self.index_reg[self.opa]
-        self.index_reg[self.opa] = self.acc
+        tmp = self.index_reg[self.opa.bo().v()]
+        self.index_reg[self.opa.bo().v()] = self.acc
         self.acc = tmp
 
     def BBL(self):
         self.addr.decSP()
-        self.acc = self.opa 
+        self.acc = self.opa.bo().v() 
 
     def LDM(self):
-        self.acc = self.opa
+        self.acc = self.opa.bo().v()
 
 
     def WRM(self):
@@ -362,13 +362,15 @@ class i4004:
     def run(self):
         nb = 0
         while (True):
-            (self.opr, self.opa) = self.fetchInst()
+            (opr, opa) = self.fetchInst()
+            self.opr.bo().v(opr)
+            self.opa.bo().v(opa)
             self.mcs4.dump(nb)
             self.decodeInst()
             nb += 1
 
     def dump(self, inst):
         print("\nINST #{}".format(inst))
-        print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4}  RAM(CM):{:04b}".format(self.opr, self.opa, self.addr.sp, 
+        print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4}  RAM(CM):{:04b}".format(self.opr.bo().v(), self.opa.bo().v(), self.addr.sp, 
             (self.addr.getPH()*16*16 + self.addr.getPM()*16 + self.addr.getPL()), self.cm_ram.bo().v()), end = '')
         print("  ACC/CY:{:04b}/{}  INDEX:{}".format(self.acc, self.cy, "".join(["{:x}".format(x) for x in self.index_reg])))
