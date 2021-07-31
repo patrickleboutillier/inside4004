@@ -4,15 +4,15 @@ from hdl import *
 
 
 class i4004:
-    def __init__(self, mcs4, data, ram_lines):
+    def __init__(self, mcs4, data_lines, ram_lines):
         self.mcs4 = mcs4
-        self.data = data
-        self.addr = addr.addr(data)
+        self.data = data_lines
+        self.addr = addr.addr(self.data)
         self.index_reg = [0] * 16
         self.cy = 0
         self.acc = 0
-        self.opr = reg(data, wire(), bus(), "OPR")
-        self.opa = reg(data, wire(), bus(), "OPA")
+        self.opr = reg(self.data, wire(), bus(), "OPR")
+        self.opa = reg(self.data, wire(), bus(), "OPA")
         self.cm_ram = reg(bus(), wire(), ram_lines, "CM-RAM")
         # Initialize CM-RAM to 1 (see DCL)
         self.cm_ram.bi().v(1)
