@@ -1,3 +1,5 @@
+import os
+
 # A simple DSL assembler for the Intel 4004.
 
 class reg:
@@ -17,15 +19,18 @@ _insts = []
 _labels = {}
 _pc = 0
 _err = False
+_asm_hex = (os.environ.get('ASM_HEX') is not None)
+
 
 def _done():
-    global _pca
+    global _pc
     if _err:
         return
     _pc = 0
     for (opr, opa, addr, desc) in _insts:
         if opr is None and opa is None and addr is None: # Label
-            print("        \t# --@0d{:04}: Label '{}'".format(_pc, desc))
+            if not _asm_hex:
+                print("        \t# --@0d{:04}: Label '{}'".format(_pc, desc))
         else:
             if addr is not None:    # resolve labels if present
                 label = ''
@@ -40,7 +45,10 @@ def _done():
             if opa is None:
                 opa = addr >> 8
             inst = opr << 4 | opa
-            print("{:08b}\t# 0x{:02x}@0d{:04}: {}".format(inst, inst, _pc, desc))
+            if _asm_hex:
+                print("{:02X}".format(inst))
+            else:
+                print("{:08b}\t# 0x{:02x}@0d{:04}: {}".format(inst, inst, _pc, desc))
             _pc += 1
 
 def _grow_insts():

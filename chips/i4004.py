@@ -1,5 +1,5 @@
 import sys
-import chips.i4004parts.addr as addr
+import chips.modules.addr as addr
 from hdl import *
 
 
