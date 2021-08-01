@@ -1,10 +1,15 @@
 import sys
 
+# A simple system of wires and sensors on which we will build a simple HDL:
+# - Wires conduct values towards sensors, which react and may in turn send values through other wires.
+# - Wires can have names, which must be unique, and can be looked-up by their name
+# - Some wires are constants, i.e. VCC and GND. Their values cannot be changed
+#   - This also means that their values cannot propagate, and they must be used directly when required. 
 
-WIRES = []
-WIRE_NAMES = {}
-BUSES = []
-BUS_NAMES = {}
+
+_WIRES = []
+_NAMES = {}
+_CONST = {}
 
 
 class sensor:
@@ -21,15 +26,15 @@ class wire(sensor):
     def __init__(self, name="", v=0):
         self._v = v
         self._name = name
-        self._sensors = []
-        WIRES.append(self)
+        self._sensors = {}
+        _WIRES.append(self)
         if self._name != "": 
-            if name in WIRE_NAMES: 
+            if name in _NAMES: 
                 sys.exit("A wire with name '{}' already exists!".format(name))
-            WIRE_NAMES[name] = self
+            _NAMES[name] = self
 
     def v(self, v=None):
-        if v != None and self._v != v:
+        if v != None and self._v != v and (not self in _CONST):
             self._v = int(bool(v))
             for s in self._sensors:
                 if type(s) is wire:
@@ -39,64 +44,17 @@ class wire(sensor):
         return self._v
 
     def connect(self, sensor):
-        self._sensors.append(sensor)
-
-    def drive(self, sensor):
-        self.connect(sensor)
-
-    def find(name):
-        return WIRE_NAMES[name]
-
-
-class bus:
-    def __init__(self, name="", n=4):
-        self._name = name
-        self._n = n
-        self._wires = []
-        for i in range(n-1, -1, -1):
-            wname = name
-            if wname != "":
-                wname = wname + "[" + str(i) + "]"
-            self._wires.append(wire(wname))
-        BUSES.append(self)
-        if self._name != "": 
-            if name in BUS_NAMES: 
-                sys.exit("A bus with name '{}' already exists!".format(name))
-            BUS_NAMES[name] = self
-
-    def len(self):
-        return self._n
-
-    def wire(self, n):  # LSB is 0
-        idx = len(self._wires) - 1 - n
-        return self._wires[idx]
-
-    def make(wires):
-        that = bus("", 0)
-        that._n = len(wires)
-        that._wires = wires
-        return that
-
-    def v(self, v=None):
-        if v != None:
-            for w in self._wires[::-1]:
-                w.v(v & 0x1)
-                v = v >> 1
-        v = 0 
-        for w in self._wires:
-            v = v << 1
-            v = v | w.v()
-        return v
-
-    def connect(self, sensor):
-        for w in self._wires:
-            w.connect(sensor)
+        if not sensor in self._sensors: 
+            self._sensors[sensor] = True
+            if type(sensor) is wire:
+                sensor.connect(self)
 
     def find(name):
-        return BUS_NAMES[name]
-
+        return _NAMES[name]
 
 
 
 wire.GND = wire("GND")
+_CONST[wire.GND] = True
 wire.VCC = wire("VCC", 1)
+_CONST[wire.VCC] = True

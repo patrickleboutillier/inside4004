@@ -4,22 +4,34 @@ from hdl import *
 
 
 class i4004:
-    def __init__(self, mcs4, data_lines, ram_lines):
+    def __init__(self, mcs4):
         self.mcs4 = mcs4
-        self.data = data_lines
-        self.addr = addr.addr(self.data)
+        self._data = bus("DATA")
+        self.addr = addr.addr(self._data)
         self.index_reg = [0] * 16
         self.cy = 0
         self.acc = 0
-        self.opr = reg(self.data, wire(), bus(), "OPR")
-        self.opa = reg(self.data, wire(), bus(), "OPA")
-        self.cm_ram = reg(bus(), wire(), ram_lines, "CM-RAM")
+        self.opr = reg(self._data, wire(), bus(), "OPR")
+        self.opa = reg(self._data, wire(), bus(), "OPA")
+        self._cm_rom = mem(wire(), wire(), wire("CM-ROM"), "CM-ROM")
+        self._cm_ram = reg(bus(), wire(), bus("CM-RAM"), "CM-RAM")
         # Initialize CM-RAM to 1 (see DCL)
-        self.cm_ram.bi().v(1)
-        self.cm_ram.s().v(1)
-        self.cm_ram.s().v(0)
-        self.test = 0
+        self._cm_ram.bi().v(1)
+        self._cm_ram.s().v(1)
+        self._cm_ram.s().v(0)
+        self.test = wire()
 
+    def data(self):
+        return self._data
+
+    def cm_rom(self):
+        return self._cm_rom.o()
+
+    def cm_ram(self):
+        return self._cm_ram.bo()
+
+    def test(self):
+        return test
 
     def fetchInst(self, incPC=True):
         (insth, instl) = self.mcs4.fetchInst(self.addr.getPH(), self.addr.getPM(), self.addr.getPL())
@@ -340,24 +352,24 @@ class i4004:
             self.acc = 15
 
     def DCL(self):
-        self.cm_ram.s().v(1)
+        self._cm_ram.s().v(1)
         if self.acc & 0b0111 == 0:
-            self.cm_ram.bi().v(1)
+            self._cm_ram.bi().v(1)
         elif self.acc & 0b0111 == 1:
-            self.cm_ram.bi().v(2)
+            self._cm_ram.bi().v(2)
         elif self.acc & 0b0111 == 2:
-            self.cm_ram.bi().v(4)
+            self._cm_ram.bi().v(4)
         elif self.acc & 0b0111 == 3:
-            self.cm_ram.bi().v(3)
+            self._cm_ram.bi().v(3)
         elif self.acc & 0b0111 == 4:
-            self.cm_ram.bi().v(8)
+            self._cm_ram.bi().v(8)
         elif self.acc & 0b0111 == 5:
-            self.cm_ram.bi().v(10)
+            self._cm_ram.bi().v(10)
         elif self.acc & 0b0111 == 6:
-            self.cm_ram.bi().v(12)
+            self._cm_ram.bi().v(12)
         elif self.acc & 0b0111 == 7:
-            self.cm_ram.bi().v(14)
-        self.cm_ram.s().v(0)
+            self._cm_ram.bi().v(14)
+        self._cm_ram.s().v(0)
 
     def run(self):
         nb = 0
@@ -372,5 +384,5 @@ class i4004:
     def dump(self, inst):
         print("\nINST #{}".format(inst))
         print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4}  RAM(CM):{:04b}".format(self.opr.bo().v(), self.opa.bo().v(), self.addr.sp, 
-            (self.addr.getPH()*16*16 + self.addr.getPM()*16 + self.addr.getPL()), self.cm_ram.bo().v()), end = '')
+            (self.addr.getPH()*16*16 + self.addr.getPM()*16 + self.addr.getPL()), self._cm_ram.bo().v()), end = '')
         print("  ACC/CY:{:04b}/{}  INDEX:{}".format(self.acc, self.cy, "".join(["{:x}".format(x) for x in self.index_reg])))

@@ -2,14 +2,15 @@ import fileinput
 from hdl import *
 
 class i4001:
-    def __init__(self, id, iocfg, data):
-        self.data = data
-        self.id = id
-        self.addrh = 0
-        self.addrl = 0
-        self.rom = [0] * 256
+    def __init__(self, id, iocfg):
+        self._id = id
+        self._data = bus()
+        self._addrh = reg(bus(), wire(), bus())
+        self._addrl = reg(bus(), wire(), bus())
+        self._rom = [0] * 256
+        self._cm_rom = wire()
         self._input = bus()
-        self._output = reg(bus(), wire(), bus(), "OUTPUT")
+        self._output = reg(bus(), wire(), bus())
         ios = []
         for n in range(3, -1, -1):
             if iocfg & (1 << n):
@@ -18,11 +19,11 @@ class i4001:
                 ios.append(self._output.bo().wire(n))
         self._io = bus.make(ios)
 
-    # def input(self):
-    #     return self._input
+    def data(self):
+        return self._data
 
-    # def output(self):
-    #     return self._output
+    def cm_rom(self):
+        return self._cm_rom
 
     def io(self):
         return self._io 
@@ -32,31 +33,35 @@ class i4001:
         for line in fileinput.input():
             inst = line[0:8]
             if inst[0] in ['0', '1']:
-                self.rom[addr] = int(inst, 2)
+                self._rom[addr] = int(inst, 2)
                 addr += 1
                 if addr == 256:
                     break
         return addr
 
     def setROMAddrHigh(self):
-        self.addrh = self.data.v()
+        self._addrh.bi().v(self._data.v())
+        self._addrh.s().v(1)
+        self._addrh.s().v(0)
 
     def setROMAddrLow(self):
-        self.addrl = self.data.v()
+        self._addrl.bi().v(self._data.v())
+        self._addrl.s().v(1)
+        self._addrl.s().v(0)
 
     def enableROMHigh(self):
-        self.data.v(self.rom[self.addrh << 4 | self.addrl] >> 4)
+        self._data.v(self._rom[self._addrh.bo().v() << 4 | self._addrl.bo().v()] >> 4)
 
     def enableROMLow(self):
-        self.data.v(self.rom[self.addrh << 4 | self.addrl] & 0xF)
+        self._data.v(self._rom[self._addrh.bo().v() << 4 | self._addrl.bo().v()] & 0xF)
 
     def enableIO(self):
-        self.data.v(self._input.v())
+        self._data.v(self._input.v())
 
     def setIO(self):
-        self._output.bi().v(self.data.v())
+        self._output.bi().v(self._data.v())
         self._output.s().v(1)
         self._output.s().v(0)
 
     def dump(self):
-        print("ROM {:x}: INPUT.OUTPUT:{:04b}/{:04b}  ".format(self.id, self._input.v(), self._output.bo().v()), end = "")
+        print("ROM {:x}: IO:{:04b}  ".format(self._id, self._io.v()), end = "")
