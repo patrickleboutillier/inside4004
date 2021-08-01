@@ -54,7 +54,7 @@ class wire(sensor):
 
 
 
-wire.GND = wire("GND")
+wire.GND = wire("GND", 0)
 _CONST[wire.GND] = True
 wire.VCC = wire("VCC", 1)
 _CONST[wire.VCC] = True

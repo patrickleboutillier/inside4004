@@ -6,3 +6,4 @@ from .buf import *
 from .mem import *
 from .reg import *
 from .shftreg import *
+from .decoder import *

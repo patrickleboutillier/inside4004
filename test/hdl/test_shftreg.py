@@ -2,7 +2,7 @@ import unittest
 from hdl import *
 
 
-class TestReg(unittest.TestCase):
+class TestShftReg(unittest.TestCase):
 
     def test_shftreg(self):
         # Basic test for Shift Register circuit.

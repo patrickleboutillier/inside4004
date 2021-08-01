@@ -37,6 +37,9 @@ class i4001:
                 addr += 1
                 if addr == 256:
                     break
+        # Finish of with NOPs
+        for x in range(addr, 256):
+            self._rom[x] = 0
         return addr
 
     def setROMAddrHigh(self):
