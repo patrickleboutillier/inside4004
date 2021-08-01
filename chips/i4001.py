@@ -2,7 +2,7 @@ import fileinput
 from hdl import *
 
 class i4001:
-    def __init__(self, id, data):
+    def __init__(self, id, iocfg, data):
         self.data = data
         self.id = id
         self.addrh = 0
@@ -10,12 +10,22 @@ class i4001:
         self.rom = [0] * 256
         self._input = bus()
         self._output = reg(bus(), wire(), bus(), "OUTPUT")
+        ios = []
+        for n in range(3, -1, -1):
+            if iocfg & (1 << n):
+                ios.append(self._input.wire(n))
+            else:
+                ios.append(self._output.bo().wire(n))
+        self._io = bus.make(ios)
 
-    def input(self):
-        return self._input
+    # def input(self):
+    #     return self._input
 
-    def output(self):
-        return self._output
+    # def output(self):
+    #     return self._output
+
+    def io(self):
+        return self._io 
 
     def program(self):
         addr = 0

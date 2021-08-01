@@ -12,20 +12,21 @@ class MCS4:
         self.rom_line = wire("ROM_LINE")
         self.ram_chip = 0                   # This represents the currently active RAM chip
         self.ram_lines = bus("RAM_LINES")
-        self.PROM = [i4001.i4001(0, self.data), i4001.i4001(1, self.data), i4001.i4001(2, self.data), i4001.i4001(3, self.data)]
+        self.PROM = [i4001.i4001(0, 0b1111, self.data), i4001.i4001(1, 0b1111, self.data), i4001.i4001(2, 0b0000, self.data), i4001.i4001(3, 0b1111, self.data)]
         self.RAM = [None, [i4002.i4002(0, 0, self.data), i4002.i4002(0, 1, self.data)]]
         self.CPU = i4004.i4004(self, self.data, self.ram_lines)
         # Install buffers between the RAM outputs and the ROM inputs
         for i in range(4):
-            buf(self.RAM[1][0].output().bo().wire(i), self.PROM[0].input().wire(i)) 
-            buf(self.RAM[1][1].output().bo().wire(i), self.PROM[1].input().wire(i))
-            buf(self.PROM[2].output().bo().wire(i), self.PROM[3].input().wire(i))         
+            self.RAM[1][0].output().bo().wire(i).connect(self.PROM[0].io().wire(i))
+            self.RAM[1][1].output().bo().wire(i).connect(self.PROM[1].io().wire(i))       
+            self.PROM[2].io().wire(i).connect(self.PROM[3].io().wire(i))
 
         if self.PROM[0].program() == 0:
             sys.exit("ERROR: No instructions loaded!") 
         elif len(self.PROM) > 1:
             for p in self.PROM[1:]:
                 p.program()
+        # TODO: Make sure stdin is empty
 
     def setROMAddrHigh(self, addr):
         self.rom_chip_rom = addr

@@ -7,7 +7,17 @@ BUSES = []
 BUS_NAMES = {}
 
 
-class wire:
+class sensor:
+    def __init__(self, name, *wires):
+        self._name = name
+        for w in wires:
+            w.connect(self)
+
+    def name():
+        return self._name
+
+
+class wire(sensor):
     def __init__(self, name="", v=0):
         self._v = v
         self._name = name
@@ -22,11 +32,17 @@ class wire:
         if v != None and self._v != v:
             self._v = int(bool(v))
             for s in self._sensors:
-                s.always()
+                if type(s) is wire:
+                    s.v(self._v)
+                else:
+                    s.always()
         return self._v
 
     def connect(self, sensor):
         self._sensors.append(sensor)
+
+    def drive(self, sensor):
+        self.connect(sensor)
 
     def find(name):
         return WIRE_NAMES[name]
@@ -55,6 +71,12 @@ class bus:
         idx = len(self._wires) - 1 - n
         return self._wires[idx]
 
+    def make(wires):
+        that = bus("", 0)
+        that._n = len(wires)
+        that._wires = wires
+        return that
+
     def v(self, v=None):
         if v != None:
             for w in self._wires[::-1]:
@@ -73,14 +95,7 @@ class bus:
     def find(name):
         return BUS_NAMES[name]
 
-class sensor:
-    def __init__(self, name, *wires):
-        self._name = name
-        for w in wires:
-            w.connect(self)
 
-    def name():
-        return self._name
 
 
 wire.GND = wire("GND")

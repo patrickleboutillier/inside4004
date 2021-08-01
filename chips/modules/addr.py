@@ -26,7 +26,7 @@ class addr:
 
     def incPC(self):
         pc = self.stack[self.sp]['h'] << 8 | self.stack[self.sp]['m'] << 4 | self.stack[self.sp]['l']
-        pc = pc + 1 
+        pc = pc + 1
         self.stack[self.sp]['h'] = pc >> 8
         self.stack[self.sp]['m'] = pc >> 4 & 0xF
         self.stack[self.sp]['l'] = pc & 0xF
