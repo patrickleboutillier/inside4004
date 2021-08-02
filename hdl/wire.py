@@ -23,7 +23,7 @@ class sensor:
 
 
 class wire(sensor):
-    def __init__(self, name="", v=0):
+    def __init__(self, name="", v=None):
         self._v = v
         self._name = name
         self._sensors = {}
@@ -41,7 +41,7 @@ class wire(sensor):
                     s.v(self._v)
                 else:
                     s.always()
-        return self._v
+        return 0 if self._v is None else self._v
 
     def connect(self, sensor):
         if not sensor in self._sensors: 
