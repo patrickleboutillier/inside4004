@@ -7,3 +7,4 @@ from .mem import *
 from .reg import *
 from .shftreg import *
 from .decoder import *
+from .mux import *

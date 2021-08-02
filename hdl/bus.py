@@ -29,6 +29,9 @@ class bus:
         idx = len(self._wires) - 1 - n
         return self._wires[idx]
 
+    def wires(self):
+        return self._wires
+        
     def make(wires):
         that = bus("", 0)
         that._n = len(wires)

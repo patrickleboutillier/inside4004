@@ -1,13 +1,17 @@
 import fileinput
 from hdl import *
 
+
 class i4001:
     def __init__(self, id, iocfg):
         self._id = id
         self._data = bus()
         self._addrh = reg(bus(), wire(), bus())
         self._addrl = reg(bus(), wire(), bus())
-        self._rom = [0] * 256
+        # addr is just a concatenation of addrh and addrl into a single bus
+        self._addr = bus.make(self._addrh.bo().wires() + self._addrl.bo().wires())
+        self._cur_romh = bus()
+        self._cur_roml = bus()
         self._cm_rom = wire()
         self._input = bus()
         self._output = reg(bus(), wire(), bus())
@@ -30,16 +34,36 @@ class i4001:
 
     def program(self):
         addr = 0
+        romh = []
+        roml = []
         for line in fileinput.input():
             inst = line[0:8]
             if inst[0] in ['0', '1']:
-                self._rom[addr] = int(inst, 2)
+                bh = bus.make([wire.GND if c == '0' else wire.VCC for c in inst[0:4]])
+                bl = bus.make([wire.GND if c == '0' else wire.VCC for c in inst[4:8]])
+                romh.append(bh)
+                roml.append(bl)
                 addr += 1
                 if addr == 256:
                     break
-        # Finish of with NOPs
-        for x in range(addr, 256):
-            self._rom[x] = 0
+        # Finish off with NOPs
+        for _ in range(addr, 256):
+            romh.append(bus.make([wire.GND] * 8))
+            roml.append(bus.make([wire.GND] * 8))
+
+        romh.reverse()
+        roml.reverse()
+        muxhis = [[], [], [], []]
+        muxlis = [[], [], [], []]
+        for i in range(256):
+            for j in range(4):
+                muxhis[j].append(romh[i].wire(7-j))
+                muxlis[j].append(roml[i].wire(3-j))
+            
+        for j in range(4):
+            mux(bus.make(muxhis[j]), self._addr, self._cur_romh.wire(3-j))
+            mux(bus.make(muxlis[j]), self._addr, self._cur_roml.wire(3-j))
+
         return addr
 
     def setROMAddrHigh(self):
@@ -53,10 +77,10 @@ class i4001:
         self._addrl.s().v(0)
 
     def enableROMHigh(self):
-        self._data.v(self._rom[self._addrh.bo().v() << 4 | self._addrl.bo().v()] >> 4)
+        self._data.v(self._cur_romh.v())
 
     def enableROMLow(self):
-        self._data.v(self._rom[self._addrh.bo().v() << 4 | self._addrl.bo().v()] & 0xF)
+        self._data.v(self._cur_roml.v())
 
     def enableIO(self):
         self._data.v(self._input.v())

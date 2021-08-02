@@ -12,7 +12,6 @@ class TestDecoder(unittest.TestCase):
             decoder(bi, bo)
 
             for x in range(0, n2):
-                print(n, n2)
                 bi.v(x)
                 res = 1 << x
                 self.assertEqual(bo.v(), res, "decoder({:>0{w1}b})={:0>{w2}b}".format(x, res, w1=n, w2=n2))
