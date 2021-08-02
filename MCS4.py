@@ -1,4 +1,4 @@
-import sys
+import sys, fileinput
 import chips.i4001 as i4001, chips.i4002 as i4002, chips.i4004 as i4004
 from hdl import *
 
@@ -16,6 +16,7 @@ class MCS4:
 
         self._PROM = []
         self._RAM = [None, [], [], None, [], None, None, None, []]
+        self._SR = []
       
 
     def addROM(self, rom):
@@ -28,6 +29,9 @@ class MCS4:
         self._RAM[idx].append(ram)
         ram.data().connect(self._data)
         ram.cm().connect(self._cm_ram.wire(bank))
+
+    def addSR(self, sr):
+        self._SR.append(sr)
 
 
     def setROMAddrHigh(self, addr):
@@ -107,15 +111,17 @@ class MCS4:
         return self.getROM(ph, pm, pl)
 
     def program(self):
-        if self._PROM[0].program() == 0:
+        fi = fileinput.input()
+        if self._PROM[0].program(fi) == 0:
             sys.exit("ERROR: No instructions loaded!") 
         elif len(self._PROM) > 1:
             for p in self._PROM[1:]:
-                p.program()
+                p.program(fi)
         # TODO: Make sure stdin is empty
+        fi.close()
 
-    def run(self):
-        self._CPU.run()
+    def run(self, step=False):
+        self._CPU.run(step)
 
     def dump(self, nb):
         self._CPU.dump(nb)
@@ -123,4 +129,7 @@ class MCS4:
         self._RAM[1][1].dump()
         for r in self._PROM:
             r.dump()
+        print()
+        for s in self._SR:
+            s.dump()
         print()

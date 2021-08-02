@@ -32,11 +32,11 @@ class i4001:
     def io(self):
         return self._io 
 
-    def program(self):
+    def program(self, fi):
         addr = 0
         romh = []
         roml = []
-        for line in fileinput.input():
+        for line in fi:
             inst = line[0:8]
             if inst[0] in ['0', '1']:
                 bh = bus.make([wire.GND if c == '0' else wire.VCC for c in inst[0:4]])

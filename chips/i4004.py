@@ -165,7 +165,7 @@ class i4004:
             jump = True
         if cy and (self.cy ^ invert):
             jump = True
-        if test and (self.test ^ invert):
+        if test and (self.test.v() ^ invert):
             jump = True
         if jump:
             self.addr.setPM(insth)
@@ -371,7 +371,7 @@ class i4004:
             self._cm_ram.bi().v(14)
         self._cm_ram.s().v(0)
 
-    def run(self):
+    def run(self, step=False):
         nb = 0
         while (True):
             (opr, opa) = self.fetchInst()
@@ -383,6 +383,7 @@ class i4004:
 
     def dump(self, inst):
         print("\nINST #{}".format(inst))
-        print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4}  RAM(CM):{:04b}".format(self.opr.bo().v(), self.opa.bo().v(), self.addr.sp, 
-            (self.addr.getPH()*16*16 + self.addr.getPM()*16 + self.addr.getPL()), self._cm_ram.bo().v()), end = '')
+        pc = self.addr.getPH()*16*16 + self.addr.getPM()*16 + self.addr.getPL()
+        print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4} ({:03x})  RAM(CM):{:04b}".format(self.opr.bo().v(), self.opa.bo().v(), self.addr.sp, 
+            pc, pc, self._cm_ram.bo().v()), end = '')
         print("  ACC/CY:{:04b}/{}  INDEX:{}".format(self.acc, self.cy, "".join(["{:x}".format(x) for x in self.index_reg])))
