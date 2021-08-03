@@ -48,7 +48,13 @@ class TestPrinter(unittest.TestCase):
         p.input().v(0x00010) ; p.fireHammers()
         self.assertEqual(p.peekLine(), "1.4142135623730 SQ T  ") ; p.nextSector()
         p.input().v(0x00000) ; p.fireHammers()
-        self.assertEqual(p.peekLine(), "1.4142135623730 SQ T  ") ; p.nextSector()
+        self.assertEqual(p.peekLine(), "1.4142135623730 SQ T  ") ; 
+        s = p.nextSector()
+        self.assertEqual(s, 12) ; 
+        p.input().v(0x00000) ; p.fireHammers()
+        self.assertEqual(p.peekLine(), "1.4142135623730 SQ T  ") ; 
+        s = p.nextSector()
+        self.assertEqual(s, 0) ; 
 
 if __name__ == '__main__':
     unittest.main()
