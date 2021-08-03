@@ -6,6 +6,10 @@ _specialChars = [
     ["#  ", "*  ", "I  ", "II ", "III", "M+ ", "M- ", "T  ", "K  ", "E  ", "Ex ", "C  ", "M  "]
 ]
 
+# Units are CPU cycles
+_sector_pulse =  int((5 * 1000) / 22) 
+_sector_period = int((28 * 1000) / 22) 
+
 
 class printer(sensor):
     def __init__(self, name="printer"):
@@ -18,6 +22,7 @@ class printer(sensor):
 
         self.initLine()
         self._cur_sector = 0 
+        self._cycle = 0
 
     def input(self):
         return self._input
@@ -37,6 +42,23 @@ class printer(sensor):
     def always(self):
         pass
 
+
+    # Called by the MCS-4 before each cycle.
+    def cycle(self):
+        if self._cycle == 0:
+            print(self._cycle, _sector_pulse, _sector_period, self._cur_sector)
+            self._sector.v(0)
+            if self._cur_sector == 0:
+                self._index.v(0)
+        elif self._cycle == _sector_pulse:
+            self._sector.v(1)
+        elif self._cycle == _sector_period:
+            if self._cur_sector == 0:
+                self._index.v(1)
+            self.nextSector()
+            self._cycle = 0
+            return 
+        self._cycle += 1
 
     def nextSector(self):
         self._cur_sector += 1

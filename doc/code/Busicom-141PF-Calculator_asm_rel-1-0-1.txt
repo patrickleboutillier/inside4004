@@ -1291,7 +1291,7 @@
 0f8 e7    jcnf_0f8: wr3			;write the keyboard pressing status
 0f9 28 00           fim 4< $00		;exit from the keyboard check, initialize R6R7 -> WR, R8R9 -> KR
 0fb 26 10           fim 3< $10
-0fd 19 fd jcnb_0fd: jcn TN $0fd		;wait for the active printer drum sector signal
+0fd 19 fd jcnb_0fd: jcn TN $0fd		;wait for the active printer drum sector signal (PL: loop while test=1)
 0ff c0              bbl 0
 
 100 33    subr_100: jin 1<		;jump to the pseudo instruction code associated routine
@@ -1831,7 +1831,7 @@
 26b ae              ld 14
 26c 52 8a           jms $28a		;if R14=R12, shift 1 into printer shifter else shift 0
 
-26e 19 6e jcnb_26e: jcn TN $26e		;wait for the active printer drum sector signal
+26e 19 6e jcnb_26e: jcn TN $26e		;wait for the active printer drum sector signal (PL: loop while test=1)
 270 d2              ldm 2
 271 29              src 4<
 272 e1              wmp			;fire printer hammers

@@ -29,6 +29,6 @@ class keyboard(sensor):
         return self._output
 
     def always(self):
-        print("Scanning keyboard: {:010b}".format(self._input.v()))
-        # If there is only 1 0 bit in input?
-        # set output to to correct key in the colioums
+        for i in range(10):
+            if self._input.wire(i).v() == 0:
+                print("Scanning keyboard column {} {:010b}".format(9-i, self._input.v()))

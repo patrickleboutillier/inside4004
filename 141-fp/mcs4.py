@@ -31,16 +31,27 @@ PROM[1].io().connect(keyboard.output())
 # Printer
 printer = printer.printer()
 # TODO: shift register output to input
+printer.sector().connect(MCS4.CPU().test())
+printer.index().connect(PROM[2].io().wire(0))
 printer.fire().connect(RAM[0].output().wire(1))
 printer.advance().connect(RAM[0].output().wire(3))
 
 # Load the program
 MCS4.program()
 
-
+step = False
 def callback(nb):
-    if nb > 50:
-        input()
+    global step
+    printer.cycle()
+    if (MCS4.CPU().addr.getPC() == 0x029):
+        step = True
+    #if nb > 920:
+        # MCS4.dump(nb)
+    if step:
+        MCS4.dump(nb)
+        s = input()
+        if s == 'cont':
+            step = False
 
 # Run the system
 MCS4.run(callback)

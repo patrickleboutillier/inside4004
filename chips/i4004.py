@@ -19,7 +19,7 @@ class i4004:
         self._cm_ram.bi().v(1)
         self._cm_ram.s().v(1)
         self._cm_ram.s().v(0)
-        self.test = wire()
+        self._test = wire()
 
     def data(self):
         return self._data
@@ -31,7 +31,7 @@ class i4004:
         return self._cm_ram.bo()
 
     def test(self):
-        return test
+        return self._test
 
     def fetchInst(self, incPC=True):
         (insth, instl) = self.mcs4.fetchInst(self.addr.getPH(), self.addr.getPM(), self.addr.getPL())
@@ -152,7 +152,7 @@ class i4004:
         print("HALTED!")
         sys.exit()
 
-    # ERR is used for signaling error conditions. It is mainly ued in the test suite.
+    # ERR is used for signaling error conditions. It is mainly used in the test suite.
     def ERR(self):
         sys.exit("ERROR!")
 
@@ -165,7 +165,7 @@ class i4004:
             jump = True
         if cy and (self.cy ^ invert):
             jump = True
-        if test and (self.test.v() ^ invert):
+        if test and (self._test.v() ^ invert):
             jump = True
         if jump:
             self.addr.setPM(insth)
@@ -382,6 +382,6 @@ class i4004:
     def dump(self, inst):
         print("\nINST #{}".format(inst))
         pc = self.addr.getPH()*16*16 + self.addr.getPM()*16 + self.addr.getPL()
-        print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4} ({:03x})  RAM(CM):{:04b}".format(self.opr.bo().v(), self.opa.bo().v(), self.addr.sp, 
-            pc, pc, self._cm_ram.bo().v()), end = '')
+        print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4} ({:03x})  RAM(CM):{:04b}  TEST:{:b}".format(self.opr.bo().v(), self.opa.bo().v(), self.addr.sp, 
+            pc, pc, self._cm_ram.bo().v(), self._test.v()), end = '')
         print("  ACC/CY:{:04b}/{}  INDEX:{}".format(self.acc, self.cy, "".join(["{:x}".format(x) for x in self.index_reg])))

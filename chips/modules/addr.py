@@ -15,6 +15,9 @@ class addr:
     def getPL(self):
         return self.stack[self.sp]['l']
 
+    def getPC(self):        # For debugging
+        return self.stack[self.sp]['h'] << 8 | self.stack[self.sp]['m'] << 4 | self.stack[self.sp]['l']
+
     def setPH(self, ph):
         self.stack[self.sp]['h'] = ph
 

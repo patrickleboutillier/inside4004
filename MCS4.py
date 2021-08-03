@@ -19,6 +19,9 @@ class MCS4:
         self._SR = []
       
 
+    def CPU(self):
+        return self._CPU
+
     def addROM(self, rom):
         self._PROM.append(rom)
         rom.data().connect(self._data)
@@ -120,13 +123,14 @@ class MCS4:
         # TODO: Make sure stdin is empty
         fi.close()
 
-    def run(self, callback=None):
+    def run(self, callback=None, dump=False):
         nb = 0
         while (True):
             if callback is not None:
                 callback(nb)
             self._CPU.fetch()
-            self.dump(nb)
+            if dump:
+                self.dump(nb)
             self._CPU.execute()
             nb += 1
 
