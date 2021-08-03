@@ -1,4 +1,5 @@
 import chips.i4001 as i4001, chips.i4002 as i4002, chips.i4003 as i4003, chips.i4004 as i4004
+import chips.keyboard as keyboard, chips.printer as printer
 import MCS4
 from hdl import *
 
@@ -16,11 +17,30 @@ for r in RAM:
     MCS4.addRAM(0, r)
 
 # Create keyboard 4003
-kbd = i4003.i4003("KB")
-kbd.clock().connect(PROM[0].io().wire(0))
-kbd.data_in().connect(PROM[0].io().wire(1))
-kbd.enable().v(1)
-MCS4.addSR(kbd)
+kbdsr = i4003.i4003("KB")
+kbdsr.clock().connect(PROM[0].io().wire(0))
+kbdsr.data_in().connect(PROM[0].io().wire(1))
+kbdsr.enable().v(1)
+MCS4.addSR(kbdsr)
 
+# Keyboard
+keyboard = keyboard.keyboard()
+keyboard.input().connect(kbdsr.parallel_out())
+PROM[1].io().connect(keyboard.output())
+
+# Printer
+printer = printer.printer()
+# TODO: shift register output to input
+printer.fire().connect(RAM[0].output().wire(1))
+printer.advance().connect(RAM[0].output().wire(3))
+
+# Load the program
 MCS4.program()
-MCS4.run()
+
+
+def callback(nb):
+    if nb > 50:
+        input()
+
+# Run the system
+MCS4.run(callback)
