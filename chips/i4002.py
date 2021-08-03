@@ -18,9 +18,9 @@ class i4002:
 
     def cm(self):
         return self._cm
-        
+
     def output(self):
-        return self._output
+        return self._output.bo()
 
     def setReg(self):
         self._reg = self._data.v() & 0b0011

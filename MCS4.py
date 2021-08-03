@@ -120,8 +120,15 @@ class MCS4:
         # TODO: Make sure stdin is empty
         fi.close()
 
-    def run(self, step=False):
-        self._CPU.run(step)
+    def run(self, callback=None):
+        nb = 0
+        while (True):
+            if callback is not None:
+                callback(nb)
+            self._CPU.fetch()
+            self.dump(nb)
+            self._CPU.execute()
+            nb += 1
 
     def dump(self, nb):
         self._CPU.dump(nb)

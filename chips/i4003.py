@@ -1,7 +1,7 @@
 from hdl import *
 
 
-class i4003:
+class i4003(sensor):
     def __init__(self, name=""):
         self._tmp_out = bus(n=10)
         sensor.__init__(self, name, self._tmp_out)
@@ -10,15 +10,16 @@ class i4003:
         self._parallel_out = bus(n=10)
         self._serial_out = wire()
         self._enable = wire()
-        self._reg = shftreg(self._clock, self._data_in, self._tmp_out)
-        # Connect data_in to serial_out to allow daisy-chaining.
-        self._data_in.connect(self._serial_out)
+        self._reg = shftreg(self._clock, self._data_in, self._tmp_out, self._serial_out)
 
     def clock(self):
         return self._clock
 
     def data_in(self):
         return self._data_in
+
+    def parallel_out(self):
+        return self._parallel_out
 
     def enable(self):
         return self._enable

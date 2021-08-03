@@ -17,8 +17,8 @@ for r in RAM:
 
 # Connect input and outputs for our test cases
 for i in range(4):
-    RAM[0].output().bo().wire(i).connect(PROM[0].io().wire(i))
-    RAM[1].output().bo().wire(i).connect(PROM[1].io().wire(i))       
+    RAM[0].output().wire(i).connect(PROM[0].io().wire(i))
+    RAM[1].output().wire(i).connect(PROM[1].io().wire(i))       
     PROM[2].io().wire(i).connect(PROM[3].io().wire(i))
 
 

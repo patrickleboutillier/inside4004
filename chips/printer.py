@@ -41,6 +41,7 @@ class printer(sensor):
     def nextSector(self):
         self._cur_sector += 1
         self._cur_sector = self._cur_sector % 13
+        return self._cur_sector
 
     def fireHammers(self):
         for i in range(20):

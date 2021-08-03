@@ -371,15 +371,13 @@ class i4004:
             self._cm_ram.bi().v(14)
         self._cm_ram.s().v(0)
 
-    def run(self, step=False):
-        nb = 0
-        while (True):
-            (opr, opa) = self.fetchInst()
-            self.opr.bo().v(opr)
-            self.opa.bo().v(opa)
-            self.mcs4.dump(nb)
-            self.decodeInst()
-            nb += 1
+    def fetch(self):
+        (opr, opa) = self.fetchInst()
+        self.opr.bo().v(opr)
+        self.opa.bo().v(opa)
+
+    def execute(self):
+        self.decodeInst()
 
     def dump(self, inst):
         print("\nINST #{}".format(inst))
