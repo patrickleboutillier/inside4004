@@ -49,12 +49,12 @@ class printer(sensor):
             print(self._cycle, _sector_pulse, _sector_period, self._cur_sector)
             self._sector.v(0)
             if self._cur_sector == 0:
-                self._index.v(0)
+                self._index.v(1)
         elif self._cycle == _sector_pulse:
             self._sector.v(1)
         elif self._cycle == _sector_period:
             if self._cur_sector == 0:
-                self._index.v(1)
+                self._index.v(0)
             self.nextSector()
             self._cycle = 0
             return 

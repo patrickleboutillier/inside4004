@@ -15,12 +15,27 @@ from hdl import *
 ;bit9		sw1		        (unused)	(unused)	    sw2	(rounding switch, value 0,1,8 can be switched)
 ;----------------------------------------------------------------------------------------------------------------------------------
 '''
+_lookup = [
+    ["CM",  "RM", "M-",     "M+"],
+    ["SQ",  "%",  "M=-",    "M=+"],
+    ["<>",  "/",  "*",      "="],
+    ["-",   "+",  "#",      "000"],
+    ["9",   "6",  "3",      "."],
+    ["8",   "5",  "2",      "00"],
+    ["7",   "4",  "1",      "0"],
+    ["S",   "EX", "CE",     "C"]
+]
+for c in _lookup:
+    c.reverse()
+
 
 class keyboard(sensor):
     def __init__(self, name="keyboard"):
         self._input = bus(n=10)
         sensor.__init__(self, name, self._input)
         self._output = bus()
+        self._buffer = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0],
+            [0, 0, 0, 0], [0, 0, 0, 0]] 
 
     def input(self):
         return self._input
@@ -31,4 +46,25 @@ class keyboard(sensor):
     def always(self):
         for i in range(10):
             if self._input.wire(i).v() == 0:
-                print("Scanning keyboard column {} {:010b}".format(9-i, self._input.v()))
+                print("Scanning keyboard bit {} {:010b}".format(i, self._input.v()))
+                for j in range(4):
+                    self._output.wire(3-j).v(self._buffer[i][j])
+                    self._buffer[i][j] = 0
+                    print("  Output set to {}".format(self._output.v()))
+
+
+    def readKey(self):
+        global _lookup
+        print(self._buffer)
+        k = input("Press a button on the keyboard: ")
+        k = k.strip()
+        if k != "":
+            for c in range(8):
+                for r in range(4):
+                    s = _lookup[c][r]
+                    if k == s:
+                        print("  Key press '{}' recorded.".format(k))
+                        self._buffer[c][r] = 1
+                        #print(self._buffer)
+                        return
+            print("  Unknown key '{}'!".format(k))

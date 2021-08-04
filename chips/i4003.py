@@ -10,7 +10,7 @@ class i4003(sensor):
         self._parallel_out = bus(n=10)
         self._serial_out = wire()
         self._enable = wire()
-        self._reg = shftreg(self._clock, self._data_in, self._tmp_out, self._serial_out)
+        self._reg = shftreg(self._clock, self._data_in, self._tmp_out, self._serial_out, self._name)
 
     def clock(self):
         return self._clock
@@ -20,6 +20,9 @@ class i4003(sensor):
 
     def parallel_out(self):
         return self._parallel_out
+
+    def serial_out(self):
+        return self._serial_out
 
     def enable(self):
         return self._enable

@@ -158,10 +158,10 @@ class i4004:
 
     def JCN(self):
         (insth, instl) = self.fetchInst()
-        invert = bool(self.opa.bo().v() & 0b1000)
+        invert = (self.opa.bo().v() & 0b1000) >> 3
         (zero, cy, test) = (self.opa.bo().v() & 0b0100, self.opa.bo().v() & 0b0010, self.opa.bo().v() & 0b0001)
         jump = False
-        if zero and ((~self.acc & 0b1) ^ invert):
+        if zero and ((0 if self.acc else 1) ^ invert):
             jump = True
         if cy and (self.cy ^ invert):
             jump = True
@@ -181,17 +181,17 @@ class i4004:
         self.mcs4.setIOAddr(self.index_reg[self.opa.bo().v() & 0b1110])
 
     def FIN(self):
-        (addrh, addrl) = self.mcs4.getROM(self.addr.getPH(), self.index_reg[0], self.index_reg[1])
-        self.addr.setPM(addrh)
-        self.addr.setPL(addrl)
+        (datah, datal) = self.mcs4.getROM(self.addr.getPH(), self.index_reg[0], self.index_reg[1])
+        self.index_reg[self.opa.bo().v() & 0b1110] = datah
+        self.index_reg[self.opa.bo().v() | 0b0001] = datal
 
     def JIN(self):
         self.addr.setPM(self.index_reg[self.opa.bo().v() & 0b1110])
         self.addr.setPL(self.index_reg[self.opa.bo().v() | 0b0001])
 
     def JUN(self):
+        (insth, instl) = self.fetchInst() 
         self.addr.setPH(self.opa.bo().v())
-        (insth, instl) = self.fetchInst()
         self.addr.setPM(insth)
         self.addr.setPL(instl)
 

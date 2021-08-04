@@ -28,6 +28,18 @@ keyboard = keyboard.keyboard()
 keyboard.input().connect(kbdsr.parallel_out())
 PROM[1].io().connect(keyboard.output())
 
+# Create keyboard 4003s
+psr1 = i4003.i4003("P1")
+psr2 = i4003.i4003("P2")
+psr1.clock().connect(PROM[0].io().wire(2))
+psr2.clock().connect(PROM[0].io().wire(2))
+psr1.data_in().connect(psr2.serial_out())
+psr2.data_in().connect(PROM[0].io().wire(1))
+psr1.enable().v(1)
+psr2.enable().v(1)
+MCS4.addSR(psr1)
+MCS4.addSR(psr2)
+
 # Printer
 printer = printer.printer()
 # TODO: shift register output to input
@@ -39,19 +51,29 @@ printer.advance().connect(RAM[0].output().wire(3))
 # Load the program
 MCS4.program()
 
-step = False
+
+step = True
+dump = False
+fire_hammers = 0x272
+key_found = 0x2a
+
 def callback(nb):
     global step
     printer.cycle()
-    if (MCS4.CPU().addr.getPC() == 0x029):
+    if (MCS4.CPU().addr.getPC() == 0x0bd) and (RAM[0]._status[0][3] == 0): # Before keyboard scanning
+        keyboard.readKey()
+    if MCS4.CPU().addr.getPC() in [key_found, fire_hammers, 0x292]:
         step = True
-    #if nb > 920:
-        # MCS4.dump(nb)
+
     if step:
         MCS4.dump(nb)
         s = input()
-        if s == 'cont':
-            step = False
+        if s == 'c':
+            pass
+            # step = False
+    elif dump:
+       MCS4.dump(nb)
+
 
 # Run the system
 MCS4.run(callback)
