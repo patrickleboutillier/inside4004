@@ -14,11 +14,11 @@ _sector_period = int((28 * 1000) / 22)
 class printer(sensor):
     def __init__(self, name="printer"):
         self._input = bus(n=20)
-        sensor.__init__(self, name, self._input)
         self._sector = wire()
         self._index = wire()
         self._fire = wire()
         self._advance = wire()
+        sensor.__init__(self, name, self._fire, self._advance)
 
         self.initLine()
         self._cur_sector = 0 
@@ -40,13 +40,14 @@ class printer(sensor):
         return self._advance
 
     def always(self):
-        pass
-
+        if self._fire.v():
+            self.fireHammers()
+        if self._advance.v():
+            self.advanceLine()
 
     # Called by the MCS-4 before each cycle.
     def cycle(self):
         if self._cycle == 0:
-            print(self._cycle, _sector_pulse, _sector_period, self._cur_sector)
             self._sector.v(0)
             if self._cur_sector == 0:
                 self._index.v(1)
@@ -79,7 +80,7 @@ class printer(sensor):
     def advanceLine(self):
         # print previous line
         line = self.peekLine()
-        print(line)
+        print(">>> ", line)
         self.initLine()
 
     def punchChar(self, bit):
@@ -99,7 +100,7 @@ class printer(sensor):
                 return('.', bit-3)
             else:
                 return('-', bit-3)
-        return None
+        return (None, -1)
 
 
 '''

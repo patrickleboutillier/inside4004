@@ -46,16 +46,13 @@ class keyboard(sensor):
     def always(self):
         for i in range(10):
             if self._input.wire(i).v() == 0:
-                print("Scanning keyboard bit {} {:010b}".format(i, self._input.v()))
                 for j in range(4):
                     self._output.wire(3-j).v(self._buffer[i][j])
                     self._buffer[i][j] = 0
-                    print("  Output set to {}".format(self._output.v()))
 
 
     def readKey(self):
         global _lookup
-        print(self._buffer)
         k = input("Press a button on the keyboard: ")
         k = k.strip()
         if k != "":
@@ -65,6 +62,5 @@ class keyboard(sensor):
                     if k == s:
                         print("  Key press '{}' recorded.".format(k))
                         self._buffer[c][r] = 1
-                        #print(self._buffer)
                         return
             print("  Unknown key '{}'!".format(k))

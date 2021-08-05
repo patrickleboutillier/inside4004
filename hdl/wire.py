@@ -33,15 +33,19 @@ class wire(sensor):
                 sys.exit("A wire with name '{}' already exists!".format(name))
             _NAMES[name] = self
 
-    def v(self, v=None):
+    def v(self, v=None, propagate=True):
         if v != None and self._v != v and (not self in _CONST):
             self._v = int(bool(v))
+            if propagate:
+                self.propagate()
+        return 0 if self._v is None else self._v
+
+    def propagate(self):
             for s in self._sensors:
                 if type(s) is wire:
                     s.v(self._v)
                 else:
                     s.always()
-        return 0 if self._v is None else self._v
 
     def connect(self, sensor):
         if not sensor in self._sensors: 

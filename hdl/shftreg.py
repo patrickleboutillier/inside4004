@@ -25,6 +25,8 @@ class shftreg(sensor):
     def always(self):
         if self._clk.v():
             # clk went from 0 to 1
+            #if self._name != "KB":
+            # print("shift reg clk: {} = {}/{}".format(self._name, self._bo.v(), self._i.v()))
             n = self._bo.v()
             n = (n << 1) | self._i.v()
             self._obo.v(n)        

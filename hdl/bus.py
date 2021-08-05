@@ -41,8 +41,10 @@ class bus:
     def v(self, v=None):
         if v != None:
             for w in self._wires[::-1]:
-                w.v(v & 0x1)
+                w.v(v & 0x1, False)
                 v = v >> 1
+            for w in self._wires[::-1]:
+                w.propagate()
         v = 0
         for w in self._wires:
             v = v << 1

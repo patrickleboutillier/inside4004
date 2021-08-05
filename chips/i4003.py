@@ -2,11 +2,11 @@ from hdl import *
 
 
 class i4003(sensor):
-    def __init__(self, name=""):
+    def __init__(self, name="", clock=None, data_in=None):
         self._tmp_out = bus(n=10)
         sensor.__init__(self, name, self._tmp_out)
-        self._clock = wire()
-        self._data_in = wire()
+        self._clock = wire() if clock is None else clock
+        self._data_in = wire() if data_in is None else data_in
         self._parallel_out = bus(n=10)
         self._serial_out = wire()
         self._enable = wire()
