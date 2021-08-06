@@ -29,16 +29,21 @@ class wire(sensor):
         self._sensors = {}
         _WIRES.append(self)
         if self._name != "": 
-            if name in _NAMES: 
+            if name in _NAMES:
                 sys.exit("A wire with name '{}' already exists!".format(name))
             _NAMES[name] = self
 
     def v(self, v=None, propagate=True):
-        if v != None and self._v != v and (not self in _CONST):
-            self._v = int(bool(v))
-            if propagate:
-                self.propagate()
-        return 0 if self._v is None else self._v
+        if v != None:
+            if self._v != v and (not self in _CONST):
+                self._v = int(bool(v))
+                if propagate:
+                    self.propagate()
+                return True
+            else:
+                return False    
+        else:
+            return 0 if self._v is None else self._v
 
     def propagate(self):
             for s in self._sensors:

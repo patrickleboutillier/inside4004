@@ -24,3 +24,5 @@ asm:
 calc:
 	python 141-fp/mcs4.py 141-fp/ROM.bin
 
+calcp:
+	python -m cProfile 141-fp/mcs4.py 141-fp/ROM.bin

@@ -40,11 +40,14 @@ class bus:
 
     def v(self, v=None):
         if v != None:
+            changed = []
             for w in self._wires[::-1]:
-                w.v(v & 0x1, False)
+                if w.v(v & 0x1, False):
+                    changed.append(w)
                 v = v >> 1
-            for w in self._wires[::-1]:
+            for w in changed:
                 w.propagate()
+            return v
         v = 0
         for w in self._wires:
             v = v << 1

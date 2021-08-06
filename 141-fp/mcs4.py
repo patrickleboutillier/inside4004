@@ -6,6 +6,7 @@ from hdl import *
 
 MCS4 = MCS4.MCS4()
 CPU = MCS4.CPU()
+test = MCS4.CPU().test()
 
 # Create 5 ROMs
 PROM = [i4001.i4001(0, 0b0000), i4001.i4001(1, 0b1111), i4001.i4001(2, 0b1111), i4001.i4001(3, 0b0000), i4001.i4001(4, 0b0000)]
@@ -53,6 +54,7 @@ printer.sector().connect(CPU.test())
 printer.index().connect(PROM[2].io().wire(0))
 printer.fire().connect(RAM[0].output().wire(1))
 printer.advance().connect(RAM[0].output().wire(3))
+printer.color().connect(RAM[0].output().wire(0))
 
 # Load the program
 MCS4.program()
@@ -63,15 +65,30 @@ dump = False
 fire_hammers = 0x272
 key_found = 0x2a
 advance = 0x24d
+wait_for_start_sector_pulse = [0x001, 0x22c, 0x23f, 0x24b]
+wait_for_end_sector_pulse = [0x0fd, 0x26e]
 
 def callback(nb):
     global step
-    printer.cycle()
+    if CPU.addr.getPC() in wait_for_start_sector_pulse and test.v() == 0:
+        printer.endSectorPeriod()
+        printer.startSectorPulse()
+    elif CPU.addr.getPC() in wait_for_end_sector_pulse and test.v() == 1:
+        printer.endSectorPulse()
+    else:
+        if CPU.addr.getPC() in [0x22c]:
+            print("wait in 22c")
+        printer.cycle()
+
     if (CPU.addr.getPC() == 0x0bd) and (RAM[0]._status[0][3] == 0) and (CPU.index_reg[14] == 0) and (CPU.index_reg[15] == 0): # Before keyboard scanning
-        # MCS4.dump(nb)
-        keyboard.readKey()
-    #if CPU.addr.getPC() in [advance]: # , 0x292
-    #    step = True
+        MCS4.dump(nb)
+        k = keyboard.readKey()
+        if k == 'q':
+            sys.exit()
+
+    #if CPU.addr.getPC() in [0x001, 0x003]: # , 0x292
+    #    MCS4.dump(nb)
+        # step = True
 
     if step:
         MCS4.dump(nb)

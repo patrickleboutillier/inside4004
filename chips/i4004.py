@@ -11,7 +11,7 @@ class i4004:
         self.index_reg = [0] * 16
         self.cy = 0
         self.acc = 0
-        self.opr = reg(self._data, wire(), bus(), "OPR")
+        self.opr = 0 # reg(self._data, wire(), bus(), "OPR")
         self.opa = reg(self._data, wire(), bus(), "OPA")
         self._cm_rom = mem(wire(), wire(), wire("CM-ROM"), "CM-ROM")
         self._cm_ram = reg(bus(), wire(), bus("CM-RAM"), "CM-RAM")
@@ -40,7 +40,8 @@ class i4004:
         return (insth, instl)
 
     def decodeInst(self):
-        if self.opr.bo().v() == 0b0000:
+        opr = self.opr # .bo().v() 
+        if opr == 0b0000:
             if self.opa.bo().v() == 0b0000:
                 self.NOP()
             elif self.opa.bo().v() == 0b0001:
@@ -48,40 +49,40 @@ class i4004:
             elif self.opa.bo().v() == 0b0010:
                 self.ERR()
 
-        elif self.opr.bo().v() == 0b0001:
+        elif opr == 0b0001:
             self.JCN()
-        elif self.opr.bo().v() == 0b0010:
+        elif opr == 0b0010:
             if not (self.opa.bo().v() & 0b1):
                 self.FIM()
             elif self.opa.bo().v() & 0b1:
                 self.SRC()
-        elif self.opr.bo().v() == 0b0011:
+        elif opr == 0b0011:
             if not (self.opa.bo().v() & 0b1):
                 self.FIN()
             elif self.opa.bo().v() & 0b1:
                 self.JIN()
-        elif self.opr.bo().v() == 0b0100:
+        elif opr == 0b0100:
             self.JUN()
-        elif self.opr.bo().v() == 0b0101:
+        elif opr == 0b0101:
             self.JMS()
-        elif self.opr.bo().v() == 0b0110:
+        elif opr == 0b0110:
             self.INC()
-        elif self.opr.bo().v() == 0b0111:
+        elif opr == 0b0111:
             self.ISZ()
-        elif self.opr.bo().v() == 0b1000:
+        elif opr == 0b1000:
             self.ADD()
-        elif self.opr.bo().v() == 0b1001:
+        elif opr == 0b1001:
             self.SUB()
-        elif self.opr.bo().v() == 0b1010:
+        elif opr == 0b1010:
             self.LD()
-        elif self.opr.bo().v() == 0b1011:
+        elif opr == 0b1011:
             self.XCH()
-        elif self.opr.bo().v() == 0b1100:
+        elif opr == 0b1100:
             self.BBL()
-        elif self.opr.bo().v() == 0b1101:
+        elif opr == 0b1101:
             self.LDM()
 
-        elif self.opr.bo().v() == 0b1110:
+        elif opr == 0b1110:
             if self.opa.bo().v() == 0b0000:
                 self.WRM()
             elif self.opa.bo().v() == 0b0001:
@@ -113,7 +114,7 @@ class i4004:
             elif self.opa.bo().v() == 0b1111:
                 self.RD3()
 
-        elif self.opr.bo().v() == 0b1111:
+        elif opr == 0b1111:
             if self.opa.bo().v() == 0b0000:
                 self.CLB()
             elif self.opa.bo().v() == 0b0001:
@@ -165,7 +166,7 @@ class i4004:
             jump = True
         if cy and (self.cy ^ invert):
             jump = True
-        if test and (self._test.v() ^ invert):
+        if test and ((~self._test.v() & 0x1) ^ invert):
             jump = True
         if jump:
             self.addr.setPM(insth)
@@ -373,7 +374,7 @@ class i4004:
 
     def fetch(self):
         (opr, opa) = self.fetchInst()
-        self.opr.bo().v(opr)
+        self.opr = opr
         self.opa.bo().v(opa)
 
     def execute(self):
@@ -382,6 +383,7 @@ class i4004:
     def dump(self, inst):
         print("\nINST #{}".format(inst))
         pc = self.addr.getPH()*16*16 + self.addr.getPM()*16 + self.addr.getPL()
-        print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4} ({:03x})  RAM(CM):{:04b}  TEST:{:b}".format(self.opr.bo().v(), self.opa.bo().v(), self.addr.sp, 
+        print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4} ({:03x})  RAM(CM):{:04b}  TEST:{:b}".format(self.opr, self.opa.bo().v(), self.addr.sp, 
             pc, pc, self._cm_ram.bo().v(), self._test.v()), end = '')
         print("  ACC/CY:{:04b}/{}  INDEX:{}".format(self.acc, self.cy, "".join(["{:x}".format(x) for x in self.index_reg])))
+        print(self.addr.stack)

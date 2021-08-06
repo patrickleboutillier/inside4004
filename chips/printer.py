@@ -7,8 +7,8 @@ _specialChars = [
 ]
 
 # Units are CPU cycles
-_sector_pulse =  int((5 * 1000) / 22) 
-_sector_period = int((28 * 1000) / 22) 
+_sector_pulse =  int((5 * 1000) / 22)   # 5, 22
+_sector_period = int((28 * 1000) / 22)  # 28, 22
 
 
 class printer(sensor):
@@ -18,11 +18,13 @@ class printer(sensor):
         self._index = wire()
         self._fire = wire()
         self._advance = wire()
-        sensor.__init__(self, name, self._fire, self._advance)
+        self._color = wire()
+        sensor.__init__(self, name, self._fire, self._advance, self._color)
 
         self.initLine()
         self._cur_sector = 0 
         self._cycle = 0
+        self._cur_color = ' '
 
     def input(self):
         return self._input
@@ -38,28 +40,51 @@ class printer(sensor):
 
     def advance(self):
         return self._advance
+ 
+    def color(self):
+        return self._color
 
     def always(self):
         if self._fire.v():
             self.fireHammers()
         if self._advance.v():
             self.advanceLine()
+            self._cur_color = ' '   # Reset line color
+        if self._color.v():
+            self._cur_color = 'R'   # Set color to "red", meaning negative value.
 
     # Called by the MCS-4 before each cycle.
     def cycle(self):
         if self._cycle == 0:
-            self._sector.v(0)
-            if self._cur_sector == 0:
-                self._index.v(1)
+            self.startSectorPulse()
+            return
         elif self._cycle == _sector_pulse:
-            self._sector.v(1)
+            self.endSectorPulse()
+            return
         elif self._cycle == _sector_period:
-            if self._cur_sector == 0:
-                self._index.v(0)
-            self.nextSector()
-            self._cycle = 0
-            return 
+            self.endSectorPeriod()
+            return
+        else:
+            self._cycle += 1
+
+    def startSectorPulse(self):
+        self._cycle = 0
+        self._sector.v(1)
+        if self._cur_sector == 0:
+            self._index.v(1)
         self._cycle += 1
+
+    def endSectorPulse(self):
+        self._cycle = _sector_pulse
+        self._sector.v(0)
+        self._cycle += 1
+
+    def endSectorPeriod(self):
+        self._cycle = _sector_period
+        if self._cur_sector == 0:
+            self._index.v(0)
+        self.nextSector()
+        self._cycle = 0
 
     def nextSector(self):
         self._cur_sector += 1
@@ -80,7 +105,7 @@ class printer(sensor):
     def advanceLine(self):
         # print previous line
         line = self.peekLine()
-        print(">>> ", line)
+        print(">>>", self._cur_color, line)
         self.initLine()
 
     def punchChar(self, bit):

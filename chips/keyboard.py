@@ -34,8 +34,10 @@ class keyboard(sensor):
         self._input = bus(n=10)
         sensor.__init__(self, name, self._input)
         self._output = bus()
+        self._dp_sw = [0, 0, 1, 1]        # Digital point switch position
+        self._rnd_sw = [0, 0, 0, 0]       # Rounding switch position
         self._buffer = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0],
-            [0, 0, 0, 0], [0, 0, 0, 0]] 
+            self._dp_sw, self._rnd_sw] 
 
     def input(self):
         return self._input
@@ -48,7 +50,8 @@ class keyboard(sensor):
             if self._input.wire(i).v() == 0:
                 for j in range(4):
                     self._output.wire(3-j).v(self._buffer[i][j])
-                    self._buffer[i][j] = 0
+                    if i < 8:   # Don't reset the switches!
+                        self._buffer[i][j] = 0
 
 
     def readKey(self):
@@ -62,5 +65,6 @@ class keyboard(sensor):
                     if k == s:
                         print("  Key press '{}' recorded.".format(k))
                         self._buffer[c][r] = 1
-                        return
+                        return k
             print("  Unknown key '{}'!".format(k))
+        return k

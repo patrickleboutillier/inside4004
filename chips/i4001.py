@@ -6,10 +6,11 @@ class i4001:
     def __init__(self, id, iocfg):
         self._id = id
         self._data = bus()
-        self._addrh = reg(bus(), wire(), bus())
-        self._addrl = reg(bus(), wire(), bus())
+        self._addrh = 0 # reg(bus(), wire(), bus())
+        self._addrl = 0 # reg(bus(), wire(), bus())
         # addr is just a concatenation of addrh and addrl into a single bus
-        self._addr = bus.make(self._addrh.bo().wires() + self._addrl.bo().wires())
+        # elf._addr = bus.make(self._addrh.bo().wires() + self._addrl.bo().wires())
+        self._rom = [0] * 256
         self._cur_romh = bus()
         self._cur_roml = bus()
         self._cm_rom = wire()
@@ -33,6 +34,20 @@ class i4001:
         return self._io 
 
     def program(self, fi):
+        addr = 0
+        for line in fi:
+            inst = line[0:8]
+            if inst[0] in ['0', '1']:
+                self._rom[addr] = int(inst, 2)
+                addr += 1
+                if addr == 256:
+                    break
+        # Finish of with NOPs
+        for x in range(addr, 256):
+            self._rom[x] = 0
+        return addr
+
+    def programDist(self, fi):
         addr = 0
         romh = []
         roml = []
@@ -67,20 +82,22 @@ class i4001:
         return addr
 
     def setROMAddrHigh(self):
-        self._addrh.bi().v(self._data.v())
-        self._addrh.s().v(1)
-        self._addrh.s().v(0)
+        self._addrh = self._data.v() # .bi().v(self._data.v())
+        #self._addrh.s().v(1)
+        #self._addrh.s().v(0)
 
     def setROMAddrLow(self):
-        self._addrl.bi().v(self._data.v())
-        self._addrl.s().v(1)
-        self._addrl.s().v(0)
+        self._addrl = self._data.v() # .bi().v(self._data.v())
+        #self._addrl.s().v(1)
+        #self._addrl.s().v(0)
 
     def enableROMHigh(self):
-        self._data.v(self._cur_romh.v())
+        self._data.v(self._rom[self._addrh << 4 | self._addrl] >> 4)
+        # self._data.v(self._cur_romh.v())
 
     def enableROMLow(self):
-        self._data.v(self._cur_roml.v())
+        self._data.v(self._rom[self._addrh << 4 | self._addrl] & 0xF)
+        # self._data.v(self._cur_roml.v())
 
     def enableIO(self):
         self._data.v(self._input.v())
