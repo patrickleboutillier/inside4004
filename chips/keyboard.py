@@ -30,17 +30,15 @@ for c in _lookup:
 
 
 class keyboard(sensor):
-    def __init__(self, name="keyboard"):
-        self._input = bus(n=10)
-        sensor.__init__(self, name, self._input)
+    def __init__(self, input):
+        self._input = input
+        sensor.__init__(self, self._input)
         self._output = bus()
         self._dp_sw = [0, 0, 1, 1]        # Digital point switch position
         self._rnd_sw = [0, 0, 0, 0]       # Rounding switch position
         self._buffer = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0],
             self._dp_sw, self._rnd_sw] 
 
-    def input(self):
-        return self._input
 
     def output(self):
         return self._output

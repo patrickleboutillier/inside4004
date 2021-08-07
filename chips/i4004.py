@@ -4,34 +4,23 @@ from hdl import *
 
 
 class i4004:
-    def __init__(self, mcs4):
+    def __init__(self, mcs4, data, cm_rom, cm_ram, test):
         self.mcs4 = mcs4
-        self._data = bus("DATA")
+        self._data = data
         self.addr = addr.addr(self._data)
         self.index_reg = [0] * 16
         self.cy = 0
         self.acc = 0
         self.opr = 0 # reg(self._data, wire(), bus(), "OPR")
-        self.opa = reg(self._data, wire(), bus(), "OPA")
-        self._cm_rom = mem(wire(), wire(), wire("CM-ROM"), "CM-ROM")
-        self._cm_ram = reg(bus(), wire(), bus("CM-RAM"), "CM-RAM")
+        self.opa = reg(self._data, wire(), bus())
+        self._cm_rom = reg(bus(1), wire(), cm_rom)
+        self._cm_ram = reg(bus(), wire(), cm_ram)
         # Initialize CM-RAM to 1 (see DCL)
         self._cm_ram.bi().v(1)
         self._cm_ram.s().v(1)
         self._cm_ram.s().v(0)
-        self._test = wire()
+        self._test = test
 
-    def data(self):
-        return self._data
-
-    def cm_rom(self):
-        return self._cm_rom.o()
-
-    def cm_ram(self):
-        return self._cm_ram.bo()
-
-    def test(self):
-        return self._test
 
     def fetchInst(self, incPC=True):
         (insth, instl) = self.mcs4.fetchInst(self.addr.getPH(), self.addr.getPM(), self.addr.getPL())

@@ -2,22 +2,17 @@ from hdl import *
 
 
 class i4002:
-    def __init__(self, bank, chip):
-        self._data = bus()
-        self._cm = wire()
+    def __init__(self, bank, chip, data, cm):
+        self._data = data
+        self._cm = cm
         self._bank = bank
         self._chip = chip
         self._reg = 0
         self._char = 0
         self._ram = [[0] * 16, [0] * 16, [0] * 16, [0] * 16]
         self._status = [[0] * 4, [0] * 4, [0] * 4, [0] * 4]
-        self._output = reg(bus(), wire(), bus(), "OUTPUT")
+        self._output = reg(bus(), wire(), bus())
 
-    def data(self):
-        return self._data
-
-    def cm(self):
-        return self._cm
 
     def output(self):
         return self._output.bo()

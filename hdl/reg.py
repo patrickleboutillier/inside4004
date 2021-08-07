@@ -2,14 +2,12 @@ from hdl import *
 
 
 class reg():
-    def __init__(self, bi, s, bo, name=""):
-        sensor.__init__(self, name, bi, s)
+    def __init__(self, bi, s, bo):
+        sensor.__init__(self, bi, s)
         self._bi = bi
         self._s = s
         self._bo = bo
-        # Problems with shift registers
-        # for i in range(bo.len()-1, -1, -1):
-        #     mem(bi.wire(i), self._s, bo.wire(i), "{}.mem[{}]".format(name, i))
+
 
     def bi(self):
         return self._bi

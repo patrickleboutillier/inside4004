@@ -2,8 +2,8 @@ from hdl import *
 
 
 class buf(sensor):
-    def __init__(self, i, o, name=""):
-        sensor.__init__(self, name, i)
+    def __init__(self, i, o):
+        sensor.__init__(self, i)
         self._i = i
         self._o = o
 
