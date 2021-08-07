@@ -1,3 +1,4 @@
+import sys
 from hdl import *
 
 '''
@@ -30,18 +31,24 @@ for c in _lookup:
 
 
 class keyboard(sensor):
-    def __init__(self, input):
+    def __init__(self, input, lights):
+        sensor.__init__(self, input)
         self._input = input
-        sensor.__init__(self, self._input)
+        self._lights = lights
         self._output = bus()
+        self._advance = wire()
         self._dp_sw = [0, 0, 0, 0]        # Digital point switch position
         self._rnd_sw = [0, 0, 0, 0]       # Rounding switch position
         self._buffer = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0],
             self._dp_sw, self._rnd_sw] 
+        self._key_buffer = []
 
 
     def output(self):
         return self._output
+
+    def advance(self):
+        return self._advance
 
     def always(self):
         for i in range(10):
@@ -51,32 +58,35 @@ class keyboard(sensor):
                     if i < 8:   # Don't reset the switches!
                         self._buffer[i][j] = 0
 
+    def setKeyBuffer(self, buffer):
+        self._key_buffer += buffer.split(",")
 
-    def readKey(self, extra):
-        global _lookup
-        k = input("Press a button on the keyboard: ")
-        k = k.strip()
-        if k != "":
-            if k == "d":
-                return self.incDP()
-            if k == "r":
-                return self.incRND()
-            for c in range(8):
-                for r in range(4):
-                    s = _lookup[c][r]
-                    if k == s:
-                        print("  Key press '{}' recorded.".format(k))
-                        self._buffer[c][r] = 1
-                        return k
-            if k not in extra:
-                print("  Unknown key '{}'!".format(k))
-        return k
+    def readKey(self):
+        if len(self._key_buffer) == 0:
+            k = input("### {} {}: ".format(self.switches(), self._lights.display())).strip()
+            self._key_buffer += k.split(",")
+        if len(self._key_buffer): 
+            k = self._key_buffer.pop(0).strip()
+            if k != "":
+                if k == 'q':
+                    sys.exit()
+                if k == 'd':
+                    self.incDP()
+                elif k == 'r':
+                    self.incRND()
+                else:
+                    for c in range(8):
+                        for r in range(4):
+                            s = _lookup[c][r]
+                            if k == s:
+                                self._buffer[c][r] = 1
+                                return
+                    print("!!! ERROR: Unknown key '{}'!".format(k), file=sys.stderr)
 
     def incDP(self):
         n = int("".join(map(str, self._dp_sw)), 2)
         n = (n + 1) % 9
         self._dp_sw[:] = list(map(int, list("{:04b}".format(n))))
-        print("  Digital point switch set to {}.".format(n))
 
     def incRND(self):
         n = int("".join(map(str, self._rnd_sw)), 2)
@@ -90,4 +100,14 @@ class keyboard(sensor):
             n = 0
             desc = "float"
         self._rnd_sw[:] = list(map(int, list("{:04b}".format(n))))
-        print("  Rounding switch set to {} ({}).".format(n, desc))
+
+    def switches(self):
+        dp = int("".join(map(str, self._dp_sw)), 2)
+        rnd = int("".join(map(str, self._rnd_sw)), 2)
+        if rnd == 0:
+            r = "F"
+        elif rnd == 1:
+            r = "R"
+        else:
+            r = "T"
+        return "DP[{}] RND[{}]".format(dp, r)

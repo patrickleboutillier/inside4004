@@ -1,6 +1,6 @@
-import sys
+import sys, os
 import chips.i4001 as i4001, chips.i4002 as i4002, chips.i4003 as i4003, chips.i4004 as i4004
-import chips.keyboard as keyboard, chips.printer as printer
+import chips.keyboard as keyboard, chips.printer as printer, chips.lights as lights
 import MCS4
 from hdl import *
 
@@ -22,16 +22,24 @@ RAM = [i4002.i4002(0, 0, data, cm_ram.wire(0)), i4002.i4002(0, 1, data, cm_ram.w
 for r in RAM:
     MCS4.addRAM(0, r)
 
+# Lights
+lights = lights.lights(memory=RAM[1].output().wire(0), overflow=RAM[1].output().wire(1), negative=RAM[1].output().wire(2))
+
 # Create keyboard 4003
 kbdsr = i4003.i4003(name="KB", clock=PROM[0].io().wire(0), data_in=PROM[0].io().wire(1), enable=wire(1))
 MCS4.addSR(kbdsr)
 
 # Keyboard
-keyboard = keyboard.keyboard(kbdsr.parallel_out())
+keyboard = keyboard.keyboard(kbdsr.parallel_out(), lights)
 for i in range(4):
     buf(keyboard.output().wire(i), PROM[1].io().wire(i))
+buf(keyboard.advance(), PROM[2].io().wire(3))
+kb = os.environ.get('KEY_BUFFER')
+if kb is not None:
+    keyboard.setKeyBuffer(kb)
 
-# Create keyboard 4003s
+
+# Create printer 4003s
 # Order important here to void race conditions
 psr2 = i4003.i4003(name="P2", clock=PROM[0].io().wire(2), data_in=PROM[0].io().wire(1), enable=wire(1))
 psr1 = i4003.i4003(name="P1", clock=PROM[0].io().wire(2), data_in=psr2.serial_out(), enable=wire(1))
@@ -46,6 +54,7 @@ for i in range(10):
 buf(printer.sector(), test)
 buf(printer.index(), PROM[2].io().wire(0))
 
+
 # Load the program
 MCS4.program()
 
@@ -58,24 +67,26 @@ advance = 0x24d
 wait_for_start_sector_pulse = [0x001, 0x22c, 0x23f, 0x24b]
 wait_for_end_sector_pulse = [0x0fd, 0x26e]
 CPU = MCS4._CPU
+skip = False
 
 
 def callback(nb):
-    global step
+    global step, skip
+    # Save some time waiting for nothing
     if CPU.addr.getPC() in wait_for_start_sector_pulse and test.v() == 0:
-        printer.endSectorPeriod()
-        printer.startSectorPulse()
+       printer.endSectorPeriod()
+       printer.startSectorPulse()
     elif CPU.addr.getPC() in wait_for_end_sector_pulse and test.v() == 1:
         printer.endSectorPulse()
     else:
         printer.cycle()
 
-    if (CPU.addr.getPC() == 0x0bd) and (RAM[0]._status[0][3] == 0) and (CPU.index_reg[14] == 0) and (CPU.index_reg[15] == 0): # Before keyboard scanning
-        # MCS4.dump(nb)
-        # step = True
-        k = keyboard.readKey("q")
-        if k == 'q':
-            sys.exit()
+    if (CPU.addr.getPC() == 0x003) and (RAM[0]._status[0][3] == 0): # Before keyboard scanning in main loop
+        skip = not skip
+        if not skip:
+            # MCS4.dump(nb)
+            # step = True
+            keyboard.readKey()
 
     #if CPU.addr.getPC() in [advance]: # , 0x292
     #    MCS4.dump(nb)

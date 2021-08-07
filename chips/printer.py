@@ -43,7 +43,7 @@ class printer(sensor):
             self.advanceLine()
             self._cur_color = ' '   # Reset line color
         if self._color.v():
-            self._cur_color = 'R'   # Set color to "red", meaning negative value.
+            self._cur_color = '-'   # Set color to "red", meaning negative value.
 
     # Called by the MCS-4 before each cycle.
     def cycle(self):
@@ -98,7 +98,7 @@ class printer(sensor):
     def advanceLine(self):
         # print previous line
         line = self.peekLine()
-        print(">>>", self._cur_color, line)
+        print(">>> {}|{}|".format(self._cur_color, line))
         self.initLine()
 
     def punchChar(self, bit):

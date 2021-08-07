@@ -1,6 +1,8 @@
+SHELL := /bin/bash
+
 .PHONY: hdl asm chips
 
-test: hdl chips asm
+test: hdl chips asm calc
 
 hdl:
 	python -m unittest discover -s test/hdl
@@ -22,7 +24,19 @@ asm:
 	done
 
 calc:
-	python 141-fp/mcs4.py 141-fp/ROM.bin
+	@for t in test/141-fp/[0-9]*.calc ; do echo -n "$$t: " ; \
+		. $$t ; \
+		GOT=$$(./141-fp.sh | grep '\*' | tail -n1) ; \
+		if [ "$$GOT" == "$$EXPECTED" ] ; then \
+			echo OK ; \
+		else \
+			echo "NOK!" ; \
+			echo "  '$$GOT'" ; \
+			echo "  !=" ; \
+			echo "  '$$EXPECTED'" ; \
+			exit 1 ; \
+		fi ; \
+	done
 
-calcp:
-	python -m cProfile 141-fp/mcs4.py 141-fp/ROM.bin
+profile:
+	@python -m cProfile 141-fp/mcs4.py 141-fp/ROM.bin
