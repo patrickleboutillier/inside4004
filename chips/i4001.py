@@ -17,12 +17,6 @@ class i4001:
         else:
             self._io_output = reg(bus(), wire(), self.io())
 
-        #for n in range(4):
-        #    if iocfg & (1 << n): # input
-        #        buf(self._io.wire(n), self._io_input.wire(n))
-        #    else:   # output
-        #        buf(self._io_output.bo().wire(n), self._io.wire(n))
-
 
     def io(self):
         return self._io
