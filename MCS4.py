@@ -9,29 +9,34 @@ class MCS4:
         self._rom_chip_io = 0                # This represents the currently active ROM chip (for IO)
         self._ram_chip = 0                   # This represents the currently active RAM chip
  
-        self._CPU = i4004.i4004(self)
-        self._data = self._CPU.data()
-        self._cm_rom = self._CPU.cm_rom()
-        self._cm_ram = self._CPU.cm_ram()
+        self._data = bus()
+        self._cm_rom = wire()
+        self._cm_ram = bus()
+        self._test = wire()
+        self._CPU = i4004.i4004(self, self._data, self._cm_rom, self._cm_ram, self._test)
 
         self._PROM = []
         self._RAM = [None, [], [], None, [], None, None, None, []]
         self._SR = []
       
+    def data(self):
+        return self._data
 
-    def CPU(self):
-        return self._CPU
+    def cm_rom(self):
+        return self._cm_rom
+
+    def cm_ram(self):
+        return self._cm_ram
+
+    def test(self):
+        return self._test
 
     def addROM(self, rom):
         self._PROM.append(rom)
-        rom.data().connect(self._data)
-        rom.cm_rom().connect(self._cm_rom)  
 
     def addRAM(self, bank, ram):
         idx = 1 << bank
         self._RAM[idx].append(ram)
-        ram.data().connect(self._data)
-        ram.cm().connect(self._cm_ram.wire(bank))
 
     def addSR(self, sr):
         self._SR.append(sr)

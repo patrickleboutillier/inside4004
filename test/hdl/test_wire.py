@@ -12,16 +12,16 @@ class TestWire(unittest.TestCase):
         w.v(0)
         self.assertEqual(w.v(), 0, "power set to false")
 
-        a, b = wire(), wire()
-        a.connect(b)
-        a.v(1)
-        self.assertEqual(b.v(), 1, "connected wires transmit values")
-        b.v(0)
-        self.assertEqual(a.v(), 0, "connected wires transmit values")
+        # a, b = wire(), wire()
+        # a.connect(b)
+        # a.v(1)
+        # self.assertEqual(b.v(), 1, "connected wires transmit values")
+        # b.v(0)
+        # self.assertEqual(a.v(), 0, "connected wires transmit values")
 
-        a.connect(wire.GND)
-        a.v(1)
-        self.assertEqual(wire.GND.v(), 0, "constant wires cannot be changed")        
+        # a.connect(wire.GND)
+        # a.v(1)
+        # self.assertEqual(wire.GND.v(), 0, "constant wires cannot be changed")        
 
 if __name__ == '__main__':
     unittest.main()

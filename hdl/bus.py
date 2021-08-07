@@ -1,66 +1,52 @@
-import sys
-from hdl import *
+import hdl
 
 
-_BUSES = []
-_NAMES = {}
+class sensor:
+    def __init__(self, *buses):
+        for b in buses:
+            bus = b
+            filter = None
+            if type(b) is hdl.wire:
+                bus = b._bus
+                filter = 1 << b._bit
+            bus.connect(self, filter)
 
 
 class bus:
-    def __init__(self, name="", n=4):
-        self._name = name
+    def __init__(self, n=4, v=None):
         self._n = n
-        self._wires = []
-        for i in range(n-1, -1, -1):
-            wname = name
-            if wname != "":
-                wname = wname + "[" + str(i) + "]"
-            self._wires.append(wire(wname))
-        _BUSES.append(self)
-        if self._name != "": 
-            if name in _NAMES: 
-                sys.exit("A bus with name '{}' already exists!".format(name))
-            _NAMES[name] = self
+        self._v = v
+        self._sensors = {}
+        self._wires = {}
 
     def len(self):
         return self._n
 
-    def wire(self, n):  # LSB is 0
-        idx = len(self._wires) - 1 - n
-        return self._wires[idx]
-
-    def wires(self):
-        return self._wires
-        
-    def make(wires):
-        that = bus("", 0)
-        that._n = len(wires)
-        that._wires = wires
-        return that
-
     def v(self, v=None):
-        if v != None:
-            changed = []
-            for w in self._wires[::-1]:
-                if w.v(v & 0x1, False):
-                    changed.append(w)
-                v = v >> 1
-            for w in changed:
-                w.propagate()
-            return v
-        v = 0
-        for w in self._wires:
-            v = v << 1
-            v = v | w.v()
-        return v
+        if v != None:   # set
+            if v != self._v:
+                changed = (2**self._n - 1) if self._v is None else (v ^ self._v)
+                self._v = v
+                for (sensor, filters) in self._sensors.items():
+                    for f in filters:
+                        if f is None or f & changed:    # The sensor is impacted by the change
+                            sensor.always()
+        else:   # get
+            return 0 if self._v is None else self._v
 
-    def connect(self, sensor):
-        if type(sensor) is bus:
-            for i in range(sensor.len()):
-                sensor._wires[i].connect(self._wires[i])
-        else:
-            for w in self._wires:
-                w.connect(sensor)
+    def bit(self, n, v=None):
+        if v != None:   # set
+            v = (self.v() & ~(1 << n)) | v << n
+            self.v(v)
+        else:   # get
+            return (self.v() >> n) & 1            
 
-    def find(name):
-        return _NAMES[name]
+    def wire(self, bit):
+        if bit not in self._wires:
+            self._wires[bit] = hdl.wire(None, self, bit)
+        return self._wires[bit]
+
+    def connect(self, sensor, filter):
+        if not sensor in self._sensors:
+            self._sensors[sensor] = [] 
+        self._sensors[sensor].append(filter)

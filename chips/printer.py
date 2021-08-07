@@ -7,24 +7,25 @@ _specialChars = [
 ]
 
 # Units are CPU cycles
-_sector_pulse =  int((5 * 1000) / 22)   # 5, 22
-_sector_period = int((28 * 1000) / 22)  # 28, 22
+_sector_pulse =  int((5 * 1000) / 22)
+_sector_period = int((28 * 1000) / 22)
 
 
 class printer(sensor):
-    def __init__(self, name="printer"):
+    def __init__(self, fire, advance, color):
+        sensor.__init__(self, fire, advance, color)
         self._input = bus(n=20)
         self._sector = wire()
         self._index = wire()
-        self._fire = wire()
-        self._advance = wire()
-        self._color = wire()
-        sensor.__init__(self, name, self._fire, self._advance, self._color)
+        self._fire = fire
+        self._advance = advance
+        self._color = color
 
         self.initLine()
         self._cur_sector = 0 
         self._cycle = 0
         self._cur_color = ' '
+
 
     def input(self):
         return self._input
@@ -34,15 +35,6 @@ class printer(sensor):
 
     def index(self):
         return self._index
-
-    def fire(self):
-        return self._fire
-
-    def advance(self):
-        return self._advance
- 
-    def color(self):
-        return self._color
 
     def always(self):
         if self._fire.v():
@@ -92,6 +84,7 @@ class printer(sensor):
         return self._cur_sector
 
     def fireHammers(self):
+        # print("{:020b}".format(self._input.v()))
         for i in range(20):
             if self._input.wire(i).v():
                 self.punchChar(i)
