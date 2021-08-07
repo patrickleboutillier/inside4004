@@ -34,7 +34,7 @@ class keyboard(sensor):
         self._input = input
         sensor.__init__(self, self._input)
         self._output = bus()
-        self._dp_sw = [0, 0, 1, 1]        # Digital point switch position
+        self._dp_sw = [0, 0, 0, 0]        # Digital point switch position
         self._rnd_sw = [0, 0, 0, 0]       # Rounding switch position
         self._buffer = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0],
             self._dp_sw, self._rnd_sw] 
@@ -52,11 +52,15 @@ class keyboard(sensor):
                         self._buffer[i][j] = 0
 
 
-    def readKey(self):
+    def readKey(self, extra):
         global _lookup
         k = input("Press a button on the keyboard: ")
         k = k.strip()
         if k != "":
+            if k == "d":
+                return self.incDP()
+            if k == "r":
+                return self.incRND()
             for c in range(8):
                 for r in range(4):
                     s = _lookup[c][r]
@@ -64,5 +68,26 @@ class keyboard(sensor):
                         print("  Key press '{}' recorded.".format(k))
                         self._buffer[c][r] = 1
                         return k
-            print("  Unknown key '{}'!".format(k))
+            if k not in extra:
+                print("  Unknown key '{}'!".format(k))
         return k
+
+    def incDP(self):
+        n = int("".join(map(str, self._dp_sw)), 2)
+        n = (n + 1) % 9
+        self._dp_sw[:] = list(map(int, list("{:04b}".format(n))))
+        print("  Digital point switch set to {}.".format(n))
+
+    def incRND(self):
+        n = int("".join(map(str, self._rnd_sw)), 2)
+        if n == 0:
+            n = 1
+            desc = "round"
+        elif n == 1:
+            n = 8
+            desc = "trunc"
+        else:
+            n = 0
+            desc = "float"
+        self._rnd_sw[:] = list(map(int, list("{:04b}".format(n))))
+        print("  Rounding switch set to {} ({}).".format(n, desc))

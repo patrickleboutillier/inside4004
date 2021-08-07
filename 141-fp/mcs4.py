@@ -73,7 +73,7 @@ def callback(nb):
     if (CPU.addr.getPC() == 0x0bd) and (RAM[0]._status[0][3] == 0) and (CPU.index_reg[14] == 0) and (CPU.index_reg[15] == 0): # Before keyboard scanning
         # MCS4.dump(nb)
         # step = True
-        k = keyboard.readKey()
+        k = keyboard.readKey("q")
         if k == 'q':
             sys.exit()
 
