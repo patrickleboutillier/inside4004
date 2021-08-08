@@ -67,36 +67,34 @@ advance = 0x24d
 wait_for_start_sector_pulse = [0x001, 0x22c, 0x23f, 0x24b]
 wait_for_end_sector_pulse = [0x0fd, 0x26e]
 CPU = MCS4._CPU
-skip = False
+kb_toggle = False
+optimize = False
 
 
 def callback(nb):
-    global step, skip
-    # Save some time waiting for nothing
-    if CPU.addr.getPC() in wait_for_start_sector_pulse and test.v() == 0:
-       printer.endSectorPeriod()
-       printer.startSectorPulse()
-    elif CPU.addr.getPC() in wait_for_end_sector_pulse and test.v() == 1:
-        printer.endSectorPulse()
+    global step, kb_toggle, optimize
+    # Save some time by not waiting for nothing...
+    if optimize:
+        if CPU.addr.getPC() in wait_for_start_sector_pulse and test.v() == 0:
+            printer.endSectorPeriod()
+            printer.startSectorPulse()
+        elif CPU.addr.getPC() in wait_for_end_sector_pulse and test.v() == 1:
+            printer.endSectorPulse()
+        else:
+            printer.cycle()
     else:
         printer.cycle()
 
-    if (CPU.addr.getPC() == 0x003) and (RAM[0]._status[0][3] == 0): # Before keyboard scanning in main loop
-        skip = not skip
-        if not skip:
-            # MCS4.dump(nb)
-            # step = True
+    if (CPU.addr.getPC() == 0x003) and (RAM[0]._status[0][3] == 0): # Before keyboard scanning in main loop, and a button is not currently held down)
+        keyboard.clearAdvance() # In case we "pressed" the paper advance button
+        kb_toggle = not kb_toggle
+        if not kb_toggle:
             keyboard.readKey()
-
-    #if CPU.addr.getPC() in [advance]: # , 0x292
-    #    MCS4.dump(nb)
-    #    step = True
 
     if step:
         MCS4.dump(nb)
         s = input()
         if s == 'c':
-
             # pass
             step = False
     elif dump:

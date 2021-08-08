@@ -61,6 +61,9 @@ class keyboard(sensor):
     def setKeyBuffer(self, buffer):
         self._key_buffer += buffer.split(",")
 
+    def clearAdvance(self):
+        self._advance.v(0)
+        
     def readKey(self):
         if len(self._key_buffer) == 0:
             k = input("### {} {}: ".format(self.switches(), self._lights.display())).strip()
@@ -74,6 +77,8 @@ class keyboard(sensor):
                     self.incDP()
                 elif k == 'r':
                     self.incRND()
+                elif k == 'a':
+                    self._advance.v(1)
                 else:
                     for c in range(8):
                         for r in range(4):
