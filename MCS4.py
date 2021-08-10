@@ -145,8 +145,6 @@ class MCS4:
             for _ in range(3):
                 self.clock.tick(4)
             nb += 1
-            #if nb == 2:
-            #    sys.exit()
 
     def dump(self, nb):
         self.CPU.dump(nb)

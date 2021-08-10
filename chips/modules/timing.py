@@ -24,5 +24,4 @@ class timing(sensor):
             step = self.output.v() << 1
             if step > 128:
                 step = 1
-            # print("STEP {} (PH1:{}, PH2:{}) for {}".format(step, self.ph1(), self.ph2(), self))
             self.output.v(step)

@@ -10,21 +10,17 @@ class i4004(sensor):
         self.timing = timing.timing(ph1, ph2, self.sync)
         # sensor.__init__(self, ph1, ph2, data)
         self.mcs4 = mcs4
-        self._data = data
-        self.addr = addr.addr(self.timing, self._data)
-        self.inst = inst.inst(self, self.timing, self._data)
+        self.data = data
+        self.addr = addr.addr(self, self.timing, self.data)
+        self.inst = inst.inst(self, self.timing, self.data)
         self.index_reg = [0] * 16
         self.cy = 0
         self.acc = 0
 
-        self._cm_rom = reg(bus(1), wire(), cm_rom)
-        self._cm_ram = reg(bus(), wire(), cm_ram)
-        # Initialize CM-RAM to 1 (see DCL)
-        self._cm_ram.bi().v(1)
-        self._cm_ram.s().v(1)
-        self._cm_ram.s().v(0)
+        self.cm_rom = reg(bus(1), wire(), cm_rom)
+        self.cm_ram = reg(bus(v=1), wire(), cm_ram)
 
-        self._test = test
+        self.test = test
 
 
     def always(self):
@@ -153,64 +149,54 @@ class i4004(sensor):
         sys.exit("ERROR!")
 
     def JCN(self):
-        (insth, instl) = self.fetchInst()
-        invert = (self.inst.opa.v & 0b1000) >> 3
-        (zero, cy, test) = (self.inst.opa.v & 0b0100, self.inst.opa.v & 0b0010, self.inst.opa.v & 0b0001)
-        jump = False
-        if zero and ((0 if self.acc else 1) ^ invert):
-            jump = True
-        if cy and (self.cy ^ invert):
-            jump = True
-        if test and ((~self._test.v() & 0x1) ^ invert):
-            jump = True
-        if jump:
-            self.addr.setPM(insth)
-            self.addr.setPL(instl)            
+        self.inst.dc = ~self.inst.dc & 1
+        if self.inst.dc:
+            self.inst.setJCNCond(0 if self.acc else 1, self.cy, ~self.test.v() & 1)      
 
     def FIM(self):
         self.inst.dc = ~self.inst.dc & 1
-        #(datah, datal) = self.fetchInst()
-        #self.index_reg[self.inst.opa.v & 0b1110] = datah
-        #self.index_reg[self.inst.opa.v | 0b0001] = datal
     
     def SRC(self):
         self.mcs4.setRAMAddr(self.index_reg[self.inst.opa.v & 0b1110], self.index_reg[self.inst.opa.v | 0b0001])
         self.mcs4.setIOAddr(self.index_reg[self.inst.opa.v & 0b1110])
 
     def FIN(self):
-        (datah, datal) = self.mcs4.getROM(self.addr.getPH(), self.index_reg[0], self.index_reg[1])
-        self.index_reg[self.inst.opa.v & 0b1110] = datah
-        self.index_reg[self.inst.opa.v | 0b0001] = datal
+        self.inst.dc = ~self.inst.dc & 1
 
     def JIN(self):
         self.addr.setPM(self.index_reg[self.inst.opa.v & 0b1110])
         self.addr.setPL(self.index_reg[self.inst.opa.v | 0b0001])
 
     def JUN(self):
-        (insth, instl) = self.fetchInst() 
-        self.addr.setPH(self.inst.opa.v)
-        self.addr.setPM(insth)
-        self.addr.setPL(instl)
+        self.inst.dc = ~self.inst.dc & 1
+        if not self.inst.dc: # TODO: At X1/ph2?
+            self.addr.setPH(self.inst.opa.v)
 
     def JMS(self):
-        (insth, instl) = self.fetchInst()
-        # Now PC points to the instruction after the jump
-        self.addr.incSP()
-        self.addr.setPH(self.inst.opa.v)
-        self.addr.setPM(insth)
-        self.addr.setPL(instl)
+        self.inst.dc = ~self.inst.dc & 1
+        if not self.inst.dc: # TODO: At X1/ph2?
+            self.addr.setPH(self.inst.opa.v)
 
     def INC(self):
         sum = self.index_reg[self.inst.opa.v] + 1
         self.index_reg[self.inst.opa.v] = sum & 0xF
 
     def ISZ(self):
+        # self.inst.dc = ~self.inst.dc & 1
         sum = self.index_reg[self.inst.opa.v] + 1
         self.index_reg[self.inst.opa.v] = sum & 0xF
+        self.inst.setISZCond(self.index_reg[self.inst.opa.v])
         (insth, instl) = self.fetchInst()
-        if self.index_reg[self.inst.opa.v]:
+        if self.inst.cond:
             self.addr.setPM(insth)
             self.addr.setPL(instl)
+
+        # self.inst.dc = ~self.inst.dc & 1
+        # if self.inst.dc:
+        #     sum = self.index_reg[self.inst.opa.v] + 1
+        #     self.index_reg[self.inst.opa.v] = sum & 0xF
+        #     self.inst.setISZCond(self.index_reg[self.inst.opa.v])
+
 
     def ADD(self):
         sum = self.acc + self.index_reg[self.inst.opa.v] + self.cy
@@ -349,29 +335,24 @@ class i4004(sensor):
             self.acc = 15
 
     def DCL(self):
-        self._cm_ram.s().v(1)
+        self.cm_ram.s().v(1)
         if self.acc & 0b0111 == 0:
-            self._cm_ram.bi().v(1)
+            self.cm_ram.bi().v(1)
         elif self.acc & 0b0111 == 1:
-            self._cm_ram.bi().v(2)
+            self.cm_ram.bi().v(2)
         elif self.acc & 0b0111 == 2:
-            self._cm_ram.bi().v(4)
+            self.cm_ram.bi().v(4)
         elif self.acc & 0b0111 == 3:
-            self._cm_ram.bi().v(3)
+            self.cm_ram.bi().v(3)
         elif self.acc & 0b0111 == 4:
-            self._cm_ram.bi().v(8)
+            self.cm_ram.bi().v(8)
         elif self.acc & 0b0111 == 5:
-            self._cm_ram.bi().v(10)
+            self.cm_ram.bi().v(10)
         elif self.acc & 0b0111 == 6:
-            self._cm_ram.bi().v(12)
+            self.cm_ram.bi().v(12)
         elif self.acc & 0b0111 == 7:
-            self._cm_ram.bi().v(14)
-        self._cm_ram.s().v(0)
-
-    # def fetch(self):
-    #     (opr, opa) = self.fetchInst()
-    #     self.opr.bo().v(opr)
-    #     self.opa.bo().v(opa)
+            self.cm_ram.bi().v(14)
+        self.cm_ram.s().v(0)
 
     def execute(self):
         self.decodeInst()
@@ -380,6 +361,6 @@ class i4004(sensor):
         print("\nINST #{}".format(inst))
         pc = self.addr.getPH()*16*16 + self.addr.getPM()*16 + self.addr.getPL()
         print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4} ({:03x})  RAM(CM):{:04b}  TEST:{:b}".format(self.inst.opr.v, self.inst.opa.v, self.addr.sp, 
-            pc, pc, self._cm_ram.bo().v(), self._test.v()), end = '')
+            pc, pc, self.cm_ram.bo().v(), self.test.v()), end = '')
         print("  ACC/CY:{:04b}/{}  INDEX:{}  DC:{}".format(self.acc, self.cy, "".join(["{:x}".format(x) for x in self.index_reg]), self.inst.dc))
         print(self.addr.stack)

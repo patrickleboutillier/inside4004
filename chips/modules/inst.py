@@ -8,6 +8,7 @@ class inst(sensor):
         self.timing = timing
         self.data = data 
         self.dc = 0
+        self.cond = 0 
         self.opr = reg(self.data, wire(), bus())
         self.opa = reg(self.data, wire(), bus())
 
@@ -15,13 +16,24 @@ class inst(sensor):
     def always(self):
         if self.timing.ph1.v():
             if self.timing.m1.v():
-                if self.fim() and self.dc:
+                print(self.jcn(), self.cond)
+                if (self.fim() or self.fin()) and self.dc:
                     self.cpu.index_reg[self.opa.v & 0b1110] = self.data.v()
+                elif (self.jun() or self.jms()) and self.dc:
+                    self.cpu.addr.setPM(self.data.v())
+                elif self.jcn() and self.dc:
+                    if self.cond:
+                        self.cpu.addr.setPM(self.data.v())
                 else:
                     self.opr._bo.v(self.data.v())
             elif self.timing.m2.v():
-                if self.fim() and self.dc:
+                if (self.fim() or self.fin()) and self.dc:
                     self.cpu.index_reg[self.opa.v | 0b0001] = self.data.v()
+                elif (self.jun() or self.jms()) and self.dc:
+                    self.cpu.addr.setPL(self.data.v())
+                elif self.jcn() and self.dc:
+                    if self.cond:
+                        self.cpu.addr.setPL(self.data.v())
                 else:
                     self.opa._bo.v(self.data.v())
 
@@ -36,6 +48,17 @@ class inst(sensor):
 
     def jcn(self):
         return self.opr.v == 0b0001
+
+    def setJCNCond(self, z, c, t):
+        invert = (self.opa.v & 0b1000) >> 3
+        (zero, cy, test) = (self.opa.v & 0b0100, self.opa.v & 0b0010, self.opa.v & 0b0001)
+        self.cond = 0
+        if zero and (z ^ invert):
+            self.cond = 1
+        elif cy and (c ^ invert):
+            self.cond = 1
+        elif test and (t ^ invert):
+            self.cond = 1
 
     def fim(self):
         return self.opr.v == 0b0010 and not self.opa.v & 0b0001
@@ -60,3 +83,6 @@ class inst(sensor):
 
     def isz(self):
         return self.opr.v == 0b0111
+
+    def setISZCond(self, r):
+        self.cond = (r != 0)

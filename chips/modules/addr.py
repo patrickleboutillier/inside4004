@@ -2,8 +2,9 @@ from hdl import *
 
 
 class addr(sensor):
-    def __init__(self, timing, data):
+    def __init__(self, cpu, timing, data):
         sensor.__init__(self, timing.phx)
+        self.cpu = cpu
         self.timing = timing
         self.data = data 
         self.sp = 0
@@ -13,15 +14,27 @@ class addr(sensor):
     def always(self):
         if self.timing.ph1.v():
             if self.timing.a1.v():
-                self.data.v(self.getPL())
+                if self.cpu.inst.fin() and self.cpu.inst.dc:
+                    self.data.v(self.cpu.index_reg[1])
+                else:
+                    self.data.v(self.getPL())
             elif self.timing.a2.v():
-                self.data.v(self.getPM())
+                if self.cpu.inst.fin() and self.cpu.inst.dc:
+                    self.data.v(self.cpu.index_reg[0])
+                else:
+                    self.data.v(self.getPM())
             elif self.timing.a3.v(): 
                 # TODO: Set cm_rom and checkit in ROM
                 self.data.v(self.getPH())
         elif self.timing.ph2.v():
             if self.timing.a3.v(): 
-                self.incPC()
+                if self.cpu.inst.fin() and self.cpu.inst.dc:
+                    pass
+                else:
+                    # TODO: Fix this sequencing!!!!
+                    self.incPC()
+                    if self.cpu.inst.jms() and self.cpu.inst.dc:
+                        self.incSP()
 
     def getPH(self):
         return self.stack[self.sp]['h']

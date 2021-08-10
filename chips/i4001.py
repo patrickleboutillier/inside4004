@@ -1,4 +1,3 @@
-import sys, fileinput
 import chips.modules.timing as timing
 from hdl import *
 

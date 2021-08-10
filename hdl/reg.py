@@ -1,12 +1,15 @@
 from hdl import *
 
 
-class reg():
+class reg(sensor):
     def __init__(self, bi, s, bo):
         sensor.__init__(self, bi, s)
         self._bi = bi
         self._s = s
         self._bo = bo
+        if bi.v() != 0:
+            s.v(1)
+            s.v(0)
 
 
     def bi(self):
