@@ -1,10 +1,28 @@
+from hdl import *
 
 
-class addr:
-    def __init__(self, data):
-        self.data = data 
+class addr(sensor):
+    def __init__(self, data, ph1, ph2, stepper):
+        sensor.__init__(self, data, ph1, ph2, stepper.output())
+        self._data = data 
+        self._stepper = stepper
         self.sp = 0
         self.stack = [{'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}]
+
+    # Here we mostly handle what happens in a1, a2 and a3.
+    def always(self):
+        if self._stepper.ph1().v():
+            if self._stepper.a1():
+                self._data.v(self.getPL())
+            elif self._stepper.a2():
+                self._data.v(self.getPM())
+            elif self._stepper.a3(): 
+                # TODO: Set cm_rom and checkit in ROM
+                self._data.v(self.getPH())
+        elif self._stepper.ph2().v():
+            if self._stepper.a3(): 
+                # TODO: This must happen only once, should be moved where data is not on the sensivity list.  
+                self.incPC()
 
     def getPH(self):
         return self.stack[self.sp]['h']

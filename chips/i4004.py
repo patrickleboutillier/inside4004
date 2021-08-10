@@ -1,13 +1,16 @@
 import sys
 import chips.modules.addr as addr
+import chips.modules.stepper as stepper
 from hdl import *
 
 
-class i4004:
-    def __init__(self, mcs4, data, cm_rom, cm_ram, test):
+class i4004(sensor):
+    def __init__(self, mcs4, ph1, ph2, data, cm_rom, cm_ram, test):
+        self._stepper = stepper.stepper(ph1, ph2)
+        sensor.__init__(self, ph1, ph2, self._stepper.output(), data)
         self.mcs4 = mcs4
         self._data = data
-        self.addr = addr.addr(self._data)
+        self.addr = addr.addr(self._data, ph1, ph2, self._stepper)
         self.index_reg = [0] * 16
         self.cy = 0
         self.acc = 0
@@ -21,6 +24,13 @@ class i4004:
         self._cm_ram.s().v(0)
         self._test = test
 
+
+    def always(self):
+        if self._stepper.ph1().v():
+            if self._stepper.m1():
+                self.opr = self._data.v()      
+            elif self._stepper.m2():
+                self.opa.bo().v(self._data.v())
 
     def fetchInst(self, incPC=True):
         (insth, instl) = self.mcs4.fetchInst(self.addr.getPH(), self.addr.getPM(), self.addr.getPL())

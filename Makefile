@@ -1,19 +1,21 @@
 SHELL := /bin/bash
+PYTHON = pypy3
+
 
 .PHONY: hdl asm chips
 
 test: hdl chips asm calc
 
 hdl:
-	python -m unittest discover -s test/hdl
+	$(PYTHON) -m unittest discover -s test/hdl
 
 chips:
-	python -m unittest discover -s test/chips
+	$(PYTHON) -m unittest discover -s test/chips
 
 asm:
 	@for t in test/asm/[0-9]*.py ; do echo -n "$$t: " ; \
-		python $$t > /tmp/asm ; \
-		python test/mcs4.py /tmp/asm > /tmp/out 2>&1 ; \
+		$(PYTHON) $$t > /tmp/asm ; \
+		$(PYTHON) test/mcs4.py /tmp/asm > /tmp/out 2>&1 ; \
 		if [ "$$?" = 0 ] ; then \
 			echo OK ; \
 		else \
@@ -39,4 +41,4 @@ calc:
 	done
 
 profile:
-	@python -m cProfile 141-fp/mcs4.py 141-fp/ROM.bin
+	@$(PYTHON) -m cProfile 141-fp/mcs4.py 141-fp/ROM.bin

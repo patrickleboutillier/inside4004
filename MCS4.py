@@ -1,5 +1,6 @@
 import sys, fileinput
 import chips.i4001 as i4001, chips.i4002 as i4002, chips.i4004 as i4004
+import chips.clock as clock
 from hdl import *
 
 
@@ -8,17 +9,27 @@ class MCS4:
         self._rom_chip_rom = 0               # This represents the currently active ROM chip (for ROM access)
         self._rom_chip_io = 0                # This represents the currently active ROM chip (for IO)
         self._ram_chip = 0                   # This represents the currently active RAM chip
+
+        self._clock = clock.clock()
+        self._ph1 = self._clock.ph1()
+        self._ph2 = self._clock.ph2()
  
         self._data = bus()
         self._cm_rom = wire()
         self._cm_ram = bus()
         self._test = wire()
-        self._CPU = i4004.i4004(self, self._data, self._cm_rom, self._cm_ram, self._test)
+        self._CPU = i4004.i4004(self, self._clock.ph1(), self._clock.ph2(), self._data, self._cm_rom, self._cm_ram, self._test)
 
         self._PROM = []
         self._RAM = [None, [], [], None, [], None, None, None, []]
         self._SR = []
       
+    def ph1(self):
+        return self._ph1
+    
+    def ph2(self):
+        return self._ph2
+
     def data(self):
         return self._data
 
@@ -133,10 +144,14 @@ class MCS4:
         while (True):
             if callback is not None:
                 callback(nb)
-            self._CPU.fetch()
+            for _ in range(5):
+                self._clock.tick(4)
+            # self._CPU.fetch()
             if dump:
                 self.dump(nb)
             self._CPU.execute()
+            for _ in range(3):
+                self._clock.tick(4)
             nb += 1
 
     def dump(self, nb):
