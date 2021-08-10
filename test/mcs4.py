@@ -4,15 +4,17 @@ from hdl import *
 
 
 MCS4 = MCS4.MCS4()
-ph1 = MCS4.ph1()
-ph2 = MCS4.ph2()
+ph1 = MCS4.clock.ph1
+ph2 = MCS4.clock.ph2
 data = MCS4.data()
 cm_rom = MCS4.cm_rom()
 cm_ram = MCS4.cm_ram()
+CPU = MCS4.CPU
+sync = CPU.sync
 
 # Create 1 ROM for now
-PROM = [i4001.i4001(0, 1, ph1, ph2, data, cm_rom), i4001.i4001(1, 1, ph1, ph2, data, cm_rom), 
-    i4001.i4001(2, 0, ph1, ph2, data, cm_rom), i4001.i4001(3, 1, ph1, ph2, data, cm_rom)]
+PROM = [i4001.i4001(0, 1, ph1, ph2, sync, data, cm_rom), i4001.i4001(1, 1, ph1, ph2, sync, data, cm_rom), 
+    i4001.i4001(2, 0, ph1, ph2, sync, data, cm_rom), i4001.i4001(3, 1, ph1, ph2, sync, data, cm_rom)]
 for r in PROM:
     MCS4.addROM(r)
 

@@ -2,26 +2,25 @@ from hdl import *
 
 
 class addr(sensor):
-    def __init__(self, data, ph1, ph2, stepper):
-        sensor.__init__(self, data, ph1, ph2, stepper.output())
-        self._data = data 
-        self._stepper = stepper
+    def __init__(self, timing, data):
+        sensor.__init__(self, timing.phx)
+        self.timing = timing
+        self.data = data 
         self.sp = 0
         self.stack = [{'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}]
 
     # Here we mostly handle what happens in a1, a2 and a3.
     def always(self):
-        if self._stepper.ph1().v():
-            if self._stepper.a1():
-                self._data.v(self.getPL())
-            elif self._stepper.a2():
-                self._data.v(self.getPM())
-            elif self._stepper.a3(): 
+        if self.timing.ph1.v():
+            if self.timing.a1.v():
+                self.data.v(self.getPL())
+            elif self.timing.a2.v():
+                self.data.v(self.getPM())
+            elif self.timing.a3.v(): 
                 # TODO: Set cm_rom and checkit in ROM
-                self._data.v(self.getPH())
-        elif self._stepper.ph2().v():
-            if self._stepper.a3(): 
-                # TODO: This must happen only once, should be moved where data is not on the sensivity list.  
+                self.data.v(self.getPH())
+        elif self.timing.ph2.v():
+            if self.timing.a3.v(): 
                 self.incPC()
 
     def getPH(self):

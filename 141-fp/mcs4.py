@@ -6,16 +6,18 @@ from hdl import *
 
 
 MCS4 = MCS4.MCS4()
-ph1 = MCS4.ph1()
-ph2 = MCS4.ph2()
+ph1 = MCS4.clock.ph1
+ph2 = MCS4.clock.ph2
 data = MCS4.data()
 cm_rom = MCS4.cm_rom()
 cm_ram = MCS4.cm_ram()
 test = MCS4.test()
+CPU = MCS4.CPU
+sync = CPU.sync
 
 # Create 5 ROMs
-PROM = [i4001.i4001(0, 0, ph1, ph2, data, cm_rom), i4001.i4001(1, 1, ph1, ph2, data, cm_rom), i4001.i4001(2, 0, ph1, ph2, data, cm_rom), 
-    i4001.i4001(3, 0, ph1, ph2, data, cm_rom), i4001.i4001(4, 0, ph1, ph2, data, cm_rom)]
+PROM = [i4001.i4001(0, 0, ph1, ph2, sync, data, cm_rom), i4001.i4001(1, 1, ph1, ph2, sync, data, cm_rom), i4001.i4001(2, 0, ph1, ph2, sync, data, cm_rom), 
+    i4001.i4001(3, 0, ph1, ph2, sync, data, cm_rom), i4001.i4001(4, 0, ph1, ph2, sync, data, cm_rom)]
 for r in PROM:
     MCS4.addROM(r)
 
@@ -68,7 +70,6 @@ key_found = 0x2a
 advance = 0x24d
 wait_for_start_sector_pulse = [0x001, 0x22c, 0x23f, 0x24b]
 wait_for_end_sector_pulse = [0x0fd, 0x26e]
-CPU = MCS4._CPU
 kb_toggle = False
 optimize = False
 

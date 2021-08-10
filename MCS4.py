@@ -10,25 +10,18 @@ class MCS4:
         self._rom_chip_io = 0                # This represents the currently active ROM chip (for IO)
         self._ram_chip = 0                   # This represents the currently active RAM chip
 
-        self._clock = clock.clock()
-        self._ph1 = self._clock.ph1()
-        self._ph2 = self._clock.ph2()
+        self.clock = clock.clock()
  
         self._data = bus()
         self._cm_rom = wire()
         self._cm_ram = bus()
         self._test = wire()
-        self._CPU = i4004.i4004(self, self._clock.ph1(), self._clock.ph2(), self._data, self._cm_rom, self._cm_ram, self._test)
+        self.CPU = i4004.i4004(self, self.clock.ph1, self.clock.ph2, self._data, self._cm_rom, self._cm_ram, self._test)
 
         self._PROM = []
         self._RAM = [None, [], [], None, [], None, None, None, []]
         self._SR = []
       
-    def ph1(self):
-        return self._ph1
-    
-    def ph2(self):
-        return self._ph2
 
     def data(self):
         return self._data
@@ -145,17 +138,18 @@ class MCS4:
             if callback is not None:
                 callback(nb)
             for _ in range(5):
-                self._clock.tick(4)
-            # self._CPU.fetch()
+                self.clock.tick(4)
             if dump:
-                self.dump(nb)
-            self._CPU.execute()
+              self.dump(nb)
+            self.CPU.execute()
             for _ in range(3):
-                self._clock.tick(4)
+                self.clock.tick(4)
             nb += 1
+            #if nb == 2:
+            #    sys.exit()
 
     def dump(self, nb):
-        self._CPU.dump(nb)
+        self.CPU.dump(nb)
         self._RAM[1][0].dump()
         self._RAM[1][1].dump()
         for r in self._PROM:

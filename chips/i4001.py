@@ -1,12 +1,12 @@
 import sys, fileinput
-import chips.modules.stepper as stepper
+import chips.modules.timing as timing
 from hdl import *
 
 
 class i4001(sensor):
-    def __init__(self, id, io_cfg, ph1, ph2, data, cm_rom):
-        self._stepper = stepper.stepper(ph1, ph2)
-        sensor.__init__(self, ph1, ph2, self._stepper.output(), data, cm_rom)
+    def __init__(self, id, io_cfg, ph1, ph2, sync, data, cm_rom):
+        self.timing = timing.timing(ph1, ph2, sync)
+        sensor.__init__(self, self.timing.ph1, data, cm_rom)
         self._id = id
         self._data = data
         self._addrh = 0 
@@ -14,7 +14,6 @@ class i4001(sensor):
         self._rom = [0] * 256
         self._active_rom = 0 
         self._cm_rom = cm_rom
-        self._io_cfg = io_cfg
         self._io = bus()
         if io_cfg:
             self._io_output = None
@@ -26,18 +25,18 @@ class i4001(sensor):
         return self._io
 
     def always(self):
-        if self._stepper.ph1().v():
-            if self._stepper.a1():
+        if self.timing.ph1.v():
+            if self.timing.a1.v():
                 self._addrl = self._data.v()
-            elif self._stepper.a2():
+            elif self.timing.a2.v():
                 self._addrh = self._data.v()
-            elif self._stepper.a3(): 
+            elif self.timing.a3.v(): 
                 id = self._data.v()
                 self._active_rom = 1 if self._id == id else 0
-            elif self._stepper.m1():
+            elif self.timing.m1.v():
                 if self._active_rom:
                     self._data.v(self._rom[self._addrh << 4 | self._addrl] >> 4)
-            elif self._stepper.m2():
+            elif self.timing.m2.v():
                 if self._active_rom:
                     self._data.v(self._rom[self._addrh << 4 | self._addrl] & 0xF)
 

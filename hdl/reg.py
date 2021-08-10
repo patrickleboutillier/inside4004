@@ -18,6 +18,10 @@ class reg():
     def bo(self):
         return self._bo
 
+    @property
+    def v(self):
+        return self._bo._v
+
     def always(self):
         if self._s.v():
             self._bo.v(self._bi.v())
