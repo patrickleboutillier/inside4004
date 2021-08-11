@@ -21,7 +21,7 @@ class inst(sensor):
                     self.cpu.index_reg[self.opa.v & 0b1110] = self.data.v()
                 elif (self.jun() or self.jms()) and self.dc:
                     self.cpu.addr.setPM(self.data.v())
-                elif self.jcn() and self.dc:
+                elif (self.jcn() or self.isz()) and self.dc:
                     if self.cond:
                         self.cpu.addr.setPM(self.data.v())
                 else:
@@ -31,7 +31,7 @@ class inst(sensor):
                     self.cpu.index_reg[self.opa.v | 0b0001] = self.data.v()
                 elif (self.jun() or self.jms()) and self.dc:
                     self.cpu.addr.setPL(self.data.v())
-                elif self.jcn() and self.dc:
+                elif (self.jcn() or self.isz()) and self.dc:
                     if self.cond:
                         self.cpu.addr.setPL(self.data.v())
                 else:

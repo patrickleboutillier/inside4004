@@ -6,9 +6,9 @@ from hdl import *
 MCS4 = MCS4.MCS4()
 ph1 = MCS4.clock.ph1
 ph2 = MCS4.clock.ph2
-data = MCS4.data()
-cm_rom = MCS4.cm_rom()
-cm_ram = MCS4.cm_ram()
+data = MCS4.data
+cm_rom = MCS4.cm_rom
+cm_ram = MCS4.cm_ram
 CPU = MCS4.CPU
 sync = CPU.sync
 
@@ -25,9 +25,9 @@ for r in RAM:
 
 # Connect input and outputs for our test cases
 for i in range(4):
-    buf(RAM[0].output().wire(i), PROM[0].io().wire(i))
-    buf(RAM[1].output().wire(i), PROM[1].io().wire(i))       
-    buf(PROM[2].io().wire(i), PROM[3].io().wire(i))
+    buf(RAM[0].output().wire(i), PROM[0].io.wire(i))
+    buf(RAM[1].output().wire(i), PROM[1].io.wire(i))       
+    buf(PROM[2].io.wire(i), PROM[3].io.wire(i))
 
 
 MCS4.program()

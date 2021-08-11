@@ -2,13 +2,15 @@ from hdl import *
 
 
 class addr(sensor):
-    def __init__(self, cpu, timing, data):
+    def __init__(self, cpu, timing, data, cm_rom):
         sensor.__init__(self, timing.phx)
         self.cpu = cpu
         self.timing = timing
         self.data = data 
+        self.cm_rom = cm_rom
         self.sp = 0
         self.stack = [{'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}]
+
 
     # Here we mostly handle what happens in a1, a2 and a3.
     def always(self):
@@ -17,15 +19,14 @@ class addr(sensor):
                 if self.cpu.inst.fin() and self.cpu.inst.dc:
                     self.data.v(self.cpu.index_reg[1])
                 else:
-                    self.data.v(self.getPL())
+                    self.data.v(self.stack[self.sp]['l'])
             elif self.timing.a2.v():
                 if self.cpu.inst.fin() and self.cpu.inst.dc:
                     self.data.v(self.cpu.index_reg[0])
                 else:
-                    self.data.v(self.getPM())
+                    self.data.v(self.stack[self.sp]['m'])
             elif self.timing.a3.v(): 
-                # TODO: Set cm_rom and checkit in ROM
-                self.data.v(self.getPH())
+                self.data.v(self.stack[self.sp]['h'])
         elif self.timing.ph2.v():
             if self.timing.a3.v(): 
                 if self.cpu.inst.fin() and self.cpu.inst.dc:
@@ -36,15 +37,13 @@ class addr(sensor):
                     if self.cpu.inst.jms() and self.cpu.inst.dc:
                         self.incSP()
 
-    def getPH(self):
-        return self.stack[self.sp]['h']
+        # Turn on cm-rom for a3
+        if self.timing.a3.v():
+            self.cm_rom.v(1)
+        else:
+            self.cm_rom.v(0)        
 
-    def getPM(self):
-        return self.stack[self.sp]['m']
-
-    def getPL(self):
-        return self.stack[self.sp]['l']
-
+ 
     def getPC(self):        # For debugging
         return self.stack[self.sp]['h'] << 8 | self.stack[self.sp]['m'] << 4 | self.stack[self.sp]['l']
 

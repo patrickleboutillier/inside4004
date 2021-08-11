@@ -11,13 +11,14 @@ class i4004(sensor):
         # sensor.__init__(self, ph1, ph2, data)
         self.mcs4 = mcs4
         self.data = data
-        self.addr = addr.addr(self, self.timing, self.data)
+        self.cm_rom = cm_rom
+        self.addr = addr.addr(self, self.timing, self.data, self.cm_rom)
         self.inst = inst.inst(self, self.timing, self.data)
         self.index_reg = [0] * 16
         self.cy = 0
         self.acc = 0
 
-        self.cm_rom = reg(bus(1), wire(), cm_rom)
+
         self.cm_ram = reg(bus(v=1), wire(), cm_ram)
 
         self.test = test
@@ -25,12 +26,6 @@ class i4004(sensor):
 
     def always(self):
         pass
-
-    def fetchInst(self, incPC=True):
-        (insth, instl) = self.mcs4.fetchInst(self.addr.getPH(), self.addr.getPM(), self.addr.getPL())
-        if incPC:
-            self.addr.incPC()
-        return (insth, instl)
 
     def decodeInst(self):
         opr = self.inst.opr.v 
@@ -182,20 +177,11 @@ class i4004(sensor):
         self.index_reg[self.inst.opa.v] = sum & 0xF
 
     def ISZ(self):
-        # self.inst.dc = ~self.inst.dc & 1
-        sum = self.index_reg[self.inst.opa.v] + 1
-        self.index_reg[self.inst.opa.v] = sum & 0xF
-        self.inst.setISZCond(self.index_reg[self.inst.opa.v])
-        (insth, instl) = self.fetchInst()
-        if self.inst.cond:
-            self.addr.setPM(insth)
-            self.addr.setPL(instl)
-
-        # self.inst.dc = ~self.inst.dc & 1
-        # if self.inst.dc:
-        #     sum = self.index_reg[self.inst.opa.v] + 1
-        #     self.index_reg[self.inst.opa.v] = sum & 0xF
-        #     self.inst.setISZCond(self.index_reg[self.inst.opa.v])
+        self.inst.dc = ~self.inst.dc & 1
+        if self.inst.dc:
+            sum = self.index_reg[self.inst.opa.v] + 1
+            self.index_reg[self.inst.opa.v] = sum & 0xF
+            self.inst.setISZCond(self.index_reg[self.inst.opa.v])
 
 
     def ADD(self):
@@ -359,7 +345,7 @@ class i4004(sensor):
 
     def dump(self, inst):
         print("\nINST #{}".format(inst))
-        pc = self.addr.getPH()*16*16 + self.addr.getPM()*16 + self.addr.getPL()
+        pc = self.addr.getPC
         print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4} ({:03x})  RAM(CM):{:04b}  TEST:{:b}".format(self.inst.opr.v, self.inst.opa.v, self.addr.sp, 
             pc, pc, self.cm_ram.bo().v(), self.test.v()), end = '')
         print("  ACC/CY:{:04b}/{}  INDEX:{}  DC:{}".format(self.acc, self.cy, "".join(["{:x}".format(x) for x in self.index_reg]), self.inst.dc))
