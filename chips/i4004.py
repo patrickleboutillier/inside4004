@@ -24,7 +24,7 @@ class i4004(sensor):
         self.test = test
 
 
-    def always(self):
+    def always(self, signal):
         pass
 
     def decodeInst(self):

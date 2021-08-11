@@ -13,5 +13,5 @@ class buf(sensor):
     def o(self):
         return self._o
 
-    def always(self):
+    def always(self, signal):
         self._o.v(self._i.v())

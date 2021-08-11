@@ -36,7 +36,7 @@ class printer(sensor):
     def index(self):
         return self._index
 
-    def always(self):
+    def always(self, signal):
         if self._fire.v():
             self.fireHammers()
         if self._advance.v():

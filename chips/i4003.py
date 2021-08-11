@@ -19,7 +19,7 @@ class i4003(sensor):
     def serial_out(self):
         return self._serial_out
 
-    def always(self):
+    def always(self, signal):
         if self._clock.v():
             # clk went from 0 to 1
             o = self._reg >> 9

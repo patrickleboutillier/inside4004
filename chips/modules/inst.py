@@ -13,7 +13,7 @@ class inst(sensor):
         self.opa = reg(self.data, wire(), bus())
 
 
-    def always(self):
+    def always(self, signal):
         if self.timing.ph1.v():
             if self.timing.m1.v():
                 print(self.jcn(), self.cond)

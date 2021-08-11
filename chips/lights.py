@@ -9,7 +9,7 @@ class lights():
         self._negative = negative
     
 
-    def always(self):
+    def always(self, signal):
         pass
 
     def display(self):

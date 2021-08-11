@@ -50,7 +50,7 @@ class keyboard(sensor):
     def advance(self):
         return self._advance
 
-    def always(self):
+    def always(self, signal):
         for i in range(10):
             if self._input.wire(i).v() == 0:
                 for j in range(4):

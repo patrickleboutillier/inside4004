@@ -13,7 +13,7 @@ class addr(sensor):
 
 
     # Here we mostly handle what happens in a1, a2 and a3.
-    def always(self):
+    def always(self, signal):
         if self.timing.ph1.v():
             if self.timing.a1.v():
                 if self.cpu.inst.fin() and self.cpu.inst.dc:

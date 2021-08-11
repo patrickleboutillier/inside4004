@@ -25,6 +25,6 @@ class reg(sensor):
     def v(self):
         return self._bo._v
 
-    def always(self):
+    def always(self, signal):
         if self._s.v():
             self._bo.v(self._bi.v())

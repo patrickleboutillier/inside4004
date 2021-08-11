@@ -20,7 +20,7 @@ class i4001(sensor):
             self.io_output = reg(bus(), wire(), self.io)
 
 
-    def always(self):
+    def always(self, signal):
         if self.timing.ph1.v():
             if self.timing.a1.v():
                 self.addrl = self.data.v()

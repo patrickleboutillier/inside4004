@@ -2,14 +2,12 @@ import hdl
 
 
 class sensor:
-    def __init__(self, *buses):
-        for b in buses:
-            bus = b
-            filter = None
-            if type(b) is hdl.wire:
-                bus = b._bus
-                filter = 1 << b._bit
-            bus.connect(self, filter)
+    def __init__(self, *signals):
+        for signal in signals:
+            bus = signal
+            if type(signal) is hdl.wire:
+                bus = signal._bus
+            bus.connect(self, signal)
 
 
 class bus:
@@ -27,10 +25,10 @@ class bus:
             if v != self._v:
                 changed = v ^ self._v
                 self._v = v
-                for (sensor, filters) in self._sensors.items():
-                    for f in filters:
-                        if f is None or f & changed:    # The sensor is impacted by the change
-                            sensor.always()
+                for (sensor, fss) in self._sensors.items():
+                    for (filter, signal) in fss:
+                        if filter is None or filter & changed:    # The sensor is impacted by the change
+                            sensor.always(signal)
         else:   # get
             return self._v
 
@@ -46,7 +44,10 @@ class bus:
             self._wires[bit] = hdl.wire(None, self, bit)
         return self._wires[bit]
 
-    def connect(self, sensor, filter):
+    def connect(self, sensor, signal):
         if not sensor in self._sensors:
             self._sensors[sensor] = [] 
-        self._sensors[sensor].append(filter)
+        filter = None
+        if type(signal) is hdl.wire:
+            filter = 1 << signal._bit
+        self._sensors[sensor].append((filter, signal))
