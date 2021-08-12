@@ -18,24 +18,24 @@ class inst(sensor):
     def when(self):
         def M1ph1(self):
             if (self.fim() or self.fin()) and self.dc:
-                self.cpu.index_reg[self.opa.v & 0b1110] = self.data.v()
+                self.cpu.index_reg[self.opa.v & 0b1110] = self.data._v
             elif (self.jun() or self.jms()) and self.dc:
-                self.cpu.addr.setPM(self.data.v())
+                self.cpu.addr.setPM(self.data._v)
             elif (self.jcn() or self.isz()) and self.dc:
                 if self.cond:
-                    self.cpu.addr.setPM(self.data.v())
+                    self.cpu.addr.setPM(self.data._v)
             else:
-                self.opr._bo.v(self.data.v())
+                self.opr._bo.v(self.data._v)
         def M2ph1(self):
             if (self.fim() or self.fin()) and self.dc:
-                self.cpu.index_reg[self.opa.v | 0b0001] = self.data.v()
+                self.cpu.index_reg[self.opa.v | 0b0001] = self.data._v
             elif (self.jun() or self.jms()) and self.dc:
-                self.cpu.addr.setPL(self.data.v())
+                self.cpu.addr.setPL(self.data._v)
             elif (self.jcn() or self.isz()) and self.dc:
                 if self.cond:
-                    self.cpu.addr.setPL(self.data.v())
+                    self.cpu.addr.setPL(self.data._v)
             else:
-                self.opa._bo.v(self.data.v())
+                self.opa._bo.v(self.data._v)
 
         self.timing.whenM1ph1(M1ph1, self)
         self.timing.whenM2ph1(M2ph1, self)

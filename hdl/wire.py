@@ -8,6 +8,8 @@ class wire():
 
     def v(self, v=None):
         if v is None:   # get
-            return self._bus.bit(self._bit)
+            return (self._bus._v >> self._bit) & 1 
         else:           # set
-            self._bus.bit(self._bit, v)
+            v = (self._bus._v & ~(1 << self._bit)) | v << self._bit
+            if self._bus._v != v:
+                self._bus.v(v)

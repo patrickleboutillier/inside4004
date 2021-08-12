@@ -1,3 +1,4 @@
+import sys
 import hdl
 
 
@@ -23,25 +24,14 @@ class bus:
     def len(self):
         return self._n
 
-    def v(self, v=None):
-        if v is None:   # get
-            return self._v
-        else:           # set
-            if v != self._v:
-                changed = v ^ self._v
-                self._v = v
-                for (sensor, fss) in self._sensors.items():
-                    for (filter, signal) in fss:
-                        if filter is None or filter & changed:    # The sensor is impacted by the change
-                            sensor.always(signal)
-
-
-    def bit(self, n, v=None):
-        if v is None:   # get
-            return (self._v >> n) & 1  
-        else:           # set
-            v = (self._v & ~(1 << n)) | v << n
-            self.v(v)
+    def v(self, v):
+        if v != self._v:
+            changed = v ^ self._v
+            self._v = v
+            for (sensor, fss) in self._sensors.items():
+                for (filter, signal) in fss:
+                    if filter is None or filter & changed:    # The sensor is impacted by the change
+                        sensor.always(signal)
 
     def wire(self, bit):
         if bit not in self._wires:

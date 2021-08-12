@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-PYTHON = python
+PYTHON = $(shell if which pypy3 >/dev/null ; then echo pypy3 ; else echo python3 ; fi)
 
 .PHONY: hdl asm chips
 

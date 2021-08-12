@@ -4,13 +4,6 @@ import chips.clock as clock, chips.modules.timing as timing
 
 
 class Testtiming(unittest.TestCase):
-    def step(self, timing): # returns 0 -> 7
-        o = timing.output.v()
-        step = -1
-        while (o > 0):
-            step += 1
-            o >>= 1
-        return step
 
     def test_timing(self):
         c = clock.clock()
@@ -18,41 +11,41 @@ class Testtiming(unittest.TestCase):
         t = timing.timing(c.ph1, c.ph2, sync)
 
         # At power on
-        self.assertEqual(self.step(t), 0)       
+        self.assertEqual(t.step, 0)       
         # start
         c.tick(4)
-        self.assertEqual(self.step(t), 0)   
+        self.assertEqual(t.step, 0)   
         c.tick(4)
-        self.assertEqual(self.step(t), 1)   
+        self.assertEqual(t.step, 1)   
         c.tick(4)
-        self.assertEqual(self.step(t), 2)   
+        self.assertEqual(t.step, 2)   
         c.tick(4)
-        self.assertEqual(self.step(t), 3)   
+        self.assertEqual(t.step, 3)   
         c.tick(4)
-        self.assertEqual(self.step(t), 4)   
+        self.assertEqual(t.step, 4)   
         c.tick(4)
-        self.assertEqual(self.step(t), 5)   
+        self.assertEqual(t.step, 5)   
         c.tick(4)
-        self.assertEqual(self.step(t), 6)   
+        self.assertEqual(t.step, 6)   
         c.tick(4)
-        self.assertEqual(self.step(t), 7)
+        self.assertEqual(t.step, 7)
         # repeat   
         c.tick(4)
-        self.assertEqual(self.step(t), 0)   
+        self.assertEqual(t.step, 0)   
         c.tick(4)
-        self.assertEqual(self.step(t), 1)   
+        self.assertEqual(t.step, 1)   
         c.tick(4)
-        self.assertEqual(self.step(t), 2)   
+        self.assertEqual(t.step, 2)   
         c.tick(4)
-        self.assertEqual(self.step(t), 3)   
+        self.assertEqual(t.step, 3)   
         c.tick(4)
-        self.assertEqual(self.step(t), 4)   
+        self.assertEqual(t.step, 4)   
         c.tick(4)
-        self.assertEqual(self.step(t), 5)   
+        self.assertEqual(t.step, 5)   
         c.tick(4)
-        self.assertEqual(self.step(t), 6)   
+        self.assertEqual(t.step, 6)   
         c.tick(4)
-        self.assertEqual(self.step(t), 7)
+        self.assertEqual(t.step, 7)
 
 if __name__ == '__main__':
     unittest.main()

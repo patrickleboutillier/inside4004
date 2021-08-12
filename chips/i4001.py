@@ -21,12 +21,12 @@ class i4001():
 
     def when(self):
         def A1ph1(self):
-            self.addrl = self.data.v()
+            self.addrl = self.data._v
         def A2ph1(self):
-            self.addrh = self.data.v()
+            self.addrh = self.data._v
         def A3ph1(self):
             if self.cm_rom.v():
-                id = self.data.v()
+                id = self.data._v
                 self.active_rom = 1 if self._id == id else 0
         def M1ph1(self):
             if self.active_rom:
@@ -56,13 +56,13 @@ class i4001():
         return addr
 
     def enableIO(self):
-        self.data.v(self.io.v())
+        self.data.v(self.io._v)
 
     def setIO(self):
         if self.io_output is not None:
-            self.io_output.bi().v(self.data.v())
+            self.io_output.bi().v(self.data._v)
             self.io_output.s().v(1)
             self.io_output.s().v(0)
 
     def dump(self):
-        print("ROM {:x}: IO:{:04b}  ".format(self.id, self.io.v()), end = "")
+        print("ROM {:x}: IO:{:04b}  ".format(self.id, self.io._v), end = "")

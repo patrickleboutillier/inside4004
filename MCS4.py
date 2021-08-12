@@ -37,7 +37,7 @@ class MCS4:
 
     def getIO(self):
         self.PROM[self.rom_chip_io].enableIO()
-        return self.data.v()
+        return self.data._v
 
     def setIO(self, nib):
         self.data.v(nib)
@@ -46,35 +46,35 @@ class MCS4:
     def setRAMAddrHigh(self, addrh):
         self.ram_chip = addrh >> 2
         self.data.v(addrh)
-        self.RAM[self.cm_ram.v()][self.ram_chip].setReg()
+        self.RAM[self.cm_ram._v][self.ram_chip].setReg()
 
     def setRAMAddrLow(self, addrl):
         self.data.v(addrl)
-        self.RAM[self.cm_ram.v()][self.ram_chip].setChar()
+        self.RAM[self.cm_ram._v][self.ram_chip].setChar()
 
     def setRAMAddr(self, addrh, addrl):
         self.setRAMAddrHigh(addrh)
         self.setRAMAddrLow(addrl)
 
     def getRAM(self):
-        self.RAM[self.cm_ram.v()][self.ram_chip].enableRAM()
-        return self.data.v()
+        self.RAM[self.cm_ram._v][self.ram_chip].enableRAM()
+        return self.data._v
 
     def setRAM(self, byte):
         self.data.v(byte)
-        self.RAM[self.cm_ram.v()][self.ram_chip].setRAM()
+        self.RAM[self.cm_ram._v][self.ram_chip].setRAM()
 
     def getStatus(self, char):
-        self.RAM[self.cm_ram.v()][self.ram_chip].enableStatus(char)
-        return self.data.v()
+        self.RAM[self.cm_ram._v][self.ram_chip].enableStatus(char)
+        return self.data._v
 
     def setStatus(self, char, byte):
         self.data.v(byte)
-        self.RAM[self.cm_ram.v()][self.ram_chip].setStatus(char)
+        self.RAM[self.cm_ram._v][self.ram_chip].setStatus(char)
 
     def setOutput(self, nib):
         self.data.v(nib)
-        self.RAM[self.cm_ram.v()][self.ram_chip].setOutput()
+        self.RAM[self.cm_ram._v][self.ram_chip].setOutput()
 
     def program(self):
         fi = fileinput.input()

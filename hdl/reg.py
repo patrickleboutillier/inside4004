@@ -7,7 +7,7 @@ class reg(sensor):
         self._bi = bi
         self._s = s
         self._bo = bo
-        if bi.v() != 0:
+        if bi._v != 0:
             s.v(1)
             s.v(0)
 
@@ -27,4 +27,4 @@ class reg(sensor):
 
     def always(self, signal):
         if self._s.v():
-            self._bo.v(self._bi.v())
+            self._bo.v(self._bi._v)
