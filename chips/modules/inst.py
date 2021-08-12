@@ -3,9 +3,11 @@ from hdl import *
 
 class inst(sensor):
     def __init__(self, cpu, timing, data):
-        sensor.__init__(self, timing.phx, data)
-        self.cpu = cpu
         self.timing = timing
+        self.when()
+        #sensor.__init__(self, timing.phx, data)
+        self.cpu = cpu
+
         self.data = data 
         self.dc = 0
         self.cond = 0 
@@ -13,10 +15,34 @@ class inst(sensor):
         self.opa = reg(self.data, wire(), bus())
 
 
+    def when(self):
+        def M1ph1(self):
+            if (self.fim() or self.fin()) and self.dc:
+                self.cpu.index_reg[self.opa.v & 0b1110] = self.data.v()
+            elif (self.jun() or self.jms()) and self.dc:
+                self.cpu.addr.setPM(self.data.v())
+            elif (self.jcn() or self.isz()) and self.dc:
+                if self.cond:
+                    self.cpu.addr.setPM(self.data.v())
+            else:
+                self.opr._bo.v(self.data.v())
+        def M2ph1(self):
+            if (self.fim() or self.fin()) and self.dc:
+                self.cpu.index_reg[self.opa.v | 0b0001] = self.data.v()
+            elif (self.jun() or self.jms()) and self.dc:
+                self.cpu.addr.setPL(self.data.v())
+            elif (self.jcn() or self.isz()) and self.dc:
+                if self.cond:
+                    self.cpu.addr.setPL(self.data.v())
+            else:
+                self.opa._bo.v(self.data.v())
+
+        self.timing.whenM1ph1(M1ph1, self)
+        self.timing.whenM2ph1(M2ph1, self)
+
     def always(self, signal):
         if self.timing.ph1.v():
             if self.timing.m1.v():
-                print(self.jcn(), self.cond)
                 if (self.fim() or self.fin()) and self.dc:
                     self.cpu.index_reg[self.opa.v & 0b1110] = self.data.v()
                 elif (self.jun() or self.jms()) and self.dc:

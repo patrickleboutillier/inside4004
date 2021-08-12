@@ -1,6 +1,5 @@
 SHELL := /bin/bash
-PYTHON = pypy3
-
+PYTHON = python
 
 .PHONY: hdl asm chips
 

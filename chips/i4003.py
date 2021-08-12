@@ -24,7 +24,6 @@ class i4003(sensor):
             # clk went from 0 to 1
             o = self._reg >> 9
             self._reg = ((self._reg << 1) | self._data_in.v()) & 0x3FF
-            # print("{} ({},{:010b})".format(self._data_in.v(), o, self._reg))
             self._serial_out.v(o)
             if self._enable.v():
                 self._parallel_out.v(self._reg)

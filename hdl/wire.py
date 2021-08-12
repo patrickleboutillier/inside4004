@@ -7,7 +7,7 @@ class wire():
         self._bit = bit
 
     def v(self, v=None):
-        if v != None:    # set
-            self._bus.bit(self._bit, v)
-        else:   # get
+        if v is None:   # get
             return self._bus.bit(self._bit)
+        else:           # set
+            self._bus.bit(self._bit, v)

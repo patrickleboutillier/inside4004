@@ -1,7 +1,7 @@
 from hdl import *
 
 
-class lights():
+class lights(sensor):
     def __init__(self, memory, overflow, negative):
         sensor.__init__(self, memory, overflow, negative)
         self._memory = memory

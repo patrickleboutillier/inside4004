@@ -2,10 +2,10 @@ import chips.modules.timing as timing
 from hdl import *
 
 
-class i4001(sensor):
+class i4001():
     def __init__(self, id, io_cfg, ph1, ph2, sync, data, cm_rom):
-        self.timing = timing.timing(ph1, ph2, sync)
-        sensor.__init__(self, self.timing.ph1, data, cm_rom)
+        self.timing = timing.timing(ph1, ph2, sync, data, cm_rom)
+        self.when()
         self._id = id
         self.data = data
         self.addrh = 0 
@@ -19,23 +19,27 @@ class i4001(sensor):
         else:
             self.io_output = reg(bus(), wire(), self.io)
 
+    def when(self):
+        def A1ph1(self):
+            self.addrl = self.data.v()
+        def A2ph1(self):
+            self.addrh = self.data.v()
+        def A3ph1(self):
+            if self.cm_rom.v():
+                id = self.data.v()
+                self.active_rom = 1 if self._id == id else 0
+        def M1ph1(self):
+            if self.active_rom:
+                self.data.v(self.rom[self.addrh << 4 | self.addrl] >> 4)
+        def M2ph1(self):
+            if self.active_rom:
+                self.data.v(self.rom[self.addrh << 4 | self.addrl] & 0xF)
 
-    def always(self, signal):
-        if self.timing.ph1.v():
-            if self.timing.a1.v():
-                self.addrl = self.data.v()
-            elif self.timing.a2.v():
-                self.addrh = self.data.v()
-            elif self.timing.a3.v(): 
-                if self.cm_rom.v():
-                    id = self.data.v()
-                    self.active_rom = 1 if self._id == id else 0
-            elif self.timing.m1.v():
-                if self.active_rom:
-                    self.data.v(self.rom[self.addrh << 4 | self.addrl] >> 4)
-            elif self.timing.m2.v():
-                if self.active_rom:
-                    self.data.v(self.rom[self.addrh << 4 | self.addrl] & 0xF)
+        self.timing.whenA1ph1(A1ph1, self)
+        self.timing.whenA2ph1(A2ph1, self)
+        self.timing.whenA3ph1(A3ph1, self)
+        self.timing.whenM1ph1(M1ph1, self)
+        self.timing.whenM2ph1(M2ph1, self)
 
     def program(self, fi):
         addr = 0

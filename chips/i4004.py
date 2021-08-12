@@ -7,7 +7,7 @@ from hdl import *
 class i4004(sensor):
     def __init__(self, mcs4, ph1, ph2, data, cm_rom, cm_ram, test):
         self.sync = wire()
-        self.timing = timing.timing(ph1, ph2, self.sync)
+        self.timing = timing.timing(ph1, ph2, self.sync, data)
         # sensor.__init__(self, ph1, ph2, data)
         self.mcs4 = mcs4
         self.data = data
@@ -18,9 +18,7 @@ class i4004(sensor):
         self.cy = 0
         self.acc = 0
 
-
         self.cm_ram = reg(bus(v=1), wire(), cm_ram)
-
         self.test = test
 
 
