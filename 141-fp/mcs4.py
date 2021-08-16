@@ -22,12 +22,12 @@ for r in PROM:
     MCS4.addROM(r)
 
 # Create 2 RAMS
-RAM = [i4002.i4002(0, 0, data, cm_ram.wire(0)), i4002.i4002(0, 1, data, cm_ram.wire(0))]
+RAM = [i4002.i4002(0, 0, ph1, ph2, sync, data, cm_ram.wire(0)), i4002.i4002(0, 1, ph1, ph2, sync, data, cm_ram.wire(0))]
 for r in RAM:
     MCS4.addRAM(0, r)
 
 # Lights
-lights = lights.lights(memory=RAM[1].output().wire(0), overflow=RAM[1].output().wire(1), negative=RAM[1].output().wire(2))
+lights = lights.lights(memory=RAM[1].output.wire(0), overflow=RAM[1].output.wire(1), negative=RAM[1].output.wire(2))
 
 # Create keyboard 4003
 kbdsr = i4003.i4003(name="KB", clock=PROM[0].io.wire(0), data_in=PROM[0].io.wire(1), enable=wire(1))
@@ -51,7 +51,7 @@ MCS4.addSR(psr1)
 MCS4.addSR(psr2)
 
 # Printer
-printer = printer.printer(fire=RAM[0].output().wire(1), advance=RAM[0].output().wire(3), color=RAM[0].output().wire(0))
+printer = printer.printer(fire=RAM[0].output.wire(1), advance=RAM[0].output.wire(3), color=RAM[0].output.wire(0))
 for i in range(10):
     buf(psr2.parallel_out().wire(i), printer.input().wire(i))
     buf(psr1.parallel_out().wire(i), printer.input().wire(10+i))
@@ -88,7 +88,7 @@ def callback(nb):
     else:
         printer.cycle()
 
-    if (CPU.addr.getPC() == 0x003) and (RAM[0]._status[0][3] == 0): # Before keyboard scanning in main loop, and a button is not currently held down)
+    if (CPU.addr.getPC() == 0x003) and (RAM[0].status[0][3] == 0): # Before keyboard scanning in main loop, and a button is not currently held down)
         keyboard.clearAdvance() # In case we "pressed" the paper advance button
         kb_toggle = not kb_toggle
         if not kb_toggle:

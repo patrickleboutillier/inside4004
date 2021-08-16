@@ -19,14 +19,14 @@ for r in PROM:
     MCS4.addROM(r)
 
 # Create 2 RAMS
-RAM = [i4002.i4002(0, 0, data, cm_ram.wire(0)), i4002.i4002(0, 1, data, cm_ram.wire(0))]
+RAM = [i4002.i4002(0, 0, ph1, ph2, sync, data, cm_ram.wire(0)), i4002.i4002(0, 1, ph1, ph2, sync, data, cm_ram.wire(0))]
 for r in RAM:
     MCS4.addRAM(0, r)
 
 # Connect input and outputs for our test cases
 for i in range(4):
-    buf(RAM[0].output().wire(i), PROM[0].io.wire(i))
-    buf(RAM[1].output().wire(i), PROM[1].io.wire(i))       
+    buf(RAM[0].output.wire(i), PROM[0].io.wire(i))
+    buf(RAM[1].output.wire(i), PROM[1].io.wire(i))       
     buf(PROM[2].io.wire(i), PROM[3].io.wire(i))
 
 

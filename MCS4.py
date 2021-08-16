@@ -6,7 +6,6 @@ from hdl import *
 
 class MCS4:
     def __init__(self):
-        self.rom_chip_io = 0                # This represents the currently active ROM chip (for IO)
         self.ram_chip = 0                   # This represents the currently active RAM chip
 
         self.clock = clock.clock()
@@ -31,17 +30,6 @@ class MCS4:
 
     def addSR(self, sr):
         self.SR.append(sr)
-
-    def setIOAddr(self, addr):
-        self.rom_chip_io = addr
-
-    def getIO(self):
-        self.PROM[self.rom_chip_io].enableIO()
-        return self.data._v
-
-    def setIO(self, nib):
-        self.data.v(nib)
-        self.PROM[self.rom_chip_io].setIO()
 
     def setRAMAddrHigh(self, addrh):
         self.ram_chip = addrh >> 2
@@ -94,7 +82,7 @@ class MCS4:
             for _ in range(5):
                 self.clock.tick(4)
             if dump:
-              self.dump(nb)
+                self.dump(nb)
             self.CPU.execute()
             for _ in range(3):
                 self.clock.tick(4)

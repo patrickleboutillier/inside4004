@@ -6,8 +6,8 @@ from hdl import *
 
 class i4004(sensor):
     def __init__(self, mcs4, ph1, ph2, data, cm_rom, cm_ram, test):
-        self.sync = wire()
-        self.timing = timing.timing(ph1, ph2, self.sync, data)
+        self.timing = timing.timing(ph1, ph2, None)
+        self.sync = self.timing.sync
         # sensor.__init__(self, ph1, ph2, data)
         self.mcs4 = mcs4
         self.data = data
@@ -27,18 +27,7 @@ class i4004(sensor):
 
     def decodeInst(self):
         opr = self.inst.opr.v 
-        if self.inst.nop():
-            self.NOP()
-        elif self.inst.hlt():
-            self.HLT()
-        elif self.inst.err():
-            self.ERR()
-
-        elif self.inst.jcn():
-            self.JCN()
-        elif self.inst.fim():
-            self.FIM()
-        elif self.inst.src():
+        if self.inst.src():
             self.SRC()
         elif self.inst.fin():
             self.FIN()
@@ -71,8 +60,6 @@ class i4004(sensor):
                 self.WRM()
             elif self.inst.opa.v == 0b0001:
                 self.WMP()
-            elif self.inst.opa.v == 0b0010:
-                self.WRR()
             elif self.inst.opa.v == 0b0100:
                 self.WR0()
             elif self.inst.opa.v == 0b0101:
@@ -85,8 +72,6 @@ class i4004(sensor):
                 self.SBM()
             elif self.inst.opa.v == 0b1001:
                 self.RDM()
-            elif self.inst.opa.v == 0b1010:
-                self.RDR()
             elif self.inst.opa.v == 0b1011:
                 self.ADM()
             elif self.inst.opa.v == 0b1100:
@@ -129,30 +114,9 @@ class i4004(sensor):
                 self.DCL()
 
 
-    def NOP(self):
-        pass 
-
-    # HLT is used to normal (wanted) termination
-    def HLT(self):
-        print("HALTED!")
-        sys.exit()
-
-    # ERR is used for signaling error conditions. It is mainly used in the test suite.
-    def ERR(self):
-        sys.exit("ERROR!")
-
-    def JCN(self):
-        self.inst.dc = ~self.inst.dc & 1
-        if self.inst.dc:
-            self.inst.setJCNCond(0 if self.acc else 1, self.cy, ~self.test.v() & 1)      
-
-    def FIM(self):
-        self.inst.dc = ~self.inst.dc & 1
-    
     def SRC(self):
         self.mcs4.setRAMAddr(self.index_reg[self.inst.opa.v & 0b1110], self.index_reg[self.inst.opa.v | 0b0001])
-        self.mcs4.setIOAddr(self.index_reg[self.inst.opa.v & 0b1110])
-
+    
     def FIN(self):
         self.inst.dc = ~self.inst.dc & 1
 
@@ -170,10 +134,6 @@ class i4004(sensor):
         if not self.inst.dc: # TODO: At X1/ph2?
             self.addr.setPH(self.inst.opa.v)
 
-    def INC(self):
-        sum = self.index_reg[self.inst.opa.v] + 1
-        self.index_reg[self.inst.opa.v] = sum & 0xF
-
     def ISZ(self):
         self.inst.dc = ~self.inst.dc & 1
         if self.inst.dc:
@@ -181,6 +141,10 @@ class i4004(sensor):
             self.index_reg[self.inst.opa.v] = sum & 0xF
             self.inst.setISZCond(self.index_reg[self.inst.opa.v])
 
+
+    def INC(self):
+        sum = self.index_reg[self.inst.opa.v] + 1
+        self.index_reg[self.inst.opa.v] = sum & 0xF
 
     def ADD(self):
         sum = self.acc + self.index_reg[self.inst.opa.v] + self.cy
@@ -214,9 +178,6 @@ class i4004(sensor):
     def WMP(self):
         self.mcs4.setOutput(self.acc)
 
-    def WRR(self):
-        self.mcs4.setIO(self.acc)
-
     def WR0(self):
         self.mcs4.setStatus(0, self.acc)
 
@@ -236,9 +197,6 @@ class i4004(sensor):
 
     def RDM(self):
         self.acc = self.mcs4.getRAM()
-
-    def RDR(self):
-        self.acc = self.mcs4.getIO()
 
     def ADM(self):
         sum = self.acc + self.mcs4.getRAM() + self.cy
@@ -343,8 +301,8 @@ class i4004(sensor):
 
     def dump(self, inst):
         print("\nINST #{}".format(inst))
-        pc = self.addr.getPC
+        pc = self.addr.getPC()
         print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4} ({:03x})  RAM(CM):{:04b}  TEST:{:b}".format(self.inst.opr.v, self.inst.opa.v, self.addr.sp, 
-            pc, pc, self.cm_ram.bo().v(), self.test.v()), end = '')
+            pc, pc, self.cm_ram.v, self.test.v()), end = '')
         print("  ACC/CY:{:04b}/{}  INDEX:{}  DC:{}".format(self.acc, self.cy, "".join(["{:x}".format(x) for x in self.index_reg]), self.inst.dc))
         print(self.addr.stack)
