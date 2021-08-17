@@ -14,7 +14,7 @@ def fill_ram():
     JMS('init')
     LABEL('floop2')
     SRC(p0)
-    WR0() ; IAC() ; WR1() ; IAC() ; WR2() ; IAC() ; WR3() ; IAC() ;
+    WR0() ; IAC() ; WR1() ; IAC() ; WR2() ; IAC() ; WR3() ; IAC()
     INC(r0)
     ISZ(r2, 'floop2')
 

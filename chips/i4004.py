@@ -13,12 +13,14 @@ class i4004(sensor):
         self.data = data
         self.cm_rom = cm_rom
         self.addr = addr.addr(self, self.timing, self.data, self.cm_rom)
-        self.inst = inst.inst(self, self.timing, self.data)
+        self.ram_bank = 1
+        self.cm_ram = cm_ram
+        self.inst = inst.inst(self, self.timing, self.data, self.cm_ram)
         self.index_reg = [0] * 16
         self.cy = 0
         self.acc = 0
 
-        self.cm_ram = reg(bus(v=1), wire(), cm_ram)
+
         self.test = test
 
 
@@ -29,7 +31,7 @@ class i4004(sensor):
         opr = self.inst.opr.v 
         if self.inst.src():
             self.SRC()
-        elif self.inst.fin():
+        if self.inst.fin():
             self.FIN()
         elif self.inst.jin():
             self.JIN()
@@ -56,19 +58,7 @@ class i4004(sensor):
             self.LDM()
 
         elif opr == 0b1110:
-            if self.inst.opa.v == 0b0000:
-                self.WRM()
-            elif self.inst.opa.v == 0b0001:
-                self.WMP()
-            elif self.inst.opa.v == 0b0100:
-                self.WR0()
-            elif self.inst.opa.v == 0b0101:
-                self.WR1()
-            elif self.inst.opa.v == 0b0110:
-                self.WR2()
-            elif self.inst.opa.v == 0b0111:
-                self.WR3()
-            elif self.inst.opa.v == 0b1000:
+            if self.inst.opa.v == 0b1000:
                 self.SBM()
             elif self.inst.opa.v == 0b1001:
                 self.RDM()
@@ -172,24 +162,6 @@ class i4004(sensor):
         self.acc = self.inst.opa.v
 
 
-    def WRM(self):
-        self.mcs4.setRAM(self.acc)
-
-    def WMP(self):
-        self.mcs4.setOutput(self.acc)
-
-    def WR0(self):
-        self.mcs4.setStatus(0, self.acc)
-
-    def WR1(self):
-        self.mcs4.setStatus(1, self.acc)
-   
-    def WR2(self):
-        self.mcs4.setStatus(2, self.acc)
-
-    def WR3(self):
-        self.mcs4.setStatus(3, self.acc)
-
     def SBM(self):
         sum = self.acc + (~self.mcs4.getRAM() & 0xF) + (~self.cy & 0x1)
         self.cy = sum >> 4
@@ -277,24 +249,22 @@ class i4004(sensor):
             self.acc = 15
 
     def DCL(self):
-        self.cm_ram.s().v(1)
         if self.acc & 0b0111 == 0:
-            self.cm_ram.bi().v(1)
+            self.ram_bank = 1
         elif self.acc & 0b0111 == 1:
-            self.cm_ram.bi().v(2)
+            self.ram_bank = 2
         elif self.acc & 0b0111 == 2:
-            self.cm_ram.bi().v(4)
+            self.ram_bank = 4
         elif self.acc & 0b0111 == 3:
-            self.cm_ram.bi().v(3)
+            self.ram_bank = 3
         elif self.acc & 0b0111 == 4:
-            self.cm_ram.bi().v(8)
+            self.ram_bank = 8
         elif self.acc & 0b0111 == 5:
-            self.cm_ram.bi().v(10)
+            self.ram_bank = 10
         elif self.acc & 0b0111 == 6:
-            self.cm_ram.bi().v(12)
+            self.ram_bank = 12
         elif self.acc & 0b0111 == 7:
-            self.cm_ram.bi().v(14)
-        self.cm_ram.s().v(0)
+            self.ram_bank = 14
 
     def execute(self):
         self.decodeInst()
@@ -303,6 +273,6 @@ class i4004(sensor):
         print("\nINST #{}".format(inst))
         pc = self.addr.getPC()
         print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4} ({:03x})  RAM(CM):{:04b}  TEST:{:b}".format(self.inst.opr.v, self.inst.opa.v, self.addr.sp, 
-            pc, pc, self.cm_ram.v, self.test.v()), end = '')
+            pc, pc, self.cm_ram._v, self.test.v()), end = '')
         print("  ACC/CY:{:04b}/{}  INDEX:{}  DC:{}".format(self.acc, self.cy, "".join(["{:x}".format(x) for x in self.index_reg]), self.inst.dc))
         print(self.addr.stack)

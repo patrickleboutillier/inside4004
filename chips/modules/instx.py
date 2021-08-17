@@ -33,8 +33,9 @@ class instx:
     def when(self):
         self.whenNOP()
         self.whenSRC()
-        self.whenRDR_WRR()
+        self.whenRDR()
         self.whenJCN_FIM()
+        self.whenWRM_WMP_WRR_WR0123()
 
 
     def whenX1ph1(self, opr, opa, f):
@@ -91,25 +92,21 @@ class instx:
         opr, opa = 0b0010, odd
         def X2ph1(inst):
             inst.cpu.cm_rom.v(1)
+            inst.cpu.cm_ram.v(inst.cpu.ram_bank)
             inst.data.v(inst.cpu.index_reg[inst.opa.v & 0b1110])
         def X3ph1(inst):
             inst.cpu.cm_rom.v(0)
+            inst.cpu.cm_ram.v(0)
+            inst.data.v(inst.cpu.index_reg[inst.opa.v | 0b0001])
         self.whenX2ph1(opr, opa, X2ph1)
         self.whenX3ph1(opr, opa, X3ph1)
 
-    # RDR, WRR
-    def whenRDR_WRR(self):
+    # RDR
+    def whenRDR(self):
         opr, opa = 0b1110, [0b1010]
         def X2ph2(inst):
-            print("RDR 4004", inst.data._v)
             inst.cpu.acc = inst.data._v
         self.whenX2ph2(opr, opa, X2ph2)
-
-        opr, opa = 0b1110, [0b0010]
-        def X2ph1(inst):
-            print("WRR 4004", inst.cpu.acc)
-            inst.data.v(inst.cpu.acc)
-        self.whenX2ph1(opr, opa, X2ph1)
 
     # JCN, FIM
     def whenJCN_FIM(self):
@@ -125,6 +122,13 @@ class instx:
             inst.dc = ~inst.dc & 1
         self.whenX1ph1(opr, opa, X1ph1)
 
+    # WRM, WMP, WRR, WR0/1/2/3
+    def whenWRM_WMP_WRR_WR0123(self):
+        opr, opa = 0b1110, [0b0000, 0b0001, 0b0010, 0b0100, 0b0101, 0b0110, 0b0111]
+        def X2ph1(inst):
+            inst.data.v(inst.cpu.acc)
+        self.whenX2ph1(opr, opa, X2ph1)
+ 
   
     '''
     def FIN(self):

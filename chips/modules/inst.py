@@ -3,13 +3,14 @@ from hdl import *
 
 
 class inst(sensor):
-    def __init__(self, cpu, timing, data):
+    def __init__(self, cpu, timing, data, cm_ram):
         self.x = x.instx(self)
         self.timing = timing
         self.when()
+        sensor.__init__(self, self.timing.m2)
         self.cpu = cpu
-
         self.data = data
+        self.cm_ram = cm_ram
         self.dc = 0
         self.cond = 0
         self.opr = reg(self.data, wire(), bus())
@@ -70,6 +71,15 @@ class inst(sensor):
         self.timing.whenX2ph2(X2ph2, self)
         self.timing.whenX3ph1(X3ph1, self)
         self.timing.whenX3ph2(X3ph2, self)
+
+
+    def always(self, signal):
+        # Turn on cm-ram for m2 if opr = 0b1110
+        if self.opr.v == 0b1110:
+            if self.timing.m2.v():
+                self.cm_ram.v(self.cpu.ram_bank)
+            else:
+                self.cm_ram.v(0) 
 
 
     def nop(self):

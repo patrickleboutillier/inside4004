@@ -5,64 +5,106 @@ from hdl import *
 class i4002:
     def __init__(self, bank, chip, ph1, ph2, sync, data, cm):
         self.timing = timing.timing(ph1, ph2, sync)
-        # self.when()
+        self.when()
         self.bank = bank
         self.chip = chip
         self.data = data
         self.cm = cm
-        self.srcff = 0
-        self.inst = 0
+        self.src = 0
+        self.ram_select = 0
+        self.ram_inst = 0
         self.opa = 0
         self.reg = 0
         self.char = 0
         self.ram = [[0] * 16, [0] * 16, [0] * 16, [0] * 16]
         self.status = [[0] * 4, [0] * 4, [0] * 4, [0] * 4]
         self.output = bus()
-        self.output_reg = reg(bus(), wire(), self.output)
 
 
     def when(self):
         def M2ph2(self):
             self.opa = self.data._v
-            # if self.cm.v() and self.srcff:
-
-
+            if self.ram_select and self.cm.v():
+                print("RAM INST", self.opa)
+                self.ram_inst = 1
+            else:
+                self.ram_inst = 0
+        def X2ph1(self):
+            pass
+            #if self.ram_inst:
+            #    if self.opa == 0b1000:
+            #        self.SBM()
+            #    elif self.opa == 0b1001:
+            #        self.RDM()
+            #    elif self.opa == 0b1011:
+            #        self.ADM()
+            #    elif self.opa == 0b1100:
+            #        self.RD0()
+            #    elif self.opa == 0b1101:
+            #        self.RD1()
+            #    elif self.opa == 0b1110:
+            #        self.RD2()
+            #    elif self.opa == 0b1111:
+            #        self.RD3()
         def X2ph2(self):
             if self.cm.v():
                 # SRC instruction
                 if self.chip == (self.data._v >> 2):
-                    self.srcff = 1 
+                    print("SRC 4002")
+                    self.src = 1 
+                    self.ram_select = 1
                     self.reg = self.data._v & 0b0011
                 else:
-                    self.srcff = 0
+                    self.ram_select = 0
+            else:
+                self.src = 0                
+            if self.ram_inst:
+                print(self.opa)
+                if self.opa == 0b0000:
+                    self.ram[self.reg][self.char] = self.data._v
+                elif self.opa == 0b0001:
+                    self.output.v(self.data._v)
+                elif self.opa == 0b0100:
+                    self.status[self.reg][0] = self.data._v
+                elif self.opa == 0b0101:
+                    self.status[self.reg][1] = self.data._v
+                elif self.opa == 0b0110:
+                    self.status[self.reg][2] = self.data._v
+                elif self.opa == 0b0111:
+                    self.status[self.reg][3] = self.data._v
         def X3ph2(self):
-            if self.srcff:
-                # SRC instruction
-                char = self.data._v 
+            if self.src:
+                self.char = self.data._v
+                print(self.reg, self.char, self.ram_select)
+
+        self.timing.whenM2ph2(M2ph2, self)
+        self.timing.whenX2ph1(X2ph1, self)
+        self.timing.whenX2ph2(X2ph2, self)
+        self.timing.whenX3ph2(X3ph2, self)
 
 
     def setReg(self):
         self.reg = self.data._v & 0b0011
+        pass
 
     def setChar(self):
         self.char = self.data._v
+        pass
 
     def enableRAM(self):
         self.data.v(self.ram[self.reg][self.char])
 
-    def setRAM(self):
-        self.ram[self.reg][self.char] = self.data._v
+    #def setRAM(self):
+    #    self.ram[self.reg][self.char] = self.data._v
 
     def enableStatus(self, char):
         self.data.v(self.status[self.reg][char])
 
-    def setStatus(self, char):
-        self.status[self.reg][char] = self.data._v
+    #def setStatus(self, char):
+    #    self.status[self.reg][char] = self.data._v
 
-    def setOutput(self):
-        self.output_reg.bi().v(self.data._v)
-        self.output_reg.s().v(1)
-        self.output_reg.s().v(0)
+    #def setOutput(self):
+    #    self.output.v(self.data._v)
 
     def dump(self):
         ss = " ".join(["".join(["{:x}".format(x) for x in self.ram[i]]) + "/" + "".join(["{:x}".format(x) for x in self.status[i]]) for i in range(4)])
@@ -70,37 +112,50 @@ class i4002:
 
 
 '''
-    def when(self):
-        def M2ph2(self):
-            if self.cm.v() and self.src:
-                self.opa = self.data._v
-                self.inst = 1
-            else:
-                self.inst = 0
-        def X2ph2(self):
-            if self.cm.v():
-                # SRC instruction
-                if self.chip == (self.data._v >> 2):
-                    self.srcff = 1 
-                else:
-                    self.srcff = 0
+     def WRM(self):
+        self.mcs4.setRAM(self.acc)
 
-            if self.cm.v():
-                # SRC instruction
-                if (self.data._v >> 2) == self.chip:
-                    self.src = 1
-                    self.reg = self.data._v & 0b0011
-                else:
-                    self.src = 0 
-            elif self.inst:
-                # Do whatever opa requires at this step
-                pass
-        def X3ph2(self):
-            if self.src:
-                if not self.inst:
-                    # SRC instruction
-                    char = self.data._v 
-                else:
-                    # Do whatever opa requires at this step
-                    pass
+    def WMP(self):
+        self.mcs4.setOutput(self.acc)
+
+    def WR0(self):
+        self.mcs4.setStatus(0, self.acc)
+
+    def WR1(self):
+        self.mcs4.setStatus(1, self.acc)
+   
+    def WR2(self):
+        self.mcs4.setStatus(2, self.acc)
+
+    def WR3(self):
+        self.mcs4.setStatus(3, self.acc)
+
+
+
+    def SBM(self):
+        sum = self.acc + (~self.mcs4.getRAM() & 0xF) + (~self.cy & 0x1)
+        self.cy = sum >> 4
+        self.acc = sum & 0xF
+
+    def RDM(self):
+        self.acc = self.mcs4.getRAM()
+
+    def ADM(self):
+        sum = self.acc + self.mcs4.getRAM() + self.cy
+        self.cy = sum >> 4
+        self.acc = sum & 0xF
+
+    def RD0(self):
+        self.acc = self.mcs4.getStatus(0)
+
+    def RD1(self):
+        self.acc = self.mcs4.getStatus(1)
+    
+    def RD2(self):
+        self.acc = self.mcs4.getStatus(2)
+
+    def RD3(self):
+        self.acc = self.mcs4.getStatus(3)
+
+
 '''
