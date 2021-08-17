@@ -57,7 +57,6 @@ class i4002:
             else:
                 self.src = 0                
             if self.ram_inst:
-                print(self.opa)
                 if self.opa == 0b0000:
                     self.ram[self.reg][self.char] = self.data._v
                 elif self.opa == 0b0001:
@@ -73,7 +72,6 @@ class i4002:
         def X3ph2(self):
             if self.src:
                 self.char = self.data._v
-                print(self.reg, self.char, self.ram_select)
 
         self.timing.whenM2ph2(M2ph2, self)
         self.timing.whenX2ph1(X2ph1, self)
