@@ -4,7 +4,7 @@ import chips.modules.addr as addr, chips.modules.inst as inst
 from hdl import *
 
 
-class i4004(sensor):
+class i4004:
     def __init__(self, mcs4, ph1, ph2, data, cm_rom, cm_ram, test):
         self.timing = timing.timing(ph1, ph2, None)
         self.sync = self.timing.sync
@@ -12,9 +12,8 @@ class i4004(sensor):
         self.data = data
         self.cm_rom = cm_rom
         self.addr = addr.addr(self, self.timing, self.data, self.cm_rom)
-        self.ram_bank = 1
         self.cm_ram = cm_ram
-        self.inst = inst.inst(self, self.timing, self.data, self.cm_ram)
+        self.inst = inst.inst(self, self.timing, self.data, self.cm_rom, self.cm_ram)
         self.index_reg = [0] * 16
         self.cy = 0
         self.acc = 0
@@ -161,21 +160,21 @@ class i4004(sensor):
 
     def DCL(self):
         if self.acc & 0b0111 == 0:
-            self.ram_bank = 1
+            self.inst.ram_bank = 1
         elif self.acc & 0b0111 == 1:
-            self.ram_bank = 2
+            self.inst.ram_bank = 2
         elif self.acc & 0b0111 == 2:
-            self.ram_bank = 4
+            self.inst.ram_bank = 4
         elif self.acc & 0b0111 == 3:
-            self.ram_bank = 3
+            self.inst.ram_bank = 3
         elif self.acc & 0b0111 == 4:
-            self.ram_bank = 8
+            self.inst.ram_bank = 8
         elif self.acc & 0b0111 == 5:
-            self.ram_bank = 10
+            self.inst.ram_bank = 10
         elif self.acc & 0b0111 == 6:
-            self.ram_bank = 12
+            self.inst.ram_bank = 12
         elif self.acc & 0b0111 == 7:
-            self.ram_bank = 14
+            self.inst.ram_bank = 14
 
     def execute(self):
         self.decodeInst()

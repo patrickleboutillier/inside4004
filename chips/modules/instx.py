@@ -90,11 +90,11 @@ class instx:
         opr, opa = 0b0010, odd
         def X2ph1(inst):
             inst.cpu.cm_rom.v(1)
-            inst.cpu.cm_ram.v(inst.cpu.ram_bank)
+            inst.cm_ram.v(inst.ram_bank)
             inst.data.v(inst.cpu.index_reg[inst.opa & 0b1110])
         def X3ph1(inst):
             inst.cpu.cm_rom.v(0)
-            inst.cpu.cm_ram.v(0)
+            inst.cm_ram.v(0)
             inst.data.v(inst.cpu.index_reg[inst.opa | 0b0001])
         self.whenX2ph1(opr, opa, X2ph1)
         self.whenX3ph1(opr, opa, X3ph1)

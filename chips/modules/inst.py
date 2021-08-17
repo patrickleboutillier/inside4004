@@ -2,21 +2,20 @@ import chips.modules.instx as x
 from hdl import *
 
 
-class inst(sensor):
-    def __init__(self, cpu, timing, data, cm_ram):
+class inst:
+    def __init__(self, cpu, timing, data, cm_rom, cm_ram):
         self.x = x.instx(self)
         self.timing = timing
-        self.when()
-        sensor.__init__(self, self.timing.m2)
         self.cpu = cpu
         self.data = data
+        self.ram_bank = 1
+        self.cm_rom = cm_rom
         self.cm_ram = cm_ram
         self.dc = 0
         self.cond = 0
         self.opr = 0
         self.opa = 0
 
-    def when(self):
         def M1ph2(self):
             if (self.fim() or self.fin()) and self.dc:
                 self.cpu.index_reg[self.opa & 0b1110] = self.data._v
@@ -27,6 +26,15 @@ class inst(sensor):
                     self.cpu.addr.setPM(self.data._v)
             else:
                 self.opr = self.data._v
+        self.timing.whenM1ph2(M1ph2, self)
+
+        def M2ph1(self):
+            if self.opr == 0b1110:
+                self.cm_ram.v(self.ram_bank)
+            else:
+                self.cm_ram.v(0) 
+        self.timing.whenM2ph1(M2ph1, self)
+
         def M2ph2(self):
             if (self.fim() or self.fin()) and self.dc:
                 self.cpu.index_reg[self.opa | 0b0001] = self.data._v
@@ -37,48 +45,45 @@ class inst(sensor):
                     self.cpu.addr.setPL(self.data._v)
             else:
                 self.opa = self.data._v
+        self.timing.whenM2ph2(M2ph2, self)
 
         def X1ph1(self):
             f = self.x.dispatch[self.opr][self.opa][x.X1][x.ph1]
             if f is not None:
                 f(self)
+            if self.opr == 0b1110:
+                self.cm_ram.v(0) 
+        self.timing.whenX1ph1(X1ph1, self)
+
         def X1ph2(self):
             f = self.x.dispatch[self.opr][self.opa][x.X1][x.ph2]
             if f is not None:
                 f(self)
+        self.timing.whenX1ph2(X1ph2, self)
+
         def X2ph1(self):
             f = self.x.dispatch[self.opr][self.opa][x.X2][x.ph1]
             if f is not None:
                 f(self)
+        self.timing.whenX2ph1(X2ph1, self)
+
         def X2ph2(self):
             f = self.x.dispatch[self.opr][self.opa][x.X2][x.ph2]
             if f is not None:
                 f(self)
+        self.timing.whenX2ph2(X2ph2, self)
+
         def X3ph1(self):
             f = self.x.dispatch[self.opr][self.opa][x.X3][x.ph1]
             if f is not None:
                 f(self)
+        self.timing.whenX3ph1(X3ph1, self)
+
         def X3ph2(self):
             f = self.x.dispatch[self.opr][self.opa][x.X3][x.ph2]
             if f is not None:
                 f(self)
-        self.timing.whenM1ph2(M1ph2, self)
-        self.timing.whenM2ph2(M2ph2, self)
-        self.timing.whenX1ph1(X1ph1, self)
-        self.timing.whenX1ph2(X1ph2, self)
-        self.timing.whenX2ph1(X2ph1, self)
-        self.timing.whenX2ph2(X2ph2, self)
-        self.timing.whenX3ph1(X3ph1, self)
         self.timing.whenX3ph2(X3ph2, self)
-
-
-    def always(self, signal):
-        # Turn on cm-ram for m2 if opr = 0b1110
-        if self.opr == 0b1110:
-            if self.timing.m2.v():
-                self.cm_ram.v(self.cpu.ram_bank)
-            else:
-                self.cm_ram.v(0) 
 
 
     def nop(self):
