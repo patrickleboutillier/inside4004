@@ -129,6 +129,13 @@ class instx:
             inst.data.v(inst.cpu.acc)
         self.whenX2ph1(opr, opa, X2ph1)
  
+     # RDM, RD0/1/2/3
+    def whenRDM_RD0123(self):
+        opr, opa = 0b1110, [0b1001, 0b1100, 0b1101, 0b1110, 0b1111]
+        def X2ph2(inst):
+            inst.cpu.acc = self.data._v
+        self.whenX2ph2(opr, opa, X2ph2)
+
   
     '''
     def FIN(self):

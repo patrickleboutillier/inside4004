@@ -19,10 +19,7 @@ class i4001():
         self.wrr = 0
         self.cm = cm
         self.io = bus()
-        if io_cfg:
-            self.io_output = None
-        else:
-            self.io_output = reg(bus(), wire(), self.io)
+
 
     def when(self):
         def A1ph2(self):
@@ -59,10 +56,7 @@ class i4001():
             else:
                 self.src = 0
                 if self.io_select and self.wrr:
-                    if self.io_output is not None:
-                        self.io_output.bi().v(self.data._v)
-                        self.io_output.s().v(1)
-                        self.io_output.s().v(0)
+                    self.io.v(self.data._v)
         def X3ph2(self):
             if self.src:
                 # Data @ X3 is ignored

@@ -25,7 +25,6 @@ class i4002:
         def M2ph2(self):
             self.opa = self.data._v
             if self.ram_select and self.cm.v():
-                print("RAM INST", self.opa)
                 self.ram_inst = 1
             else:
                 self.ram_inst = 0
@@ -33,24 +32,23 @@ class i4002:
             pass
             #if self.ram_inst:
             #    if self.opa == 0b1000:
-            #        self.SBM()
+            #        self.data.v(self.ram[self.reg][self.char])
             #    elif self.opa == 0b1001:
-            #        self.RDM()
+            #        self.data.v(self.ram[self.reg][self.char])
             #    elif self.opa == 0b1011:
-            #        self.ADM()
+            #        self.data.v(self.ram[self.reg][self.char])
             #    elif self.opa == 0b1100:
-            #        self.RD0()
+            #        self.data.v(self.status[self.reg][0])
             #    elif self.opa == 0b1101:
-            #        self.RD1()
+            #        self.data.v(self.status[self.reg][1])
             #    elif self.opa == 0b1110:
-            #        self.RD2()
+            #        self.data.v(self.status[self.reg][2])
             #    elif self.opa == 0b1111:
-            #        self.RD3()
+            #        self.data.v(self.status[self.reg][3])
         def X2ph2(self):
             if self.cm.v():
                 # SRC instruction
                 if self.chip == (self.data._v >> 2):
-                    print("SRC 4002")
                     self.src = 1 
                     self.ram_select = 1
                     self.reg = self.data._v & 0b0011
@@ -112,25 +110,6 @@ class i4002:
 
 
 '''
-     def WRM(self):
-        self.mcs4.setRAM(self.acc)
-
-    def WMP(self):
-        self.mcs4.setOutput(self.acc)
-
-    def WR0(self):
-        self.mcs4.setStatus(0, self.acc)
-
-    def WR1(self):
-        self.mcs4.setStatus(1, self.acc)
-   
-    def WR2(self):
-        self.mcs4.setStatus(2, self.acc)
-
-    def WR3(self):
-        self.mcs4.setStatus(3, self.acc)
-
-
 
     def SBM(self):
         sum = self.acc + (~self.mcs4.getRAM() & 0xF) + (~self.cy & 0x1)
