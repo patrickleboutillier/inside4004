@@ -1,20 +1,18 @@
-import sys
 import chips.modules.timing as timing
-import chips.modules.addr as addr, chips.modules.inst as inst
+import chips.modules.addr as addr, chips.modules.inst as inst, chips.modules.scratch as scratch
 from hdl import *
 
 
 class i4004:
-    def __init__(self, mcs4, ph1, ph2, data, cm_rom, cm_ram, test):
+    def __init__(self, ph1, ph2, data, cm_rom, cm_ram, test):
         self.timing = timing.timing(ph1, ph2, None)
         self.sync = self.timing.sync
-        self.mcs4 = mcs4
         self.data = data
-        self.cm_rom = cm_rom
-        self.addr = addr.addr(self, self.timing, self.data, self.cm_rom)
-        self.cm_ram = cm_ram
-        self.inst = inst.inst(self, self.timing, self.data, self.cm_rom, self.cm_ram)
-        self.index_reg = [0] * 16
+        self.scratch = scratch.scratch(data)
+        self.addr = addr.addr(self, self.scratch, self.timing, self.data, cm_rom)
+        self.inst = inst.inst(self, self.scratch, self.timing, self.data, cm_rom, cm_ram)
+        self.scratch.inst = self.inst
+
         self.cy = 0
         self.acc = 0
         self.test = test
@@ -69,25 +67,25 @@ class i4004:
 
 
     def INC(self):
-        sum = self.index_reg[self.inst.opa] + 1
-        self.index_reg[self.inst.opa] = sum & 0xF
+        sum = self.scratch.index_reg[self.inst.opa] + 1
+        self.scratch.index_reg[self.inst.opa] = sum & 0xF
 
     def ADD(self):
-        sum = self.acc + self.index_reg[self.inst.opa] + self.cy
+        sum = self.acc + self.scratch.index_reg[self.inst.opa] + self.cy
         self.cy = sum >> 4
         self.acc = sum & 0xF
 
     def SUB(self):
-        sum = self.acc + (~self.index_reg[self.inst.opa] & 0xF) + (~self.cy & 0b1)
+        sum = self.acc + (~self.scratch.index_reg[self.inst.opa] & 0xF) + (~self.cy & 0b1)
         self.cy = sum >> 4
         self.acc = sum & 0xF
 
     def LD(self):
-        self.acc = self.index_reg[self.inst.opa]
+        self.acc = self.scratch.index_reg[self.inst.opa]
 
     def XCH(self):
-        tmp = self.index_reg[self.inst.opa]
-        self.index_reg[self.inst.opa] = self.acc
+        tmp = self.scratch.index_reg[self.inst.opa]
+        self.scratch.index_reg[self.inst.opa] = self.acc
         self.acc = tmp
 
     def BBL(self):
@@ -180,9 +178,9 @@ class i4004:
         self.decodeInst()
 
     def dump(self, inst):
-        print("\nINST #{}".format(inst))
+        print("\nCYCLE #{}".format(inst))
         pc = self.addr.getPC()
         print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4} ({:03x})  RAM(CM):{:04b}  TEST:{:b}".format(self.inst.opr, self.inst.opa, self.addr.sp, 
-            pc, pc, self.cm_ram._v, self.test.v()), end = '')
-        print("  ACC/CY:{:04b}/{}  INDEX:{}  DC:{}".format(self.acc, self.cy, "".join(["{:x}".format(x) for x in self.index_reg]), self.inst.dc))
+            pc, pc, self.inst.cm_ram._v, self.test.v()), end = '')
+        print("  ACC/CY:{:04b}/{}  INDEX:{}  DC:{}".format(self.acc, self.cy, "".join(["{:x}".format(x) for x in self.scratch.index_reg]), self.inst.dc))
         print(self.addr.stack)

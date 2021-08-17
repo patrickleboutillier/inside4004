@@ -2,10 +2,11 @@ from hdl import *
 
 
 class addr:
-    def __init__(self, cpu, timing, data, cm_rom):
+    def __init__(self, cpu, scratch, timing, data, cm_rom):
         self.timing = timing
         self.when()
         self.cpu = cpu
+        self.scratch = scratch
         self.data = data 
         self.cm_rom = cm_rom
         self.sp = 0
@@ -15,12 +16,12 @@ class addr:
     def when(self):
         def A1ph1(self):
             if self.cpu.inst.fin() and self.cpu.inst.dc:
-                self.data.v(self.cpu.index_reg[1])
+                self.data.v(self.scratch.index_reg[1])
             else:
                 self.data.v(self.stack[self.sp]['l'])
         def A2ph1(self):
             if self.cpu.inst.fin() and self.cpu.inst.dc:
-                self.data.v(self.cpu.index_reg[0])
+                self.data.v(self.scratch.index_reg[0])
             else:
                 self.data.v(self.stack[self.sp]['m'])
         def A3ph1(self):

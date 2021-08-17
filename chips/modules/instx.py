@@ -89,13 +89,13 @@ class instx:
     def whenSRC(self):
         opr, opa = 0b0010, odd
         def X2ph1(inst):
-            inst.cpu.cm_rom.v(1)
+            inst.cm_rom.v(1)
             inst.cm_ram.v(inst.ram_bank)
-            inst.data.v(inst.cpu.index_reg[inst.opa & 0b1110])
+            inst.data.v(inst.scratch.index_reg[inst.opa & 0b1110])
         def X3ph1(inst):
-            inst.cpu.cm_rom.v(0)
+            inst.cm_rom.v(0)
             inst.cm_ram.v(0)
-            inst.data.v(inst.cpu.index_reg[inst.opa | 0b0001])
+            inst.data.v(inst.scratch.index_reg[inst.opa | 0b0001])
         self.whenX2ph1(opr, opa, X2ph1)
         self.whenX3ph1(opr, opa, X3ph1)
 
@@ -126,8 +126,8 @@ class instx:
         opr, opa = 0b0011, odd
         def X1ph1(inst):
             # TODO: Find proper timing for these operations
-            inst.cpu.addr.setPM(inst.cpu.index_reg[inst.opa & 0b1110])
-            inst.cpu.addr.setPL(inst.cpu.index_reg[inst.opa | 0b0001])
+            inst.cpu.addr.setPM(inst.scratch.index_reg[inst.opa & 0b1110])
+            inst.cpu.addr.setPL(inst.scratch.index_reg[inst.opa | 0b0001])
         self.whenX1ph1(opr, opa, X1ph1)
 
         # JUN, JMS
@@ -144,9 +144,9 @@ class instx:
             inst.dc = ~inst.dc & 1
             if inst.dc:
                 # TODO: Find proper timing for these operations
-                sum = inst.cpu.index_reg[inst.opa] + 1
-                inst.cpu.index_reg[inst.opa] = sum & 0xF
-                inst.setISZCond(inst.cpu.index_reg[inst.opa])
+                sum = inst.scratch.index_reg[inst.opa] + 1
+                inst.scratch.index_reg[inst.opa] = sum & 0xF
+                inst.setISZCond(inst.scratch.index_reg[inst.opa])
         self.whenX1ph1(opr, opa, X1ph1)
 
 

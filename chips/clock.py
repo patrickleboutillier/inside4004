@@ -1,6 +1,16 @@
 from hdl import *
 
 
+# This class implements the 2-phase clock used by the entire MCS-4 system:
+#
+#       __              __              __              __
+# ph1: |  |____________|  |____________|  |____________|  |____________
+#               __              __              __              __
+# ph2: ________|  |____________|  |____________|  |____________|  |____
+#
+#      |--   cycle   --|--   cycle   --|--   cycle   --|--   cycle   --|
+
+
 class clock():
     def __init__(self):
         self.phx = bus(2)

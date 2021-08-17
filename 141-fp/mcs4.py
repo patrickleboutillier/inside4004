@@ -34,7 +34,7 @@ kbdsr = i4003.i4003(name="KB", clock=PROM[0].io.wire(0), data_in=PROM[0].io.wire
 MCS4.addSR(kbdsr)
 
 # Keyboard
-keyboard = keyboard.keyboard(kbdsr.parallel_out(), lights)
+keyboard = keyboard.keyboard(kbdsr.parallel_out, lights)
 for i in range(4):
     buf(keyboard.output().wire(i), PROM[1].io.wire(i))
 buf(keyboard.advance(), PROM[2].io.wire(3))
@@ -46,15 +46,15 @@ if kb is not None:
 # Create printer 4003s
 # Order important here to void race conditions
 psr2 = i4003.i4003(name="P2", clock=PROM[0].io.wire(2), data_in=PROM[0].io.wire(1), enable=wire(1))
-psr1 = i4003.i4003(name="P1", clock=PROM[0].io.wire(2), data_in=psr2.serial_out(), enable=wire(1))
+psr1 = i4003.i4003(name="P1", clock=PROM[0].io.wire(2), data_in=psr2.serial_out, enable=wire(1))
 MCS4.addSR(psr1)
 MCS4.addSR(psr2)
 
 # Printer
 printer = printer.printer(fire=RAM[0].output.wire(1), advance=RAM[0].output.wire(3), color=RAM[0].output.wire(0))
 for i in range(10):
-    buf(psr2.parallel_out().wire(i), printer.input().wire(i))
-    buf(psr1.parallel_out().wire(i), printer.input().wire(10+i))
+    buf(psr2.parallel_out.wire(i), printer.input().wire(i))
+    buf(psr1.parallel_out.wire(i), printer.input().wire(10+i))
 buf(printer.sector(), test)
 buf(printer.index(), PROM[2].io.wire(0))
 

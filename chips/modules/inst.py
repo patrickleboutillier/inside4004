@@ -3,10 +3,11 @@ from hdl import *
 
 
 class inst:
-    def __init__(self, cpu, timing, data, cm_rom, cm_ram):
+    def __init__(self, cpu, scratch, timing, data, cm_rom, cm_ram):
         self.x = x.instx(self)
         self.timing = timing
         self.cpu = cpu
+        self.scratch = scratch
         self.data = data
         self.ram_bank = 1
         self.cm_rom = cm_rom
@@ -18,7 +19,7 @@ class inst:
 
         def M1ph2(self):
             if (self.fim() or self.fin()) and self.dc:
-                self.cpu.index_reg[self.opa & 0b1110] = self.data._v
+                self.scratch.index_reg[self.opa & 0b1110] = self.data._v
             elif (self.jun() or self.jms()) and self.dc:
                 self.cpu.addr.setPM(self.data._v)
             elif (self.jcn() or self.isz()) and self.dc:
@@ -37,7 +38,7 @@ class inst:
 
         def M2ph2(self):
             if (self.fim() or self.fin()) and self.dc:
-                self.cpu.index_reg[self.opa | 0b0001] = self.data._v
+                self.scratch.index_reg[self.opa | 0b0001] = self.data._v
             elif (self.jun() or self.jms()) and self.dc:
                 self.cpu.addr.setPL(self.data._v)
             elif (self.jcn() or self.isz()) and self.dc:

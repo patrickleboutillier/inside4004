@@ -2,7 +2,7 @@ import chips.modules.timing as timing
 from hdl import * 
 
 
-# This class implements the behaviour of the 4002 chip ROM chip.
+# This class implements the behaviour of the 4002 RAM chip.
 
 
 class i4002:
