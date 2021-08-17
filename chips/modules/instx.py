@@ -29,10 +29,10 @@ class instx:
 
         self.whenNOP()
         self.whenSRC()
-        self.whenJCN_FIM_FIN_JIN_JUN_JMS()
+        self.whenJCN_FIM_FIN_JIN_JUN_JMS_ISZ()
         self.whenRDM_RDR_RD0123()
         self.whenWRM_WMP_WRR_WR0123()
-        self.whenSBM() ; self.whenADM()
+        self.whenADM_SBM()
 
 
     def whenX1ph1(self, opr, opa, f):
@@ -84,6 +84,7 @@ class instx:
             sys.exit("ERROR!")
         self.whenX1ph1(opr, opa, X1ph1)
 
+
     # SRC
     def whenSRC(self):
         opr, opa = 0b0010, odd
@@ -98,8 +99,9 @@ class instx:
         self.whenX2ph1(opr, opa, X2ph1)
         self.whenX3ph1(opr, opa, X3ph1)
 
-    # JCN, FIM, FIN, JIN, JUN, JMS
-    def whenJCN_FIM_FIN_JIN_JUN_JMS(self):
+
+    # JCN, FIM, FIN, JIN, JUN, JMS, ISZ
+    def whenJCN_FIM_FIN_JIN_JUN_JMS_ISZ(self):
         # JCN
         opr, opa = 0b0001, any
         def X1ph1(inst):
@@ -136,6 +138,17 @@ class instx:
         for opr in [0b0100, 0b0101]:
             self.whenX1ph1(opr, any, X1ph1)
 
+        # ISZ
+        opr, opa = 0b0111, any
+        def X1ph1(inst):
+            inst.dc = ~inst.dc & 1
+            if inst.dc:
+                # TODO: Find proper timing for these operations
+                sum = inst.cpu.index_reg[inst.opa] + 1
+                inst.cpu.index_reg[inst.opa] = sum & 0xF
+                inst.setISZCond(inst.cpu.index_reg[inst.opa])
+        self.whenX1ph1(opr, opa, X1ph1)
+
 
     # WRM, WMP, WRR, WR0/1/2/3
     def whenWRM_WMP_WRR_WR0123(self):
@@ -144,6 +157,7 @@ class instx:
             inst.data.v(inst.cpu.acc)
         self.whenX2ph1(opr, opa, X2ph1)
  
+
      # RDM, RD0/1/2/3
     def whenRDM_RDR_RD0123(self):
         opr, opa = 0b1110, [0b1001, 0b1010, 0b1100, 0b1101, 0b1110, 0b1111]
@@ -151,17 +165,10 @@ class instx:
             inst.cpu.acc = inst.data._v
         self.whenX2ph2(opr, opa, X2ph2)
 
-    # SBM
-    def whenSBM(self):
-        opr, opa = 0b1110, [0b1000]
-        def X2ph2(inst):
-            sum = inst.cpu.acc + (~inst.data._v & 0xF) + (~inst.cpu.cy & 1)
-            inst.cpu.cy = sum >> 4
-            inst.cpu.acc = sum & 0xF
-        self.whenX2ph2(opr, opa, X2ph2)
 
-    # ADM
-    def whenADM(self):
+    # ADM, SBM
+    def whenADM_SBM(self):
+        # ADM
         opr, opa = 0b1110, [0b1011]
         def X2ph2(inst):
             sum = inst.cpu.acc + inst.data._v + inst.cpu.cy
@@ -169,12 +176,10 @@ class instx:
             inst.cpu.acc = sum & 0xF
         self.whenX2ph2(opr, opa, X2ph2)
 
-
-'''
-    def ISZ(self):
-        self.inst.dc = ~self.inst.dc & 1
-        if self.inst.dc:
-            sum = self.index_reg[self.inst.opa] + 1
-            self.index_reg[self.inst.opa] = sum & 0xF
-            self.inst.setISZCond(self.index_reg[self.inst.opa])
-'''
+        # SBM
+        opr, opa = 0b1110, [0b1000]
+        def X2ph2(inst):
+            sum = inst.cpu.acc + (~inst.data._v & 0xF) + (~inst.cpu.cy & 1)
+            inst.cpu.cy = sum >> 4
+            inst.cpu.acc = sum & 0xF
+        self.whenX2ph2(opr, opa, X2ph2)

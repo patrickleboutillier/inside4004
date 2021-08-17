@@ -25,10 +25,7 @@ class i4004(sensor):
         opr = self.inst.opr
         if self.inst.inc():
             self.INC()
-        elif self.inst.isz():
-            self.ISZ()
-
-        if opr == 0b1000:
+        elif opr == 0b1000:
             self.ADD()
         elif opr == 0b1001:
             self.SUB()
@@ -71,13 +68,6 @@ class i4004(sensor):
             elif self.inst.opa == 0b1101:
                 self.DCL()
 
-    def ISZ(self):
-        self.inst.dc = ~self.inst.dc & 1
-        if self.inst.dc:
-            sum = self.index_reg[self.inst.opa] + 1
-            self.index_reg[self.inst.opa] = sum & 0xF
-            self.inst.setISZCond(self.index_reg[self.inst.opa])
-
 
     def INC(self):
         sum = self.index_reg[self.inst.opa] + 1
@@ -108,11 +98,6 @@ class i4004(sensor):
     def LDM(self):
         self.acc = self.inst.opa
 
-
-    def SBM(self):
-        sum = self.acc + (~self.mcs4.getRAM() & 0xF) + (~self.cy & 0x1)
-        self.cy = sum >> 4
-        self.acc = sum & 0xF
 
     def CLB(self):
         self.acc = 0
