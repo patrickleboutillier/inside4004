@@ -24,7 +24,7 @@ class i4004(sensor):
 
 
     def decodeInst(self):
-        opr = self.inst.opr.v 
+        opr = self.inst.opr
         if self.inst.fin():
             self.FIN()
         elif self.inst.jin():
@@ -52,33 +52,33 @@ class i4004(sensor):
             self.LDM()
 
         elif opr == 0b1111:
-            if self.inst.opa.v == 0b0000:
+            if self.inst.opa == 0b0000:
                 self.CLB()
-            elif self.inst.opa.v == 0b0001:
+            elif self.inst.opa == 0b0001:
                 self.CLC()
-            elif self.inst.opa.v == 0b0010:
+            elif self.inst.opa == 0b0010:
                 self.IAC()
-            elif self.inst.opa.v == 0b0011:
+            elif self.inst.opa == 0b0011:
                 self.CMC()
-            elif self.inst.opa.v == 0b0100:
+            elif self.inst.opa == 0b0100:
                 self.CMA()
-            elif self.inst.opa.v == 0b0101:
+            elif self.inst.opa == 0b0101:
                 self.RAL()
-            elif self.inst.opa.v == 0b0110:
+            elif self.inst.opa == 0b0110:
                 self.RAR()
-            elif self.inst.opa.v == 0b0111:
+            elif self.inst.opa == 0b0111:
                 self.TCC()
-            elif self.inst.opa.v == 0b1000:
+            elif self.inst.opa == 0b1000:
                 self.DAC()
-            elif self.inst.opa.v == 0b1001:
+            elif self.inst.opa == 0b1001:
                 self.TCS()
-            elif self.inst.opa.v == 0b1010:
+            elif self.inst.opa == 0b1010:
                 self.STC()
-            elif self.inst.opa.v == 0b1011:
+            elif self.inst.opa == 0b1011:
                 self.DAA()
-            elif self.inst.opa.v == 0b1100:
+            elif self.inst.opa == 0b1100:
                 self.KBP()
-            elif self.inst.opa.v == 0b1101:
+            elif self.inst.opa == 0b1101:
                 self.DCL()
 
     
@@ -86,55 +86,55 @@ class i4004(sensor):
         self.inst.dc = ~self.inst.dc & 1
 
     def JIN(self):
-        self.addr.setPM(self.index_reg[self.inst.opa.v & 0b1110])
-        self.addr.setPL(self.index_reg[self.inst.opa.v | 0b0001])
+        self.addr.setPM(self.index_reg[self.inst.opa & 0b1110])
+        self.addr.setPL(self.index_reg[self.inst.opa | 0b0001])
 
     def JUN(self):
         self.inst.dc = ~self.inst.dc & 1
         if not self.inst.dc: # TODO: At X1/ph2?
-            self.addr.setPH(self.inst.opa.v)
+            self.addr.setPH(self.inst.opa)
 
     def JMS(self):
         self.inst.dc = ~self.inst.dc & 1
         if not self.inst.dc: # TODO: At X1/ph2?
-            self.addr.setPH(self.inst.opa.v)
+            self.addr.setPH(self.inst.opa)
 
     def ISZ(self):
         self.inst.dc = ~self.inst.dc & 1
         if self.inst.dc:
-            sum = self.index_reg[self.inst.opa.v] + 1
-            self.index_reg[self.inst.opa.v] = sum & 0xF
-            self.inst.setISZCond(self.index_reg[self.inst.opa.v])
+            sum = self.index_reg[self.inst.opa] + 1
+            self.index_reg[self.inst.opa] = sum & 0xF
+            self.inst.setISZCond(self.index_reg[self.inst.opa])
 
 
     def INC(self):
-        sum = self.index_reg[self.inst.opa.v] + 1
-        self.index_reg[self.inst.opa.v] = sum & 0xF
+        sum = self.index_reg[self.inst.opa] + 1
+        self.index_reg[self.inst.opa] = sum & 0xF
 
     def ADD(self):
-        sum = self.acc + self.index_reg[self.inst.opa.v] + self.cy
+        sum = self.acc + self.index_reg[self.inst.opa] + self.cy
         self.cy = sum >> 4
         self.acc = sum & 0xF
 
     def SUB(self):
-        sum = self.acc + (~self.index_reg[self.inst.opa.v] & 0xF) + (~self.cy & 0b1)
+        sum = self.acc + (~self.index_reg[self.inst.opa] & 0xF) + (~self.cy & 0b1)
         self.cy = sum >> 4
         self.acc = sum & 0xF
 
     def LD(self):
-        self.acc = self.index_reg[self.inst.opa.v]
+        self.acc = self.index_reg[self.inst.opa]
 
     def XCH(self):
-        tmp = self.index_reg[self.inst.opa.v]
-        self.index_reg[self.inst.opa.v] = self.acc
+        tmp = self.index_reg[self.inst.opa]
+        self.index_reg[self.inst.opa] = self.acc
         self.acc = tmp
 
     def BBL(self):
         self.addr.decSP()
-        self.acc = self.inst.opa.v 
+        self.acc = self.inst.opa 
 
     def LDM(self):
-        self.acc = self.inst.opa.v
+        self.acc = self.inst.opa
 
 
     def SBM(self):
@@ -247,7 +247,7 @@ class i4004(sensor):
     def dump(self, inst):
         print("\nINST #{}".format(inst))
         pc = self.addr.getPC()
-        print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4} ({:03x})  RAM(CM):{:04b}  TEST:{:b}".format(self.inst.opr.v, self.inst.opa.v, self.addr.sp, 
+        print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4} ({:03x})  RAM(CM):{:04b}  TEST:{:b}".format(self.inst.opr, self.inst.opa, self.addr.sp, 
             pc, pc, self.cm_ram._v, self.test.v()), end = '')
         print("  ACC/CY:{:04b}/{}  INDEX:{}  DC:{}".format(self.acc, self.cy, "".join(["{:x}".format(x) for x in self.index_reg]), self.inst.dc))
         print(self.addr.stack)

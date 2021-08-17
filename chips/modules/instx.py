@@ -93,11 +93,11 @@ class instx:
         def X2ph1(inst):
             inst.cpu.cm_rom.v(1)
             inst.cpu.cm_ram.v(inst.cpu.ram_bank)
-            inst.data.v(inst.cpu.index_reg[inst.opa.v & 0b1110])
+            inst.data.v(inst.cpu.index_reg[inst.opa & 0b1110])
         def X3ph1(inst):
             inst.cpu.cm_rom.v(0)
             inst.cpu.cm_ram.v(0)
-            inst.data.v(inst.cpu.index_reg[inst.opa.v | 0b0001])
+            inst.data.v(inst.cpu.index_reg[inst.opa | 0b0001])
         self.whenX2ph1(opr, opa, X2ph1)
         self.whenX3ph1(opr, opa, X3ph1)
 
@@ -151,23 +151,23 @@ class instx:
         self.inst.dc = ~self.inst.dc & 1
 
     def JIN(self):
-        self.addr.setPM(self.index_reg[self.inst.opa.v & 0b1110])
-        self.addr.setPL(self.index_reg[self.inst.opa.v | 0b0001])
+        self.addr.setPM(self.index_reg[self.inst.opa & 0b1110])
+        self.addr.setPL(self.index_reg[self.inst.opa | 0b0001])
 
     def JUN(self):
         self.inst.dc = ~self.inst.dc & 1
         if not self.inst.dc: # TODO: At X1/ph2?
-            self.addr.setPH(self.inst.opa.v)
+            self.addr.setPH(self.inst.opa)
 
     def JMS(self):
         self.inst.dc = ~self.inst.dc & 1
         if not self.inst.dc: # TODO: At X1/ph2?
-            self.addr.setPH(self.inst.opa.v)
+            self.addr.setPH(self.inst.opa)
 
     def ISZ(self):
         self.inst.dc = ~self.inst.dc & 1
         if self.inst.dc:
-            sum = self.index_reg[self.inst.opa.v] + 1
-            self.index_reg[self.inst.opa.v] = sum & 0xF
-            self.inst.setISZCond(self.index_reg[self.inst.opa.v])
+            sum = self.index_reg[self.inst.opa] + 1
+            self.index_reg[self.inst.opa] = sum & 0xF
+            self.inst.setISZCond(self.index_reg[self.inst.opa])
 '''
