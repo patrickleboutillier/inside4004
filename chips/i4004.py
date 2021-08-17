@@ -18,22 +18,12 @@ class i4004(sensor):
         self.index_reg = [0] * 16
         self.cy = 0
         self.acc = 0
-
-
         self.test = test
 
 
     def decodeInst(self):
         opr = self.inst.opr
-        if self.inst.fin():
-            self.FIN()
-        elif self.inst.jin():
-            self.JIN()
-        elif self.inst.jun():
-            self.JUN()
-        elif self.inst.jms():
-            self.JMS()
-        elif self.inst.inc():
+        if self.inst.inc():
             self.INC()
         elif self.inst.isz():
             self.ISZ()
@@ -81,24 +71,6 @@ class i4004(sensor):
             elif self.inst.opa == 0b1101:
                 self.DCL()
 
-    
-    def FIN(self):
-        self.inst.dc = ~self.inst.dc & 1
-
-    def JIN(self):
-        self.addr.setPM(self.index_reg[self.inst.opa & 0b1110])
-        self.addr.setPL(self.index_reg[self.inst.opa | 0b0001])
-
-    def JUN(self):
-        self.inst.dc = ~self.inst.dc & 1
-        if not self.inst.dc: # TODO: At X1/ph2?
-            self.addr.setPH(self.inst.opa)
-
-    def JMS(self):
-        self.inst.dc = ~self.inst.dc & 1
-        if not self.inst.dc: # TODO: At X1/ph2?
-            self.addr.setPH(self.inst.opa)
-
     def ISZ(self):
         self.inst.dc = ~self.inst.dc & 1
         if self.inst.dc:
@@ -141,27 +113,6 @@ class i4004(sensor):
         sum = self.acc + (~self.mcs4.getRAM() & 0xF) + (~self.cy & 0x1)
         self.cy = sum >> 4
         self.acc = sum & 0xF
-
-    def RDM(self):
-        self.acc = self.mcs4.getRAM()
-
-    def ADM(self):
-        sum = self.acc + self.mcs4.getRAM() + self.cy
-        self.cy = sum >> 4
-        self.acc = sum & 0xF
-
-    def RD0(self):
-        self.acc = self.mcs4.getStatus(0)
-
-    def RD1(self):
-        self.acc = self.mcs4.getStatus(1)
-    
-    def RD2(self):
-        self.acc = self.mcs4.getStatus(2)
-
-    def RD3(self):
-        self.acc = self.mcs4.getStatus(3)
-
 
     def CLB(self):
         self.acc = 0

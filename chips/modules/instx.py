@@ -27,16 +27,13 @@ class instx:
                 for l in range(2):
                     self.dispatch[i][j][k].append(None)
 
-        self.when()
-
-    
-    def when(self):
         self.whenNOP()
         self.whenSRC()
-        self.whenJCN_FIM()
+        self.whenJCN_FIM_FIN_JIN_JUN_JMS()
         self.whenRDM_RDR_RD0123()
         self.whenWRM_WMP_WRR_WR0123()
         self.whenSBM() ; self.whenADM()
+
 
     def whenX1ph1(self, opr, opa, f):
         global X1, ph1
@@ -101,8 +98,9 @@ class instx:
         self.whenX2ph1(opr, opa, X2ph1)
         self.whenX3ph1(opr, opa, X3ph1)
 
-    # JCN, FIM
-    def whenJCN_FIM(self):
+    # JCN, FIM, FIN, JIN, JUN, JMS
+    def whenJCN_FIM_FIN_JIN_JUN_JMS(self):
+        # JCN
         opr, opa = 0b0001, any
         def X1ph1(inst):
             inst.dc = ~inst.dc & 1
@@ -110,10 +108,34 @@ class instx:
                 inst.setJCNCond(0 if inst.cpu.acc else 1, inst.cpu.cy, ~inst.cpu.test.v() & 1)  
         self.whenX1ph1(opr, opa, X1ph1)
 
+        # FIM
         opr, opa = 0b0010, even
         def X1ph1(inst):
             inst.dc = ~inst.dc & 1
         self.whenX1ph1(opr, opa, X1ph1)
+
+        # FIN
+        opr, opa = 0b0011, even
+        def X1ph1(inst):
+            inst.dc = ~inst.dc & 1
+        self.whenX1ph1(opr, opa, X1ph1)
+
+        # JIN
+        opr, opa = 0b0011, odd
+        def X1ph1(inst):
+            # TODO: Find proper timing for these operations
+            inst.cpu.addr.setPM(inst.cpu.index_reg[inst.opa & 0b1110])
+            inst.cpu.addr.setPL(inst.cpu.index_reg[inst.opa | 0b0001])
+        self.whenX1ph1(opr, opa, X1ph1)
+
+        # JUN, JMS
+        def X1ph1(inst):
+            inst.dc = ~inst.dc & 1
+            if not inst.dc: # TODO: At X1/ph2?
+                inst.cpu.addr.setPH(inst.opa)
+        for opr in [0b0100, 0b0101]:
+            self.whenX1ph1(opr, any, X1ph1)
+
 
     # WRM, WMP, WRR, WR0/1/2/3
     def whenWRM_WMP_WRR_WR0123(self):
@@ -129,6 +151,7 @@ class instx:
             inst.cpu.acc = inst.data._v
         self.whenX2ph2(opr, opa, X2ph2)
 
+    # SBM
     def whenSBM(self):
         opr, opa = 0b1110, [0b1000]
         def X2ph2(inst):
@@ -137,6 +160,7 @@ class instx:
             inst.cpu.acc = sum & 0xF
         self.whenX2ph2(opr, opa, X2ph2)
 
+    # ADM
     def whenADM(self):
         opr, opa = 0b1110, [0b1011]
         def X2ph2(inst):
@@ -146,24 +170,7 @@ class instx:
         self.whenX2ph2(opr, opa, X2ph2)
 
 
-    '''
-    def FIN(self):
-        self.inst.dc = ~self.inst.dc & 1
-
-    def JIN(self):
-        self.addr.setPM(self.index_reg[self.inst.opa & 0b1110])
-        self.addr.setPL(self.index_reg[self.inst.opa | 0b0001])
-
-    def JUN(self):
-        self.inst.dc = ~self.inst.dc & 1
-        if not self.inst.dc: # TODO: At X1/ph2?
-            self.addr.setPH(self.inst.opa)
-
-    def JMS(self):
-        self.inst.dc = ~self.inst.dc & 1
-        if not self.inst.dc: # TODO: At X1/ph2?
-            self.addr.setPH(self.inst.opa)
-
+'''
     def ISZ(self):
         self.inst.dc = ~self.inst.dc & 1
         if self.inst.dc:
