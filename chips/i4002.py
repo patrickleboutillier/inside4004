@@ -89,60 +89,6 @@ class i4002:
         self.timing.whenX3ph2(X3ph2, self)
 
 
-    # def setReg(self):
-    #     self.reg = self.data._v & 0b0011
-    #     pass
-
-    # def setChar(self):
-    #     self.char = self.data._v
-    #     pass
-
-    # def enableRAM(self):
-    #     self.data.v(self.ram[self.reg][self.char])
-
-    #def setRAM(self):
-    #    self.ram[self.reg][self.char] = self.data._v
-
-    #def enableStatus(self, char):
-    #    self.data.v(self.status[self.reg][char])
-
-    #def setStatus(self, char):
-    #    self.status[self.reg][char] = self.data._v
-
-    #def setOutput(self):
-    #    self.output.v(self.data._v)
-
     def dump(self):
         ss = " ".join(["".join(["{:x}".format(x) for x in self.ram[i]]) + "/" + "".join(["{:x}".format(x) for x in self.status[i]]) for i in range(4)])
         print("RAM {:x}/{:x}:{} OUTPUT:{:04b}".format(self.bank, self.chip, ss, self.output._v))
-
-
-'''
-
-    def SBM(self):
-        sum = self.acc + (~self.mcs4.getRAM() & 0xF) + (~self.cy & 0x1)
-        self.cy = sum >> 4
-        self.acc = sum & 0xF
-
-    def RDM(self):
-        self.acc = self.mcs4.getRAM()
-
-    def ADM(self):
-        sum = self.acc + self.mcs4.getRAM() + self.cy
-        self.cy = sum >> 4
-        self.acc = sum & 0xF
-
-    def RD0(self):
-        self.acc = self.mcs4.getStatus(0)
-
-    def RD1(self):
-        self.acc = self.mcs4.getStatus(1)
-    
-    def RD2(self):
-        self.acc = self.mcs4.getStatus(2)
-
-    def RD3(self):
-        self.acc = self.mcs4.getStatus(3)
-
-
-'''
