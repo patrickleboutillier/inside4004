@@ -33,10 +33,10 @@ class instx:
     def when(self):
         self.whenNOP()
         self.whenSRC()
-        self.whenRDR()
         self.whenJCN_FIM()
+        self.whenRDM_RDR_RD0123()
         self.whenWRM_WMP_WRR_WR0123()
-
+        self.whenSBM() ; self.whenADM()
 
     def whenX1ph1(self, opr, opa, f):
         global X1, ph1
@@ -101,13 +101,6 @@ class instx:
         self.whenX2ph1(opr, opa, X2ph1)
         self.whenX3ph1(opr, opa, X3ph1)
 
-    # RDR
-    def whenRDR(self):
-        opr, opa = 0b1110, [0b1010]
-        def X2ph2(inst):
-            inst.cpu.acc = inst.data._v
-        self.whenX2ph2(opr, opa, X2ph2)
-
     # JCN, FIM
     def whenJCN_FIM(self):
         opr, opa = 0b0001, any
@@ -130,13 +123,29 @@ class instx:
         self.whenX2ph1(opr, opa, X2ph1)
  
      # RDM, RD0/1/2/3
-    def whenRDM_RD0123(self):
-        opr, opa = 0b1110, [0b1001, 0b1100, 0b1101, 0b1110, 0b1111]
+    def whenRDM_RDR_RD0123(self):
+        opr, opa = 0b1110, [0b1001, 0b1010, 0b1100, 0b1101, 0b1110, 0b1111]
         def X2ph2(inst):
-            inst.cpu.acc = self.data._v
+            inst.cpu.acc = inst.data._v
         self.whenX2ph2(opr, opa, X2ph2)
 
-  
+    def whenSBM(self):
+        opr, opa = 0b1110, [0b1000]
+        def X2ph2(inst):
+            sum = inst.cpu.acc + (~inst.data._v & 0xF) + (~inst.cpu.cy & 1)
+            inst.cpu.cy = sum >> 4
+            inst.cpu.acc = sum & 0xF
+        self.whenX2ph2(opr, opa, X2ph2)
+
+    def whenADM(self):
+        opr, opa = 0b1110, [0b1011]
+        def X2ph2(inst):
+            sum = inst.cpu.acc + inst.data._v + inst.cpu.cy
+            inst.cpu.cy = sum >> 4
+            inst.cpu.acc = sum & 0xF
+        self.whenX2ph2(opr, opa, X2ph2)
+
+
     '''
     def FIN(self):
         self.inst.dc = ~self.inst.dc & 1

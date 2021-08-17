@@ -1,16 +1,12 @@
 from hdl import *
 
 
-class lights(sensor):
+class lights:
     def __init__(self, memory, overflow, negative):
-        sensor.__init__(self, memory, overflow, negative)
         self._memory = memory
         self._overflow = overflow
         self._negative = negative
-    
-
-    def always(self, signal):
-        pass
+        
 
     def display(self):
         return "({})({})({})".format(

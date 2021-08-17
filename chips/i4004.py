@@ -8,7 +8,6 @@ class i4004(sensor):
     def __init__(self, mcs4, ph1, ph2, data, cm_rom, cm_ram, test):
         self.timing = timing.timing(ph1, ph2, None)
         self.sync = self.timing.sync
-        # sensor.__init__(self, ph1, ph2, data)
         self.mcs4 = mcs4
         self.data = data
         self.cm_rom = cm_rom
@@ -24,13 +23,8 @@ class i4004(sensor):
         self.test = test
 
 
-    def always(self, signal):
-        pass
-
     def decodeInst(self):
         opr = self.inst.opr.v 
-        if self.inst.src():
-            self.SRC()
         if self.inst.fin():
             self.FIN()
         elif self.inst.jin():
@@ -56,22 +50,6 @@ class i4004(sensor):
             self.BBL()
         elif opr == 0b1101:
             self.LDM()
-
-        elif opr == 0b1110:
-            if self.inst.opa.v == 0b1000:
-                self.SBM()
-            elif self.inst.opa.v == 0b1001:
-                self.RDM()
-            elif self.inst.opa.v == 0b1011:
-                self.ADM()
-            elif self.inst.opa.v == 0b1100:
-                self.RD0()
-            elif self.inst.opa.v == 0b1101:
-                self.RD1()
-            elif self.inst.opa.v == 0b1110:
-                self.RD2()
-            elif self.inst.opa.v == 0b1111:
-                self.RD3()
 
         elif opr == 0b1111:
             if self.inst.opa.v == 0b0000:
@@ -103,9 +81,6 @@ class i4004(sensor):
             elif self.inst.opa.v == 0b1101:
                 self.DCL()
 
-
-    def SRC(self):
-        self.mcs4.setRAMAddr(self.index_reg[self.inst.opa.v & 0b1110], self.index_reg[self.inst.opa.v | 0b0001])
     
     def FIN(self):
         self.inst.dc = ~self.inst.dc & 1
