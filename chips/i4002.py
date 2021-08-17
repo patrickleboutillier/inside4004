@@ -39,7 +39,7 @@ class i4002:
                 # A RAM/I/O instruction is on progress, execute the proper operation according to the value of opa
                 if self.opa == 0b1000:
                     self.data.v(self.ram[self.reg][self.char])
-                if self.opa == 0b1001:
+                elif self.opa == 0b1001:
                     self.data.v(self.ram[self.reg][self.char])
                 elif self.opa == 0b1011:
                     self.data.v(self.ram[self.reg][self.char])

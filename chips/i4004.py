@@ -177,10 +177,9 @@ class i4004:
     def execute(self):
         self.decodeInst()
 
-    def dump(self, inst):
-        print("\nCYCLE #{}".format(inst))
-        pc = self.addr.getPC()
-        print("OPR/OPA:{:04b}/{:04b}  SP/PC:{:02b}/{:<4} ({:03x})  RAM(CM):{:04b}  TEST:{:b}".format(self.inst.opr, self.inst.opa, self.addr.sp, 
-            pc, pc, self.inst.cm_ram._v, self.test.v()), end = '')
-        print("  ACC/CY:{:04b}/{}  INDEX:{}  DC:{}".format(self.acc, self.cy, "".join(["{:x}".format(x) for x in self.scratch.index_reg]), self.inst.dc))
-        print(self.addr.stack)
+    def dump(self, cycle):
+        print("\nCYCLE #{}".format(cycle))
+        self.addr.dump() ; print("  ", end='')
+        self.inst.dump() ; print("  ", end='')
+        self.scratch.dump() ; print("  ", end='')
+        print("TEST:{:b}  ACC/CY:{:04b}/{}".format(self.test.v(), self.acc, self.cy))

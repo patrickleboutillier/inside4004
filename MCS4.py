@@ -62,6 +62,7 @@ class MCS4:
         for r in self.PROM:
             r.dump()
         print()
-        for s in self.SR:
-            s.dump()
-        print()
+        if len(self.SR):
+            for s in self.SR:
+                s.dump()
+            print()

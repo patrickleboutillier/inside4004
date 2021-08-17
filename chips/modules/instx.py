@@ -125,18 +125,31 @@ class instx:
         # JIN
         opr, opa = 0b0011, odd
         def X1ph1(inst):
-            # TODO: Find proper timing for these operations
-            inst.cpu.addr.setPM(inst.scratch.index_reg[inst.opa & 0b1110])
-            inst.cpu.addr.setPL(inst.scratch.index_reg[inst.opa | 0b0001])
+            inst.data.v(inst.scratch.index_reg[inst.opa & 0b1110])
         self.whenX1ph1(opr, opa, X1ph1)
+        def X1ph2(inst):
+            inst.cpu.addr.setPM()
+        self.whenX1ph2(opr, opa, X1ph2)
+        def X2ph1(inst):
+            inst.data.v(inst.scratch.index_reg[inst.opa | 0b0001])
+        self.whenX2ph1(opr, opa, X2ph1)
+        def X2ph2(inst):
+            inst.cpu.addr.setPL()
+        self.whenX2ph2(opr, opa, X2ph2)
 
         # JUN, JMS
         def X1ph1(inst):
             inst.dc = ~inst.dc & 1
-            if not inst.dc: # TODO: At X1/ph2?
-                inst.cpu.addr.setPH(inst.opa)
+        def X2ph1(inst):
+            if not inst.dc:
+                inst.data.v(inst.opa)
+        def X2ph2(inst):
+            if not inst.dc:
+                inst.cpu.addr.setPH()
         for opr in [0b0100, 0b0101]:
             self.whenX1ph1(opr, any, X1ph1)
+            self.whenX2ph1(opr, any, X2ph1)
+            self.whenX2ph2(opr, any, X2ph2)
 
         # ISZ
         opr, opa = 0b0111, any
@@ -158,7 +171,7 @@ class instx:
         self.whenX2ph1(opr, opa, X2ph1)
  
 
-     # RDM, RD0/1/2/3
+     # RDM, RDR, RD0/1/2/3
     def whenRDM_RDR_RD0123(self):
         opr, opa = 0b1110, [0b1001, 0b1010, 0b1100, 0b1101, 0b1110, 0b1111]
         def X2ph2(inst):

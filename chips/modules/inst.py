@@ -21,10 +21,10 @@ class inst:
             if (self.fim() or self.fin()) and self.dc:
                 self.scratch.index_reg[self.opa & 0b1110] = self.data._v
             elif (self.jun() or self.jms()) and self.dc:
-                self.cpu.addr.setPM(self.data._v)
+                self.cpu.addr.setPM()
             elif (self.jcn() or self.isz()) and self.dc:
                 if self.cond:
-                    self.cpu.addr.setPM(self.data._v)
+                    self.cpu.addr.setPM()
             else:
                 self.opr = self.data._v
         self.timing.whenM1ph2(M1ph2, self)
@@ -32,18 +32,16 @@ class inst:
         def M2ph1(self):
             if self.opr == 0b1110:
                 self.cm_ram.v(self.ram_bank)
-            else:
-                self.cm_ram.v(0) 
         self.timing.whenM2ph1(M2ph1, self)
 
         def M2ph2(self):
             if (self.fim() or self.fin()) and self.dc:
                 self.scratch.index_reg[self.opa | 0b0001] = self.data._v
             elif (self.jun() or self.jms()) and self.dc:
-                self.cpu.addr.setPL(self.data._v)
+                self.cpu.addr.setPL()
             elif (self.jcn() or self.isz()) and self.dc:
                 if self.cond:
-                    self.cpu.addr.setPL(self.data._v)
+                    self.cpu.addr.setPL()
             else:
                 self.opa = self.data._v
         self.timing.whenM2ph2(M2ph2, self)
@@ -136,3 +134,8 @@ class inst:
 
     def setISZCond(self, r):
         self.cond = (r != 0)
+
+
+    def dump(self):
+        print("OPR/OPA:{:04b}/{:04b}  DC:{}  CM-RAM:{:04b}".format(self.opr, self.opa, self.dc, self.ram_bank), end = '')
+

@@ -31,4 +31,8 @@ class scratch:
     def setRegPH(self):
         self.index_reg[self.inst.opa | 0b0001] = self.data._v
 
+
+    def dump(self):
+        print("INDEX:{}".format("".join(["{:x}".format(x) for x in self.index_reg])), end='')
+
     
