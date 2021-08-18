@@ -1,8 +1,13 @@
 from hdl import *
 
 
+active_timing = None
+
+
 class timing(sensor):
     def __init__(self, ph1, ph2, sync):
+        global active_timing
+        active_timing = self
         self.ph1 = ph1
         self.ph2 = ph2
         self.phx = ph1._bus
@@ -10,13 +15,13 @@ class timing(sensor):
         self.slave = 0
         self.master = 0 
         self.output = bus(8, 0)
-        self.a1 = self.output.wire(0)
-        self.a2 = self.output.wire(1)
-        self.a3 = self.output.wire(2)
-        self.m1 = self.output.wire(3)
-        self.m2 = self.output.wire(4)
-        self.x1 = self.output.wire(5)
-        self.x2 = self.output.wire(6)
+        #self.a1 = self.output.wire(0)
+        #self.a2 = self.output.wire(1)
+        #self.a3 = self.output.wire(2)
+        #self.m1 = self.output.wire(3)
+        #self.m2 = self.output.wire(4)
+        #self.x1 = self.output.wire(5)
+        #self.x2 = self.output.wire(6)
         self.x3 = self.output.wire(7)
         if sync is None:
             self.gen_sync = True
@@ -45,54 +50,55 @@ class timing(sensor):
                     self.master += 1
 
         if self.phx._v:
-            for (f, ctx) in self.dispatch[self.slave][self.phx._v]:
-                f(ctx)        
+            for f in self.dispatch[self.slave][self.phx._v]:
+                f()
 
 
-    def whenA1ph1(self, f, context):
-        self.dispatch[0][0b10].append((f, context))
+# Decorators
+def A1ph1(f):
+    active_timing.dispatch[0][0b10].append(f)
 
-    def whenA1ph2(self, f, context):
-        self.dispatch[0][0b01].append((f, context))
+def A1ph2(f):
+    active_timing.dispatch[0][0b01].append(f)
 
-    def whenA2ph1(self, f, context):
-        self.dispatch[1][0b10].append((f, context))
+def A2ph1(f):
+    active_timing.dispatch[1][0b10].append(f)
 
-    def whenA2ph2(self, f, context):
-        self.dispatch[1][0b01].append((f, context))
+def A2ph2(f):
+    active_timing.dispatch[1][0b01].append(f)
 
-    def whenA3ph1(self, f, context):
-        self.dispatch[2][0b10].append((f, context))
+def A3ph1(f):
+    active_timing.dispatch[2][0b10].append(f)
 
-    def whenA3ph2(self, f, context):
-        self.dispatch[2][0b01].append((f, context))
+def A3ph2(f):
+    active_timing.dispatch[2][0b01].append(f)
 
-    def whenM1ph1(self, f, context):
-        self.dispatch[3][0b10].append((f, context))
+def M1ph1(f):
+    active_timing.dispatch[3][0b10].append(f)
 
-    def whenM1ph2(self, f, context):
-        self.dispatch[3][0b01].append((f, context))
+def M1ph2(f):
+    active_timing.dispatch[3][0b01].append(f)
 
-    def whenM2ph1(self, f, context):
-        self.dispatch[4][0b10].append((f, context))
+def M2ph1(f):
+    active_timing.dispatch[4][0b10].append(f)
 
-    def whenM2ph2(self, f, context):
-        self.dispatch[4][0b01].append((f, context))
+def M2ph2(f):
+    active_timing.dispatch[4][0b01].append(f)
 
-    def whenX1ph1(self, f, context):
-        self.dispatch[5][0b10].append((f, context))
+def X1ph1(f):
+    active_timing.dispatch[5][0b10].append(f)
 
-    def whenX1ph2(self, f, context):
-        self.dispatch[5][0b01].append((f, context))
+def X1ph2(f):
+    active_timing.dispatch[5][0b01].append(f)
 
-    def whenX2ph1(self, f, context):
-        self.dispatch[6][0b10].append((f, context))
+def X2ph1(f):
+    active_timing.dispatch[6][0b10].append(f)
 
-    def whenX2ph2(self, f, context):
-        self.dispatch[6][0b01].append((f, context))
+def X2ph2(f):
+    active_timing.dispatch[6][0b01].append(f)
 
-    def whenX3ph1(self, f, context):
-        self.dispatch[7][0b10].append((f, context))
+def X3ph1(f):
+    active_timing.dispatch[7][0b10].append(f)
 
-    def whenX3ph2(self, f, context):
-        self.dispatch[7][0b01].append((f, context))
+def X3ph2(f):
+    active_timing.dispatch[7][0b01].append(f)

@@ -1,10 +1,14 @@
+from chips.modules.timing import *
 from hdl import *
+
+
+# This class implements the addressing part of the CPU. It contains the stack and the stack pointer
+# It uses the data bus exclusively for input and output.
+# It is also responsible for everything that happens during A1, A2 and A3 in the CPU.
 
 
 class addr:
     def __init__(self, cpu, scratch, timing, data, cm_rom):
-        self.timing = timing
-        self.when()
         self.cpu = cpu
         self.scratch = scratch
         self.data = data 
@@ -12,39 +16,39 @@ class addr:
         self.sp = 0
         self.stack = [0, 0, 0, 0]
 
+        self.timing = timing
 
-    def when(self):
-        def A1ph1(self):
+        @A1ph1 
+        def _():
             if self.cpu.inst.fin() and self.cpu.inst.dc:
                 self.scratch.enableReg1()
             else:
                 self.data.v(self.stack[self.sp] & 0xF)
-        self.timing.whenA1ph1(A1ph1, self)
 
-        def A2ph1(self):
+        @A2ph1
+        def _():
             if self.cpu.inst.fin() and self.cpu.inst.dc:
                 self.scratch.enableReg0()
             else:
                 self.data.v((self.stack[self.sp] >> 4) & 0xF)
-        self.timing.whenA2ph1(A2ph1, self)
 
-        def A3ph1(self):
+        @A3ph1
+        def _():
             # Order not important here
             self.cm_rom.v(1)
             self.data.v(self.stack[self.sp] >> 8)
-        self.timing.whenA3ph1(A3ph1, self)
 
-        def A3ph2(self):
+        @A3ph2
+        def _():
             if self.cpu.inst.fin() and self.cpu.inst.dc:
                 return
             self.incPC()
-        self.timing.whenA3ph2(A3ph2, self)
 
-        def M1ph1(self):
+        @M1ph1
+        def _():
             self.cm_rom.v(0)
             if self.cpu.inst.jms() and self.cpu.inst.dc:
                 self.incSP()
-        self.timing.whenM1ph1(M1ph1, self)
 
 
     def setPH(self):

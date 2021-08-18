@@ -1,4 +1,4 @@
-import chips.modules.timing as timing
+from chips.modules.timing import *
 from hdl import * 
 
 
@@ -21,9 +21,10 @@ class i4002:
         self.ram = [[0] * 16, [0] * 16, [0] * 16, [0] * 16] # The actual RAM cells
         self.status = [[0] * 4, [0] * 4, [0] * 4, [0] * 4]  # The actual status cells                    
    
-        self.timing = timing.timing(ph1, ph2, sync) # The timing module and associated callback functions
+        self.timing = timing(ph1, ph2, sync)        # The timing module and associated callback functions
  
-        def M2ph2(self):
+        @M2ph2
+        def _():
             # Grab opa
             self.opa = self.data._v
             if self.ram_select and self.cm.v():
@@ -32,9 +33,9 @@ class i4002:
                 self.ram_inst = 1
             else:
                 self.ram_inst = 0
-        self.timing.whenM2ph2(M2ph2, self)
 
-        def X2ph1(self):
+        @X2ph1
+        def _():
             if self.ram_inst:
                 # A RAM/I/O instruction is on progress, execute the proper operation according to the value of opa
                 if self.opa == 0b1000:
@@ -51,9 +52,9 @@ class i4002:
                     self.data.v(self.status[self.reg][2])
                 elif self.opa == 0b1111:
                     self.data.v(self.status[self.reg][3])
-        self.timing.whenX2ph1(X2ph1, self)
 
-        def X2ph2(self):
+        @X2ph2
+        def _():
             if self.cm.v():
                 # An SRC instruction is in progress
                 if self.chip == (self.data._v >> 2):
@@ -80,13 +81,12 @@ class i4002:
                     self.status[self.reg][2] = self.data._v
                 elif self.opa == 0b0111:
                     self.status[self.reg][3] = self.data._v
-        self.timing.whenX2ph2(X2ph2, self)
 
-        def X3ph2(self):
+        @X3ph2
+        def _():
             # If we are processing an SRC instruction, grab the selected RAM character
             if self.src:
                 self.char = self.data._v
-        self.timing.whenX3ph2(X3ph2, self)
 
 
     def dump(self):

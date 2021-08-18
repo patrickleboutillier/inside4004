@@ -1,3 +1,4 @@
+from chips.modules.timing import *
 import chips.modules.instx as x
 from hdl import *
 
@@ -5,7 +6,6 @@ from hdl import *
 class inst:
     def __init__(self, cpu, scratch, timing, data, cm_rom, cm_ram):
         self.x = x.instx(self)
-        self.timing = timing
         self.cpu = cpu
         self.scratch = scratch
         self.data = data
@@ -17,7 +17,10 @@ class inst:
         self.opr = 0
         self.opa = 0
 
-        def M1ph2(self):
+        self.timing = timing
+
+        @M1ph2
+        def _():
             if (self.fim() or self.fin()) and self.dc:
                 self.scratch.setRegPairH()
             elif (self.jun() or self.jms()) and self.dc:
@@ -27,14 +30,14 @@ class inst:
                     self.cpu.addr.setPM()
             else:
                 self.opr = self.data._v
-        self.timing.whenM1ph2(M1ph2, self)
 
-        def M2ph1(self):
+        @M2ph1
+        def _():
             if self.opr == 0b1110:
                 self.cm_ram.v(self.ram_bank)
-        self.timing.whenM2ph1(M2ph1, self)
 
-        def M2ph2(self):
+        @M2ph2
+        def _():
             if (self.fim() or self.fin()) and self.dc:
                 self.scratch.setRegPairL()
             elif (self.jun() or self.jms()) and self.dc:
@@ -44,45 +47,44 @@ class inst:
                     self.cpu.addr.setPL()
             else:
                 self.opa = self.data._v
-        self.timing.whenM2ph2(M2ph2, self)
 
-        def X1ph1(self):
+        @X1ph1
+        def _():
             f = self.x.dispatch[self.opr][self.opa][x.X1][x.ph1]
             if f is not None:
                 f(self)
             if self.opr == 0b1110:
                 self.cm_ram.v(0) 
-        self.timing.whenX1ph1(X1ph1, self)
 
-        def X1ph2(self):
+        @X1ph2
+        def _():
             f = self.x.dispatch[self.opr][self.opa][x.X1][x.ph2]
             if f is not None:
                 f(self)
-        self.timing.whenX1ph2(X1ph2, self)
 
-        def X2ph1(self):
+        @X2ph1
+        def _():
             f = self.x.dispatch[self.opr][self.opa][x.X2][x.ph1]
             if f is not None:
                 f(self)
-        self.timing.whenX2ph1(X2ph1, self)
 
-        def X2ph2(self):
+        @X2ph2
+        def _():
             f = self.x.dispatch[self.opr][self.opa][x.X2][x.ph2]
             if f is not None:
                 f(self)
-        self.timing.whenX2ph2(X2ph2, self)
 
-        def X3ph1(self):
+        @X3ph1
+        def _():
             f = self.x.dispatch[self.opr][self.opa][x.X3][x.ph1]
             if f is not None:
                 f(self)
-        self.timing.whenX3ph1(X3ph1, self)
 
-        def X3ph2(self):
+        @X3ph2
+        def _():
             f = self.x.dispatch[self.opr][self.opa][x.X3][x.ph2]
             if f is not None:
                 f(self)
-        self.timing.whenX3ph2(X3ph2, self)
 
 
     def nop(self):

@@ -1,4 +1,4 @@
-import sys, os
+import os
 import chips.i4001 as i4001, chips.i4002 as i4002, chips.i4003 as i4003, chips.i4004 as i4004
 import chips.keyboard as keyboard, chips.printer as printer, chips.lights as lights
 import MCS4
@@ -63,11 +63,9 @@ buf(printer.index(), PROM[2].io.wire(0))
 MCS4.program()
 
 
+# TODO: Use argparse to handle these options
 step = False
 dump = False
-fire_hammers = 0x272
-key_found = 0x2a
-advance = 0x24d
 wait_for_start_sector_pulse = [0x001, 0x22c, 0x23f, 0x24b]
 wait_for_end_sector_pulse = [0x0fd, 0x26e]
 kb_toggle = False

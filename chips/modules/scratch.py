@@ -1,6 +1,11 @@
 from hdl import *
 
 
+# This class implements the 16-register "scratch pad" of the CPU.
+# It uses the data bus exclusively for input and output, but it has a direct connection to the OPA output
+# that is used as the index inside the register (with possible alterations, i.e. set the last bit to 0 or 1)
+
+
 class scratch:
     def __init__(self, data):
         self.data = data            # The data bus
