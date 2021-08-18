@@ -2,13 +2,6 @@ import sys
 from hdl import *
 
 
-X1 = 0
-X2 = 1
-X3 = 2
-
-ph1 = 0
-ph2 = 1
-
 even = list(range(0, 16, 2))
 odd = list(range(1, 16, 2))
 any = list(range(16))
@@ -43,7 +36,7 @@ def X3ph2(f):
 
 class instx:
     def __init__(self, inst):
-        global active_instx, opr, opa, X1ph1
+        global active_instx
         active_instx = self
 
         self.inst = inst
@@ -56,6 +49,13 @@ class instx:
                 self.dispatch[i][j].append([])
                 for l in range(2):
                     self.dispatch[i][j][k].append(None)
+
+        self.register()
+
+
+    def register(_):
+        global opr, opa
+        inst = _.inst 
 
         # NOP
         opr, opa = 0b0000, [0b0000]
