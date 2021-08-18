@@ -14,18 +14,9 @@ class timing(sensor):
         sensor.__init__(self, self.phx)
         self.slave = 0
         self.master = 0 
-        self.output = bus(8, 0)
-        #self.a1 = self.output.wire(0)
-        #self.a2 = self.output.wire(1)
-        #self.a3 = self.output.wire(2)
-        #self.m1 = self.output.wire(3)
-        #self.m2 = self.output.wire(4)
-        #self.x1 = self.output.wire(5)
-        #self.x2 = self.output.wire(6)
-        self.x3 = self.output.wire(7)
         if sync is None:
             self.gen_sync = True
-            self.sync = self.x3
+            self.sync = wire()
         else:
             self.gen_sync = False
             self.sync = sync
@@ -39,7 +30,11 @@ class timing(sensor):
         if self.phx._v == 0b10:
             # A new step starts when ph1 goes high
             self.slave = self.master
-            self.output.v(1 << self.slave)
+            if self.gen_sync:
+                if self.slave == 7:
+                    self.sync.v(1)
+                elif self.slave == 0:
+                    self.sync.v(0)
         elif self.phx._v == 0b01:
             if self.gen_sync:
                 self.master = (self.master + 1) % 8
