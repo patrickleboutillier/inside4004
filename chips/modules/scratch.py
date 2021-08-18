@@ -13,6 +13,9 @@ class scratch:
         self.index_reg = [0] * 16   # The actual registers
 
 
+    def regZero(self):
+        return 1 if self.index_reg[self.inst.opa] == 0 else 0
+
     def enableReg(self):
         self.data.v(self.index_reg[self.inst.opa])
 

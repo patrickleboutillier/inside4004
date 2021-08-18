@@ -80,21 +80,23 @@ class instx:
         opr, opa = 0b0001, any
         @X1ph1
         def _():
-            inst.dc = ~inst.dc & 1
-            if inst.dc:
-                inst.setJCNCond(0 if inst.cpu.acc else 1, inst.cpu.cy, ~inst.cpu.test.v() & 1)  
+            inst.dcff = ~inst.dcff & 1
+        @X3ph2
+        def _():
+            if inst.dcff:
+                inst.setJCNCond()  
 
         # FIM
         opr, opa = 0b0010, even
         @X1ph1
         def _():
-            inst.dc = ~inst.dc & 1
+            inst.dcff = ~inst.dcff & 1
 
         # FIN
         opr, opa = 0b0011, even
         @X1ph1
         def _():
-            inst.dc = ~inst.dc & 1
+            inst.dcff = ~inst.dcff & 1
 
         # JIN
         opr, opa = 0b0011, odd
@@ -116,26 +118,41 @@ class instx:
         for opr in [0b0100, 0b0101]:
             @X1ph1
             def _():
-                inst.dc = ~inst.dc & 1
+                inst.dcff = ~inst.dcff & 1
             @X2ph1
             def _():
-                if not inst.dc:
+                if not inst.dcff:
                     inst.data.v(inst.opa)
             @X2ph2
             def _():
-                if not inst.dc:
+                if not inst.dcff:
                     inst.cpu.addr.setPH()
+
+        # BBL
+        opr, opa = 0b1100, any
+        @X1ph1
+        def _():
+            inst.cpu.addr.decSP()
+        @X2ph1
+        def _():
+            inst.data.v(inst.opa)
+        @X2ph2
+        def _():
+            inst.cpu.acc = inst.data._v
 
         # ISZ
         opr, opa = 0b0111, any
         @X1ph1
         def _():
-            inst.dc = ~inst.dc & 1
-            if inst.dc:
+            inst.dcff = ~inst.dcff & 1
+            if inst.dcff:
                 # TODO: Find proper timing for these operations
                 sum = inst.scratch.index_reg[inst.opa] + 1
                 inst.scratch.index_reg[inst.opa] = sum & 0xF
-                inst.setISZCond(inst.scratch.index_reg[inst.opa])
+        @X3ph2
+        def _():
+            if inst.dcff:
+                inst.cond = ~inst.scratch.regZero() & 1
 
         # SRC
         opr, opa = 0b0010, odd

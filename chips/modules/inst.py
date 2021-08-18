@@ -3,6 +3,9 @@ import chips.modules.instx as x
 from hdl import *
 
 
+# This class implements the instruction processing part of the CPU. It contains the DC (double cycle) flip-flop, the condition register.
+# as well as the OPA and OPR register, which are populated via the data bus.
+# It is also responsible for everything that happens during M1 and M2 in the CPU.
 
 
 class inst:
@@ -14,7 +17,7 @@ class inst:
         self.ram_bank = 1
         self.cm_rom = cm_rom
         self.cm_ram = cm_ram
-        self.dc = 0
+        self.dcff = 0
         self.cond = 0
         self.opr = 0
         self.opa = 0
@@ -23,11 +26,11 @@ class inst:
 
         @M1ph2
         def _():
-            if (self.fim() or self.fin()) and self.dc:
+            if (self.fim() or self.fin()) and self.dcff:
                 self.scratch.setRegPairH()
-            elif (self.jun() or self.jms()) and self.dc:
+            elif (self.jun() or self.jms()) and self.dcff:
                 self.cpu.addr.setPM()
-            elif (self.jcn() or self.isz()) and self.dc:
+            elif (self.jcn() or self.isz()) and self.dcff:
                 if self.cond:
                     self.cpu.addr.setPM()
             else:
@@ -35,16 +38,17 @@ class inst:
 
         @M2ph1
         def _():
+            # This slogan turned off at X1ph1 below
             if self.opr == 0b1110:
                 self.cm_ram.v(self.ram_bank)
 
         @M2ph2
         def _():
-            if (self.fim() or self.fin()) and self.dc:
+            if (self.fim() or self.fin()) and self.dcff:
                 self.scratch.setRegPairL()
-            elif (self.jun() or self.jms()) and self.dc:
+            elif (self.jun() or self.jms()) and self.dcff:
                 self.cpu.addr.setPL()
-            elif (self.jcn() or self.isz()) and self.dc:
+            elif (self.jcn() or self.isz()) and self.dcff:
                 if self.cond:
                     self.cpu.addr.setPL()
             else:
@@ -53,19 +57,14 @@ class inst:
         self.registerX()
 
 
-    def nop(self):
-        return self.opr == 0b0000 and self.opa == 0b0000
-
-    def hlt(self):
-        return self.opr == 0b0000 and self.opa == 0b0001
-
-    def err(self):
-        return self.opr == 0b0000 and self.opa == 0b0010
-
     def jcn(self):
         return self.opr == 0b0001
 
-    def setJCNCond(self, z, c, t):
+    def setJCNCond(self):
+        z = 0 if self.cpu.acc else 1
+        c = self.cpu.cy
+        t = ~self.cpu.test.v() & 1
+
         invert = (self.opa & 0b1000) >> 3
         (zero, cy, test) = (self.opa & 0b0100, self.opa & 0b0010, self.opa & 0b0001)
         self.cond = 0
@@ -85,23 +84,14 @@ class inst:
     def fin(self):
         return self.opr == 0b0011 and not self.opa & 0b0001
 
-    def jin(self):
-        return self.opr == 0b0011 and self.opa & 0b0001
-
     def jun(self):
         return self.opr == 0b0100
 
     def jms(self):
         return self.opr == 0b0101
 
-    def inc(self):
-        return self.opr == 0b0110
-
     def isz(self):
         return self.opr == 0b0111
-
-    def setISZCond(self, r):
-        self.cond = (r != 0)
 
 
     def registerX(self):
@@ -138,5 +128,5 @@ class inst:
             
 
     def dump(self):
-        print("OPR/OPA:{:04b}/{:04b}  DC:{}  CM-RAM:{:04b}".format(self.opr, self.opa, self.dc, self.ram_bank), end = '')
+        print("OPR/OPA:{:04b}/{:04b}  DC:{}  CM-RAM:{:04b}".format(self.opr, self.opa, self.dcff, self.ram_bank), end = '')
 

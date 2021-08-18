@@ -1,5 +1,5 @@
 import chips.modules.timing as timing
-import chips.modules.addr as addr, chips.modules.inst as inst, chips.modules.scratch as scratch
+import chips.modules.addr as addr, chips.modules.inst as inst, chips.modules.scratch as scratch, chips.modules.arith as arith
 from hdl import *
 
 
@@ -9,6 +9,7 @@ class i4004:
         self.sync = self.timing.sync
         self.data = data
         self.scratch = scratch.scratch(data)
+        self.arith = arith.arith(data)
         self.addr = addr.addr(self, self.scratch, self.timing, self.data, cm_rom)
         self.inst = inst.inst(self, self.scratch, self.timing, self.data, cm_rom, cm_ram)
         self.scratch.inst = self.inst
@@ -20,7 +21,7 @@ class i4004:
 
     def decodeInst(self):
         opr = self.inst.opr
-        if self.inst.inc():
+        if opr == 0b0110:
             self.INC()
         elif opr == 0b1000:
             self.ADD()
@@ -30,8 +31,6 @@ class i4004:
             self.LD()
         elif opr == 0b1011:
             self.XCH()
-        elif opr == 0b1100:
-            self.BBL()
         elif opr == 0b1101:
             self.LDM()
 
@@ -87,10 +86,6 @@ class i4004:
         tmp = self.scratch.index_reg[self.inst.opa]
         self.scratch.index_reg[self.inst.opa] = self.acc
         self.acc = tmp
-
-    def BBL(self):
-        self.addr.decSP()
-        self.acc = self.inst.opa 
 
     def LDM(self):
         self.acc = self.inst.opa
