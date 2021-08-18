@@ -16,14 +16,14 @@ class addr:
     def when(self):
         def A1ph1(self):
             if self.cpu.inst.fin() and self.cpu.inst.dc:
-                self.data.v(self.scratch.index_reg[1])
+                self.scratch.enableReg1()
             else:
                 self.data.v(self.stack[self.sp] & 0xF)
         self.timing.whenA1ph1(A1ph1, self)
 
         def A2ph1(self):
             if self.cpu.inst.fin() and self.cpu.inst.dc:
-                self.data.v(self.scratch.index_reg[0])
+                self.scratch.enableReg0()
             else:
                 self.data.v((self.stack[self.sp] >> 4) & 0xF)
         self.timing.whenA2ph1(A2ph1, self)
@@ -46,9 +46,6 @@ class addr:
                 self.incSP()
         self.timing.whenM1ph1(M1ph1, self)
 
- 
-    def getPC(self):        # For debugging only!
-        return self.stack[self.sp]
 
     def setPH(self):
         self.stack[self.sp] = (self.stack[self.sp] & 0x0FF) | self.data._v << 8

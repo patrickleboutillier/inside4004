@@ -19,7 +19,7 @@ class inst:
 
         def M1ph2(self):
             if (self.fim() or self.fin()) and self.dc:
-                self.scratch.index_reg[self.opa & 0b1110] = self.data._v
+                self.scratch.setRegPairH()
             elif (self.jun() or self.jms()) and self.dc:
                 self.cpu.addr.setPM()
             elif (self.jcn() or self.isz()) and self.dc:
@@ -36,7 +36,7 @@ class inst:
 
         def M2ph2(self):
             if (self.fim() or self.fin()) and self.dc:
-                self.scratch.index_reg[self.opa | 0b0001] = self.data._v
+                self.scratch.setRegPairL()
             elif (self.jun() or self.jms()) and self.dc:
                 self.cpu.addr.setPL()
             elif (self.jcn() or self.isz()) and self.dc:

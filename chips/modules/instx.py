@@ -91,11 +91,11 @@ class instx:
         def X2ph1(inst):
             inst.cm_rom.v(1)
             inst.cm_ram.v(inst.ram_bank)
-            inst.data.v(inst.scratch.index_reg[inst.opa & 0b1110])
+            inst.scratch.enableRegPairH()
         def X3ph1(inst):
             inst.cm_rom.v(0)
             inst.cm_ram.v(0)
-            inst.data.v(inst.scratch.index_reg[inst.opa | 0b0001])
+            inst.scratch.enableRegPairL()
         self.whenX2ph1(opr, opa, X2ph1)
         self.whenX3ph1(opr, opa, X3ph1)
 
@@ -125,13 +125,13 @@ class instx:
         # JIN
         opr, opa = 0b0011, odd
         def X1ph1(inst):
-            inst.data.v(inst.scratch.index_reg[inst.opa & 0b1110])
+            inst.scratch.enableRegPairH()
         self.whenX1ph1(opr, opa, X1ph1)
         def X1ph2(inst):
             inst.cpu.addr.setPM()
         self.whenX1ph2(opr, opa, X1ph2)
         def X2ph1(inst):
-            inst.data.v(inst.scratch.index_reg[inst.opa | 0b0001])
+            inst.scratch.enableRegPairL()
         self.whenX2ph1(opr, opa, X2ph1)
         def X2ph2(inst):
             inst.cpu.addr.setPL()

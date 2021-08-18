@@ -3,32 +3,33 @@ from hdl import *
 
 class scratch:
     def __init__(self, data):
-        self.data = data
-        self.inst = None    # Must be set after initialisation
-        self.index_reg = [0] * 16
+        self.data = data            # The data bus
+        self.inst = None            # Must be set after initialisation
+        self.index_reg = [0] * 16   # The actual registers
 
-    def getReg(self):
-        self.data.v(self.data.v(self.index_reg[self.inst.opa]))
 
-    def getReg0(self):
-        self.data.v(self.data.v(self.index_reg[0]))
+    def enableReg(self):
+        self.data.v(self.index_reg[self.inst.opa])
 
-    def getReg1(self):
-        self.data.v(self.data.v(self.index_reg[1]))
+    def enableReg0(self):
+        self.data.v(self.index_reg[0])
 
-    def getRegPL(self):
+    def enableReg1(self):
+        self.data.v(self.index_reg[1])
+
+    def enableRegPairH(self):
         self.data.v(self.index_reg[self.inst.opa & 0b1110])
 
-    def getRegPH(self):
+    def enableRegPairL(self):
         self.data.v(self.index_reg[self.inst.opa | 0b0001])
 
     def setReg(self):
         self.index_reg[self.inst.opa] = self.data._v
 
-    def setRegPL(self):
+    def setRegPairH(self):
         self.index_reg[self.inst.opa & 0b1110] = self.data._v
 
-    def setRegPH(self):
+    def setRegPairL(self):
         self.index_reg[self.inst.opa | 0b0001] = self.data._v
 
 
