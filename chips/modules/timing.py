@@ -8,6 +8,7 @@ class timing(sensor):
     def __init__(self, ph1, ph2, sync):
         global active_timing
         active_timing = self
+        
         self.ph1 = ph1
         self.ph2 = ph2
         self.phx = ph1._bus

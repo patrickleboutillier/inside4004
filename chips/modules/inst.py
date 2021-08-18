@@ -3,6 +3,8 @@ import chips.modules.instx as x
 from hdl import *
 
 
+
+
 class inst:
     def __init__(self, cpu, scratch, timing, data, cm_rom, cm_ram):
         self.x = x.instx(self)
@@ -48,43 +50,7 @@ class inst:
             else:
                 self.opa = self.data._v
 
-        @X1ph1
-        def _():
-            f = self.x.dispatch[self.opr][self.opa][x.X1][x.ph1]
-            if f is not None:
-                f(self)
-            if self.opr == 0b1110:
-                self.cm_ram.v(0) 
-
-        @X1ph2
-        def _():
-            f = self.x.dispatch[self.opr][self.opa][x.X1][x.ph2]
-            if f is not None:
-                f(self)
-
-        @X2ph1
-        def _():
-            f = self.x.dispatch[self.opr][self.opa][x.X2][x.ph1]
-            if f is not None:
-                f(self)
-
-        @X2ph2
-        def _():
-            f = self.x.dispatch[self.opr][self.opa][x.X2][x.ph2]
-            if f is not None:
-                f(self)
-
-        @X3ph1
-        def _():
-            f = self.x.dispatch[self.opr][self.opa][x.X3][x.ph1]
-            if f is not None:
-                f(self)
-
-        @X3ph2
-        def _():
-            f = self.x.dispatch[self.opr][self.opa][x.X3][x.ph2]
-            if f is not None:
-                f(self)
+        self.registerX()
 
 
     def nop(self):
@@ -137,6 +103,39 @@ class inst:
     def setISZCond(self, r):
         self.cond = (r != 0)
 
+
+    def registerX(self):
+        def dispatch(x, n):
+            f = self.x.dispatch[self.opr][self.opa][x][n]
+            if f is not None:
+                f()
+
+        @X1ph1
+        def _():
+            if self.opr == 0b1110:
+                self.cm_ram.v(0) 
+            dispatch(0, 0)
+
+        @X1ph2
+        def _():
+            dispatch(0, 1)
+
+        @X2ph1
+        def _():
+            dispatch(1, 0)
+
+        @X2ph2
+        def _():
+            dispatch(1, 1)
+
+        @X3ph1
+        def _():
+            dispatch(2, 0)
+
+        @X3ph2
+        def _():
+            dispatch(2, 1)
+            
 
     def dump(self):
         print("OPR/OPA:{:04b}/{:04b}  DC:{}  CM-RAM:{:04b}".format(self.opr, self.opa, self.dc, self.ram_bank), end = '')
