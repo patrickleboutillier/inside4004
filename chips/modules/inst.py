@@ -66,8 +66,8 @@ class inst:
     # C3 = 1 Jump if the carry/link content is 1
     # C4 = 1 Jump if test signal (pin 10 on 4004) is zero.
     def setJCNCond(self):
-        z = self.cpu.arith.accZero()
-        c = self.cpu.arith.cy
+        z = self.cpu.alu.accZero()
+        c = self.cpu.alu.cy
         t = self.cpu.testZero()
 
         invert = (self.opa & 0b1000) >> 3
@@ -98,6 +98,21 @@ class inst:
     def isz(self):
         return self.opr == 0b0111
 
+    def io(self):
+        return self.opr == 0b1110
+
+    def iow(self):
+        return self.io() and (self.opa >> 3) == 0
+
+    def ior(self):
+        return self.io() and (self.opa >> 3) == 1
+
+    def ope(self):
+        return self.opr == 0b1111
+
+    def ld(self):
+        return self.opr == 0b1010
+        
 
     def registerX(self):
         def dispatch(x, n):

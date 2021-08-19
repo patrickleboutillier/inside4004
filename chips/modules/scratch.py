@@ -1,3 +1,4 @@
+from chips.modules.timing import *
 from hdl import *
 
 
@@ -7,10 +8,12 @@ from hdl import *
 
 
 class scratch:
-    def __init__(self, data):
+    def __init__(self, timing, data):
         self.data = data            # The data bus
         self.inst = None            # Must be set after initialisation
         self.index_reg = [0] * 16   # The actual registers
+
+        self.timing = timing
 
 
     def regZero(self):
