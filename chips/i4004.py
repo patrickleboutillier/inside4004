@@ -14,10 +14,11 @@ class i4004:
         self.inst = inst.inst(self, self.scratch, self.timing, self.data, cm_rom, cm_ram)
         self.scratch.inst = self.inst
 
-        self.cy = 0
-        self.acc = 0
         self.test = test
 
+
+    def testZero(self):
+        return 1 if self.test.v() == 0 else 0
 
     def decodeInst(self):
         opr = self.inst.opr
@@ -70,103 +71,103 @@ class i4004:
         self.scratch.index_reg[self.inst.opa] = sum & 0xF
 
     def ADD(self):
-        sum = self.acc + self.scratch.index_reg[self.inst.opa] + self.cy
-        self.cy = sum >> 4
-        self.acc = sum & 0xF
+        sum = self.arith.acc + self.scratch.index_reg[self.inst.opa] + self.arith.cy
+        self.arith.cy = sum >> 4
+        self.arith.acc = sum & 0xF
 
     def SUB(self):
-        sum = self.acc + (~self.scratch.index_reg[self.inst.opa] & 0xF) + (~self.cy & 0b1)
-        self.cy = sum >> 4
-        self.acc = sum & 0xF
+        sum = self.arith.acc + (~self.scratch.index_reg[self.inst.opa] & 0xF) + (~self.arith.cy & 0b1)
+        self.arith.cy = sum >> 4
+        self.arith.acc = sum & 0xF
 
     def LD(self):
-        self.acc = self.scratch.index_reg[self.inst.opa]
+        self.arith.acc = self.scratch.index_reg[self.inst.opa]
 
     def XCH(self):
         tmp = self.scratch.index_reg[self.inst.opa]
-        self.scratch.index_reg[self.inst.opa] = self.acc
-        self.acc = tmp
+        self.scratch.index_reg[self.inst.opa] = self.arith.acc
+        self.arith.acc = tmp
 
     def LDM(self):
-        self.acc = self.inst.opa
+        self.arith.acc = self.inst.opa
 
 
     def CLB(self):
-        self.acc = 0
-        self.cy = 0
+        self.arith.acc = 0
+        self.arith.cy = 0
 
     def CLC(self):
-        self.cy = 0 
+        self.arith.cy = 0 
 
     def IAC(self):
-        sum = self.acc + 1
-        self.cy = sum >> 4
-        self.acc = sum & 0xF 
+        sum = self.arith.acc + 1
+        self.arith.cy = sum >> 4
+        self.arith.acc = sum & 0xF 
 
     def CMC(self):
-        self.cy = ~self.cy & 0b1
+        self.arith.cy = ~self.arith.cy & 0b1
 
     def CMA(self):
-        self.acc = ~self.acc & 0xF
+        self.arith.acc = ~self.arith.acc & 0xF
 
     def RAL(self):
-        res = self.acc << 1 | self.cy
-        self.cy = res >> 4
-        self.acc = res & 0xF 
+        res = self.arith.acc << 1 | self.arith.cy
+        self.arith.cy = res >> 4
+        self.arith.acc = res & 0xF 
 
     def RAR(self):
-        co = self.acc & 1
-        res = self.cy << 3 | self.acc >> 1 
-        self.cy = co
-        self.acc = res
+        co = self.arith.acc & 1
+        res = self.arith.cy << 3 | self.arith.acc >> 1 
+        self.arith.cy = co
+        self.arith.acc = res
 
     def TCC(self):
-        self.acc = self.cy
-        self.cy = 0
+        self.arith.acc = self.arith.cy
+        self.arith.cy = 0
 
     def DAC(self):
-        sum = self.acc + 0xF
-        self.cy = sum >> 4
-        self.acc = sum & 0xF 
+        sum = self.arith.acc + 0xF
+        self.arith.cy = sum >> 4
+        self.arith.acc = sum & 0xF 
 
     def TCS(self):
-        self.acc = 0b1010 if self.cy else 0b1001
-        self.cy = 0 
+        self.arith.acc = 0b1010 if self.arith.cy else 0b1001
+        self.arith.cy = 0 
 
     def STC(self):
-        self.cy = 1
+        self.arith.cy = 1
 
     def DAA(self):
-        if self.cy or self.acc > 9:
-            self.acc += 6
-            if self.acc & 0x10:
-                self.cy = 1
-                self.acc = self.acc & 0xF
+        if self.arith.cy or self.arith.acc > 9:
+            self.arith.acc += 6
+            if self.arith.acc & 0x10:
+                self.arith.cy = 1
+                self.arith.acc = self.arith.acc & 0xF
             
     def KBP(self):
-        if self.acc == 4:
-            self.acc = 3
-        elif self.acc == 8:
-            self.acc = 4
-        elif self.acc > 2:
-            self.acc = 15
+        if self.arith.acc == 4:
+            self.arith.acc = 3
+        elif self.arith.acc == 8:
+            self.arith.acc = 4
+        elif self.arith.acc > 2:
+            self.arith.acc = 15
 
     def DCL(self):
-        if self.acc & 0b0111 == 0:
+        if self.arith.acc & 0b0111 == 0:
             self.inst.ram_bank = 1
-        elif self.acc & 0b0111 == 1:
+        elif self.arith.acc & 0b0111 == 1:
             self.inst.ram_bank = 2
-        elif self.acc & 0b0111 == 2:
+        elif self.arith.acc & 0b0111 == 2:
             self.inst.ram_bank = 4
-        elif self.acc & 0b0111 == 3:
+        elif self.arith.acc & 0b0111 == 3:
             self.inst.ram_bank = 3
-        elif self.acc & 0b0111 == 4:
+        elif self.arith.acc & 0b0111 == 4:
             self.inst.ram_bank = 8
-        elif self.acc & 0b0111 == 5:
+        elif self.arith.acc & 0b0111 == 5:
             self.inst.ram_bank = 10
-        elif self.acc & 0b0111 == 6:
+        elif self.arith.acc & 0b0111 == 6:
             self.inst.ram_bank = 12
-        elif self.acc & 0b0111 == 7:
+        elif self.arith.acc & 0b0111 == 7:
             self.inst.ram_bank = 14
 
     def execute(self):
@@ -177,4 +178,4 @@ class i4004:
         self.addr.dump() ; print("  ", end='')
         self.inst.dump() ; print("  ", end='')
         self.scratch.dump() ; print("  ", end='')
-        print("TEST:{:b}  ACC/CY:{:04b}/{}".format(self.test.v(), self.acc, self.cy))
+        print("TEST:{:b}  ACC/CY:{:04b}/{}".format(self.test.v(), self.arith.acc, self.arith.cy))

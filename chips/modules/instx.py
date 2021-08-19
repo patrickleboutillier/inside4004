@@ -138,7 +138,7 @@ class instx:
             inst.data.v(inst.opa)
         @X2ph2
         def _():
-            inst.cpu.acc = inst.data._v
+            inst.cpu.arith.acc = inst.data._v
 
         # ISZ
         opr, opa = 0b0111, any
@@ -171,27 +171,27 @@ class instx:
         opr, opa = 0b1110, [0b1001, 0b1010, 0b1100, 0b1101, 0b1110, 0b1111]
         @X2ph2
         def _():
-            inst.cpu.acc = inst.data._v
+            inst.cpu.arith.acc = inst.data._v
 
         # WRM, WMP, WRR, WR0/1/2/3
         opr, opa = 0b1110, [0b0000, 0b0001, 0b0010, 0b0100, 0b0101, 0b0110, 0b0111]
         @X2ph1
         def _():
-            inst.data.v(inst.cpu.acc)
+            inst.data.v(inst.cpu.arith.acc)
 
         # ADM
         opr, opa = 0b1110, [0b1011]
         @X2ph2
         def _():
-            sum = inst.cpu.acc + inst.data._v + inst.cpu.cy
-            inst.cpu.cy = sum >> 4
-            inst.cpu.acc = sum & 0xF
+            sum = inst.cpu.arith.acc + inst.data._v + inst.cpu.arith.cy
+            inst.cpu.arith.cy = sum >> 4
+            inst.cpu.arith.acc = sum & 0xF
 
         # SBM
         opr, opa = 0b1110, [0b1000]
         @X2ph2
         def _():
-            sum = inst.cpu.acc + (~inst.data._v & 0xF) + (~inst.cpu.cy & 1)
-            inst.cpu.cy = sum >> 4
-            inst.cpu.acc = sum & 0xF
+            sum = inst.cpu.arith.acc + (~inst.data._v & 0xF) + (~inst.cpu.arith.cy & 1)
+            inst.cpu.arith.cy = sum >> 4
+            inst.cpu.arith.acc = sum & 0xF
 

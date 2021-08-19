@@ -60,10 +60,15 @@ class inst:
     def jcn(self):
         return self.opr == 0b0001
 
+    # C1 = 0 Do not invert jump condition
+    # C1 = 1 Invert jump condition
+    # C2 = 1 Jump if the accumulator content is zero
+    # C3 = 1 Jump if the carry/link content is 1
+    # C4 = 1 Jump if test signal (pin 10 on 4004) is zero.
     def setJCNCond(self):
-        z = 0 if self.cpu.acc else 1
-        c = self.cpu.cy
-        t = ~self.cpu.test.v() & 1
+        z = self.cpu.arith.accZero()
+        c = self.cpu.arith.cy
+        t = self.cpu.testZero()
 
         invert = (self.opa & 0b1000) >> 3
         (zero, cy, test) = (self.opa & 0b0100, self.opa & 0b0010, self.opa & 0b0001)
