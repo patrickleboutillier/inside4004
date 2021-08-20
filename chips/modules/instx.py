@@ -331,7 +331,31 @@ class instx:
             inst.cpu.alu.runAdder(saveAcc=True)
 
         # RAL
+        opr, opa = 0b1111, [0b0101]
+        @X2pre
+        def _():
+            # This is not be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
+            inst.data.v(0)
+        @X2ph1
+        def _():
+            inst.cpu.alu.setADA()
+        @X3pre
+        def _():
+            inst.cpu.alu.runAdder(shiftL=True)
+
         # RAR
+        opr, opa = 0b1111, [0b0110]
+        @X2pre
+        def _():
+            # This is not be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
+            inst.data.v(0)
+        @X2ph1
+        def _():
+            inst.cpu.alu.setADA()
+        @X3pre
+        def _():
+            inst.cpu.alu.runAdder(shiftR=True)
+            
         # TCC
         # DAC
         # TCS

@@ -26,10 +26,6 @@ class i4004:
         if opr == 0b1111:
             if self.inst.opa == 0b0010:
                 self.IAC()
-            elif self.inst.opa == 0b0101:
-                self.RAL()
-            elif self.inst.opa == 0b0110:
-                self.RAR()
             elif self.inst.opa == 0b0111:
                 self.TCC()
             elif self.inst.opa == 0b1000:
@@ -50,17 +46,6 @@ class i4004:
         sum = self.alu.acc + 1
         self.alu.cy = sum >> 4
         self.alu.acc = sum & 0xF 
-
-    def RAL(self):
-        res = self.alu.acc << 1 | self.alu.cy
-        self.alu.cy = res >> 4
-        self.alu.acc = res & 0xF 
-
-    def RAR(self):
-        co = self.alu.acc & 1
-        res = self.alu.cy << 3 | self.alu.acc >> 1 
-        self.alu.cy = co
-        self.alu.acc = res
 
     def TCC(self):
         self.alu.acc = self.alu.cy

@@ -56,7 +56,7 @@ class alu:
             self.acc = self.acc << 1 | self.cy_out
         elif shiftR:
             self.cy = self.sum & 1
-            self.acc = self.cy_out << 3 | self.sum
+            self.acc = self.cy_out << 3 | self.sum >> 1
         else:
             if saveAcc:
                 self.acc = self.sum
