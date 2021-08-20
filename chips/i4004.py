@@ -24,11 +24,7 @@ class i4004:
     def decodeInst(self):
         opr = self.inst.opr
         if opr == 0b1111:
-            if self.inst.opa == 0b0000:
-                self.CLB()
-            elif self.inst.opa == 0b0001:
-                self.CLC()
-            elif self.inst.opa == 0b0010:
+            if self.inst.opa == 0b0010:
                 self.IAC()
             elif self.inst.opa == 0b0011:
                 self.CMC()
@@ -53,13 +49,6 @@ class i4004:
             elif self.inst.opa == 0b1101:
                 self.DCL()
 
-
-    def CLB(self):
-        self.alu.acc = 0
-        self.alu.cy = 0
-
-    def CLC(self):
-        self.alu.cy = 0 
 
     def IAC(self):
         sum = self.alu.acc + 1

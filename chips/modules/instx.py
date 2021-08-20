@@ -280,3 +280,23 @@ class instx:
         @X3ph2
         def _():
             inst.scratch.setReg()
+
+        # CLB
+        opr, opa = 0b1111, [0b0000]
+        @X2pre
+        def _():
+            # This is not be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
+            inst.data.v(0)
+        @X3pre
+        def _():
+            inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
+
+        # CLC
+        opr, opa = 0b1111, [0b0001]
+        @X2pre
+        def _():
+            # This is not be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
+            inst.data.v(0)
+        @X3pre
+        def _():
+            inst.cpu.alu.runAdder(saveCy=True)
