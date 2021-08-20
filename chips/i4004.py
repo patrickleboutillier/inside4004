@@ -26,10 +26,6 @@ class i4004:
         if opr == 0b1111:
             if self.inst.opa == 0b0010:
                 self.IAC()
-            elif self.inst.opa == 0b0011:
-                self.CMC()
-            elif self.inst.opa == 0b0100:
-                self.CMA()
             elif self.inst.opa == 0b0101:
                 self.RAL()
             elif self.inst.opa == 0b0110:
@@ -54,12 +50,6 @@ class i4004:
         sum = self.alu.acc + 1
         self.alu.cy = sum >> 4
         self.alu.acc = sum & 0xF 
-
-    def CMC(self):
-        self.alu.cy = ~self.alu.cy & 0b1
-
-    def CMA(self):
-        self.alu.acc = ~self.alu.acc & 0xF
 
     def RAL(self):
         res = self.alu.acc << 1 | self.alu.cy
