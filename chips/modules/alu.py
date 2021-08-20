@@ -28,44 +28,24 @@ class alu:
         def _():
             self.acc_out = self.acc
             self.cy_out = self.cy
-
-        #@X1ph1
-        #def _():
-        #    self.acc_out = self.acc
-        #    if not self.inst.io():
-        #        print("Grabbing ", self.data._v)
-        #        self.tmp = self.data._v
-        #        self.acc2 = (self.acc ^ 0b1111) & 0xF
-        #        self.tmp2 = (self.tmp ^ 0b1010) & 0xF
-        #        self.cy2 = 1
         
-        #@X2ph1
-        #def _():
-        #    if self.inst.ld():
-        #        (self.acc, _) = self.adder()
-        #        print("acc_in is", self.acc, self.acc2, self.tmp2)
+        @X2ph1  # n0342, for non IO instructions
+        def _():
+            if not self.inst.io():
+                self.tmp = self.data._v
 
-        #@X2ph2
-        #def _():
-        #    if self.inst.io():
-        #        self.tmp = self.data._v
+        @X2ph1  # n0342, for IO instructions
+        def _():
+            if self.inst.io():
+                self.tmp = self.data._v
 
 
-    def runAdder(self, readAcc=False, invertAcc=False, invertTmp=False, readCy=False, readCy1=False, invertCy=False,
-        saveAcc=False, saveCy=False, saveCy1=False, shiftL=False, shiftR=False):
-        if readAcc:
-            self.acc2 = self.acc
-        if invertAcc:
-            self.acc2 = ~self.acc2 & 0xF
+    def runAdder(self, invertADB=False, saveAcc=False, saveCy=False, saveCy1=False, shiftL=False, shiftR=False):
         self.tmp2 = self.tmp
-        if invertTmp:
+        if invertADB:
             self.tmp2 = ~self.tmp2 & 0xF
-        if readCy:
-            self.cy2 = self.cy
-        elif readCy1:
-            self.cy2 = 1
-        if invertCy:
-            self.cy2 = ~self.cy2 & 1
+
+        # print("acc:{} acc2:{} tmp:{} tmp2:{} cy:{}, cy2:{}".format(self.acc, self.acc2, self.tmp, self.tmp2, self.cy, self.cy2))
 
         self.acc_in = self.acc2 + self.tmp2 + self.cy2
         co = self.acc_in >> 4
@@ -86,10 +66,24 @@ class alu:
                 self.cy = 1
 
 
-    def setTmp(self):
-        self.tmp = self.data._v
+    #def setTmp(self):
+    #    self.tmp = self.data._v
 
-    def enableAcc(self):
+    def setADA(self, invert=False):
+        self.acc2 = self.acc
+        if invert:
+            self.acc2 = ~self.acc2 & 0xF
+
+    def setADC(self, invert=False, one=False):
+        if one:
+            self.cy2 = 1
+        else:
+            self.cy2 = self.cy
+            if invert:
+                self.cy2 = ~self.cy2 & 1
+        
+
+    def enableAccOut(self):
         self.data.v(self.acc_out)
 
     def enableAdd(self):

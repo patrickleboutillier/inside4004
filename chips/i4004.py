@@ -23,18 +23,7 @@ class i4004:
 
     def decodeInst(self):
         opr = self.inst.opr
-        if opr == 0b0110:
-            self.INC()
-        elif opr == 0b1000:
-            self.ADD()
-        elif opr == 0b1001:
-            self.SUB()
-        elif opr == 0b1011:
-            self.XCH()
-        elif opr == 0b1101:
-            self.LDM()
-
-        elif opr == 0b1111:
+        if opr == 0b1111:
             if self.inst.opa == 0b0000:
                 self.CLB()
             elif self.inst.opa == 0b0001:
@@ -63,29 +52,6 @@ class i4004:
                 self.KBP()
             elif self.inst.opa == 0b1101:
                 self.DCL()
-
-
-    def INC(self):
-        sum = self.scratch.index_reg[self.inst.opa] + 1
-        self.scratch.index_reg[self.inst.opa] = sum & 0xF
-
-    def ADD(self):
-        sum = self.alu.acc + self.scratch.index_reg[self.inst.opa] + self.alu.cy
-        self.alu.cy = sum >> 4
-        self.alu.acc = sum & 0xF
-
-    def SUB(self):
-        sum = self.alu.acc + (~self.scratch.index_reg[self.inst.opa] & 0xF) + (~self.alu.cy & 0b1)
-        self.alu.cy = sum >> 4
-        self.alu.acc = sum & 0xF
-
-    def XCH(self):
-        tmp = self.scratch.index_reg[self.inst.opa]
-        self.scratch.index_reg[self.inst.opa] = self.alu.acc
-        self.alu.acc = tmp
-
-    def LDM(self):
-        self.alu.acc = self.inst.opa
 
 
     def CLB(self):
