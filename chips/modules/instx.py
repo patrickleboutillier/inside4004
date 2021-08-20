@@ -16,22 +16,28 @@ def register(f, x, n):
         active_instx.dispatch[opr][i][x][n] = f 
 
 def X1ph1(f):
-    register(f, 0, 0)
+    register(f, 5, 0)
 
 def X1ph2(f):
-    register(f, 0, 1)
+    register(f, 5, 2)
+
+def X2pre(f):
+    register(f, 5, 3)
 
 def X2ph1(f):
-    register(f, 1, 0)
+    register(f, 6, 0)
 
 def X2ph2(f):
-    register(f, 1, 1)
+    register(f, 6, 2)
+
+def X3pre(f):
+    register(f, 6, 3)
 
 def X3ph1(f):
-    register(f, 2, 0)
+    register(f, 7, 0)
 
 def X3ph2(f):
-    register(f, 2, 1)
+    register(f, 7, 2)
 
 
 class instx:
@@ -45,9 +51,9 @@ class instx:
             self.dispatch.append([])
             for j in range(16):
               self.dispatch[i].append([])
-              for k in range(3):
+              for k in range(8):
                 self.dispatch[i][j].append([])
-                for l in range(2):
+                for l in range(4):
                     self.dispatch[i][j][k].append(None)
 
         self.register()
@@ -197,11 +203,13 @@ class instx:
 
         # LD
         opr, opa = 0b1010, any
-        @X1ph1
+        @X2pre
         def _():
             inst.scratch.enableReg()
-            inst.cpu.alu.setTmp()
         @X2ph1
+        def _():
+            inst.cpu.alu.setTmp()
+        @X3pre
         def _():
             inst.cpu.alu.setAccFromTmp()
 

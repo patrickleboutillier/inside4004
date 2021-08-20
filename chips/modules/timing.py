@@ -12,6 +12,7 @@ class timing(sensor):
         self.ph1 = ph1
         self.ph2 = ph2
         self.phx = ph1._bus
+        self.phase = -1
         sensor.__init__(self, self.phx)
         self.slave = 0
         self.master = 0 
@@ -28,6 +29,8 @@ class timing(sensor):
 
 
     def always(self, signal):
+        self.phase = (self.phase + 1) % 4
+
         if self.phx._v == 0b10:
             # A new step starts when ph1 goes high
             self.slave = self.master
@@ -45,56 +48,61 @@ class timing(sensor):
                 else:
                     self.master += 1
 
-        if self.phx._v:
-            for f in self.dispatch[self.slave][self.phx._v]:
-                f()
+        for f in self.dispatch[self.slave][self.phase]:
+            f()
 
 
 # Decorators
 def A1ph1(f):
-    active_timing.dispatch[0][0b10].append(f)
+    active_timing.dispatch[0][0].append(f)
 
 def A1ph2(f):
-    active_timing.dispatch[0][0b01].append(f)
+    active_timing.dispatch[0][2].append(f)
 
 def A2ph1(f):
-    active_timing.dispatch[1][0b10].append(f)
+    active_timing.dispatch[1][0].append(f)
 
 def A2ph2(f):
-    active_timing.dispatch[1][0b01].append(f)
+    active_timing.dispatch[1][2].append(f)
 
 def A3ph1(f):
-    active_timing.dispatch[2][0b10].append(f)
+    active_timing.dispatch[2][0].append(f)
 
 def A3ph2(f):
-    active_timing.dispatch[2][0b01].append(f)
+    active_timing.dispatch[2][2].append(f)
 
 def M1ph1(f):
-    active_timing.dispatch[3][0b10].append(f)
+    active_timing.dispatch[3][0].append(f)
 
 def M1ph2(f):
-    active_timing.dispatch[3][0b01].append(f)
+    active_timing.dispatch[3][2].append(f)
 
 def M2ph1(f):
-    active_timing.dispatch[4][0b10].append(f)
+    active_timing.dispatch[4][0].append(f)
 
 def M2ph2(f):
-    active_timing.dispatch[4][0b01].append(f)
+    active_timing.dispatch[4][2].append(f)
 
 def X1ph1(f):
-    active_timing.dispatch[5][0b10].append(f)
+    active_timing.dispatch[5][0].append(f)
 
 def X1ph2(f):
-    active_timing.dispatch[5][0b01].append(f)
+    active_timing.dispatch[5][2].append(f)
+
+def X2pre(f):
+    active_timing.dispatch[5][3].append(f)
 
 def X2ph1(f):
-    active_timing.dispatch[6][0b10].append(f)
+    active_timing.dispatch[6][0].append(f)
 
 def X2ph2(f):
-    active_timing.dispatch[6][0b01].append(f)
+    active_timing.dispatch[6][2].append(f)
+
+def X3pre(f):
+    active_timing.dispatch[6][3].append(f)
 
 def X3ph1(f):
-    active_timing.dispatch[7][0b10].append(f)
+    active_timing.dispatch[7][0].append(f)
 
 def X3ph2(f):
-    active_timing.dispatch[7][0b01].append(f)
+    active_timing.dispatch[7][2].append(f)

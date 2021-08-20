@@ -124,27 +124,35 @@ class inst:
         def _():
             if self.opr == 0b1110:
                 self.cm_ram.v(0) 
-            dispatch(0, 0)
+            dispatch(5, 0)
 
         @X1ph2
         def _():
-            dispatch(0, 1)
+            dispatch(5, 2)
+
+        @X2pre
+        def _():
+            dispatch(5, 3)
 
         @X2ph1
         def _():
-            dispatch(1, 0)
+            dispatch(6, 0)
 
         @X2ph2
         def _():
-            dispatch(1, 1)
+            dispatch(6, 2)
+
+        @X3pre
+        def _():
+            dispatch(6, 3)
 
         @X3ph1
         def _():
-            dispatch(2, 0)
+            dispatch(7, 0)
 
         @X3ph2
         def _():
-            dispatch(2, 1)
+            dispatch(7, 2)
             
 
     def dump(self):
