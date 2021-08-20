@@ -237,7 +237,7 @@ class instx:
         @X3pre
         def _():
             inst.cpu.alu.runAdder()
-            inst.cpu.alu.enableAdd()
+            inst.cpu.alu.enableSum()
         @X3ph2
         def _():
             inst.scratch.setReg()            
@@ -300,3 +300,39 @@ class instx:
         @X3pre
         def _():
             inst.cpu.alu.runAdder(saveCy=True)
+
+        # IAC
+
+
+        # CMC
+        opr, opa = 0b1111, [0b0011]
+        # @X2pre
+        # def _():
+        #     # This is not be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
+        #     inst.data.v(0)
+        #@X2ph1
+        #def _():
+        #    inst.cpu.alu.setADC(invert=True)
+        #@X3pre
+        #def _():
+        #    inst.cpu.alu.runAdder(invertADB=True, saveCy=True)
+
+        # CMA
+        opr, opa = 0b1111, [0b0100]
+        # @X2pre
+        # def _():
+        #     # This is not be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
+        #     inst.data.v(0)
+        #@X2ph1
+        #def _():
+        #    inst.cpu.alu.setADA(invert=True)
+        #@X3pre
+        #def _():
+        #    inst.cpu.alu.runAdder(saveAcc=True)
+
+        # RAL
+        # RAR
+        # TCC
+        # DAC
+        # TCS
+        # STC

@@ -9,20 +9,20 @@ class alu:
         self.acc = 0
         self.tmp = 0
         self.cy = 0 
-        self.acc2 = 0
-        self.tmp2 = 0
-        self.cy2 = 0 
+        self.ada = 0
+        self.adb = 0
+        self.adc = 0 
         self.acc_out = 0
         self.cy_out = 0
-        self.acc_in = 0
+        self.sum = 0
 
         self.timing = timing
 
         @M1ph1
         def _():
-            self.acc2 = 0
+            self.ada = 0
             self.tmp = 0xF
-            self.cy2 = 0
+            self.adc = 0
 
         @X1ph1
         def _():
@@ -41,55 +41,51 @@ class alu:
 
 
     def runAdder(self, invertADB=False, saveAcc=False, saveCy=False, saveCy1=False, shiftL=False, shiftR=False):
-        self.tmp2 = self.tmp
+        self.adb = self.tmp
         if invertADB:
-            self.tmp2 = ~self.tmp2 & 0xF
+            self.adb = ~self.adb & 0xF
 
-        # print("acc:{} acc2:{} tmp:{} tmp2:{} cy:{}, cy2:{}".format(self.acc, self.acc2, self.tmp, self.tmp2, self.cy, self.cy2))
+        # print("acc:{} ada:{} tmp:{} adb:{} cy:{}, adc:{}".format(self.acc, self.ada, self.tmp, self.adb, self.cy, self.adc))
 
-        self.acc_in = self.acc2 + self.tmp2 + self.cy2
-        co = self.acc_in >> 4
-        self.acc_in = self.acc_in & 0xF
+        self.sum = self.ada + self.adb + self.adc
+        co = self.sum >> 4
+        self.sum = self.sum & 0xF
 
         if shiftL:
-            self.cy = self.acc_in >> 3
+            self.cy = self.sum >> 3
             self.acc = self.acc << 1 | self.cy_out
         elif shiftR:
-            self.cy = self.acc_in & 1
-            self.acc = self.cy_out << 3 | self.acc_in
+            self.cy = self.sum & 1
+            self.acc = self.cy_out << 3 | self.sum
         else:
             if saveAcc:
-                self.acc = self.acc_in
+                self.acc = self.sum
             if saveCy:
                 self.cy = co
             elif saveCy1:
                 self.cy = 1
 
 
-    #def setTmp(self):
-    #    self.tmp = self.data._v
-
     def setADA(self, invert=False):
-        self.acc2 = self.acc
+        self.ada = self.acc
         if invert:
-            self.acc2 = ~self.acc2 & 0xF
+            self.ada = ~self.ada & 0xF
 
     def setADC(self, invert=False, one=False):
         if one:
-            self.cy2 = 1
+            self.adc = 1
         else:
-            self.cy2 = self.cy
+            self.adc = self.cy
             if invert:
-                self.cy2 = ~self.cy2 & 1
+                self.adc = ~self.adc & 1
         
-
     def enableAccOut(self):
         self.data.v(self.acc_out)
 
-    def enableAdd(self):
-        self.data.v(self.acc_in)
+    def enableSum(self):
+        self.data.v(self.sum)
 
-    def enableCy(self):
+    def enableCyOut(self):
         self.data.v(self.cy_out)
 
     def enableKBP(self):
@@ -99,5 +95,5 @@ class alu:
         return 1 if self.acc == 0 else 0
 
     def addZero(self):
-        return 1 if self.acc_in == 0 else 0
+        return 1 if self.sum == 0 else 0
 
