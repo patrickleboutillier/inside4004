@@ -15,6 +15,9 @@ def register(f, x, n):
      for i in opa:
         active_instx.dispatch[opr][i][x][n] = f 
 
+def A1ph1(f):
+    register(f, 0, 0)
+
 def X1ph1(f):
     register(f, 5, 0)
 
@@ -189,17 +192,21 @@ class instx:
         opr, opa = 0b1110, [0b1011]
         @X2ph2
         def _():
-            sum = inst.cpu.alu.acc + inst.data._v + inst.cpu.alu.cy
-            inst.cpu.alu.cy = sum >> 4
-            inst.cpu.alu.acc = sum & 0xF
+            inst.cpu.alu.setADA()
+            inst.cpu.alu.setADC()
+        @A1ph1
+        def _():
+            inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
 
         # SBM
         opr, opa = 0b1110, [0b1000]
         @X2ph2
         def _():
-            sum = inst.cpu.alu.acc + (~inst.data._v & 0xF) + (~inst.cpu.alu.cy & 1)
-            inst.cpu.alu.cy = sum >> 4
-            inst.cpu.alu.acc = sum & 0xF
+            inst.cpu.alu.setADA()
+            inst.cpu.alu.setADC(invert=True)
+        @A1ph1
+        def _():
+            inst.cpu.alu.runAdder(invertADB=True, saveAcc=True, saveCy=True)
 
         # LDM
         opr, opa = 0b1101, any
@@ -209,7 +216,7 @@ class instx:
         @X3pre
         def _():
             inst.cpu.alu.runAdder(saveAcc=True)
-            
+
         # LD
         opr, opa = 0b1010, any
         @X2pre

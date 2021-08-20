@@ -34,7 +34,7 @@ class alu:
             if not self.inst.io():
                 self.tmp = self.data._v
 
-        @X2ph1  # n0342, for IO instructions
+        @X2ph2  # n0342, for IO instructions
         def _():
             if self.inst.io():
                 self.tmp = self.data._v
