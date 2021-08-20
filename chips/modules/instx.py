@@ -203,5 +203,5 @@ class instx:
             inst.cpu.alu.setTmp()
         @X2ph1
         def _():
-            inst.cpu.alu.setAccFromTmp()
+            inst.cpu.alu.runAdder(saveAcc=True)
 
