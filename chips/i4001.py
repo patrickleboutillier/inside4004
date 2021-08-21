@@ -36,7 +36,7 @@ class i4001():
         @A3ph2
         def _():
             # If cm is on, we are the selected ROM chip for instructions if self.chipnum == self.data.v
-            if self.cm.v():
+            if self.cm.v:
                 self.rom_select = 1 if self.chipnum == self.data.v else 0
 
         @M1ph1
@@ -72,7 +72,7 @@ class i4001():
 
         @X2ph2
         def _():
-            if self.cm.v():
+            if self.cm.v:
                 # A SRC instruction is in progress
                 if self.chipnum == self.data.v:
                     # If cm is on, we are the selected ROM chip for I/O if self.chipnum == self.data.v

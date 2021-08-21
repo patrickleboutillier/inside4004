@@ -17,16 +17,16 @@ class i4003(sensor):
 
 
     def always(self, signal):
-        if self.clock.v():
+        if self.clock.v:
             # clock went from 0 to 1, we shift
             o = self.reg >> 9
-            self.reg = ((self.reg << 1) | self.data_in.v()) & 0x3FF
-            self.serial_out.v(o)
-            if self.enable.v():
+            self.reg = ((self.reg << 1) | self.data_in.v) & 0x3FF
+            self.serial_out.v = o
+            if self.enable.v:
                 self.parallel_out.v(self.reg)
             else:
                 self.parallel_out.v(0)
 
     def dump(self):
-        print("{}SR: CLK:{:b} DATA:{:b} OUT:{:010b} E:{:b} ".format(self.name, self.clock.v(), self.data_in.v(), 
-            self.parallel_out._v, self.enable.v()), end = "")
+        print("{}SR: CLK:{:b} DATA:{:b} OUT:{:010b} E:{:b} ".format(self.name, self.clock.v, self.data_in.v, 
+            self.parallel_out._v, self.enable.v), end = "")

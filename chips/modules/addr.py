@@ -35,7 +35,7 @@ class addr:
         @A3ph1
         def _():
             # Order not important here
-            self.cm_rom.v(1)
+            self.cm_rom.v = 1
             self.data.v = self.stack[self.sp] >> 8
 
         @A3ph2
@@ -46,7 +46,7 @@ class addr:
 
         @M1ph1
         def _():
-            self.cm_rom.v(0)
+            self.cm_rom.v = 0
             if self.cpu.inst.jms() and self.cpu.inst.dcff:
                 self.incSP()
 

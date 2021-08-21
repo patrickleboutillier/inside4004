@@ -37,12 +37,12 @@ class printer(sensor):
         return self._index
 
     def always(self, signal):
-        if self._fire.v():
+        if self._fire.v:
             self.fireHammers()
-        if self._advance.v():
+        if self._advance.v:
             self.advanceLine()
             self._cur_color = ' '   # Reset line color
-        if self._color.v():
+        if self._color.v:
             self._cur_color = '-'   # Set color to "red", meaning negative value.
 
     # Called by the MCS-4 before each cycle.
@@ -61,20 +61,20 @@ class printer(sensor):
 
     def startSectorPulse(self):
         self._cycle = 0
-        self._sector.v(1)
+        self._sector.v = 1
         if self._cur_sector == 0:
-            self._index.v(1)
+            self._index.v = 1
         self._cycle += 1
 
     def endSectorPulse(self):
         self._cycle = _sector_pulse
-        self._sector.v(0)
+        self._sector.v = 0
         self._cycle += 1
 
     def endSectorPeriod(self):
         self._cycle = _sector_period
         if self._cur_sector == 0:
-            self._index.v(0)
+            self._index.v = 0
         self.nextSector()
         self._cycle = 0
 
@@ -84,9 +84,9 @@ class printer(sensor):
         return self._cur_sector
 
     def fireHammers(self):
-        # print("{:020b}".format(self._input.v()))
+        # print("{:020b}".format(self._input.v))
         for i in range(20):
-            if self._input.pwire(i).v():
+            if self._input.pwire(i).v:
                 self.punchChar(i)
 
     def initLine(self):

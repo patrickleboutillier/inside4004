@@ -27,7 +27,7 @@ class i4002:
         def _():
             # Grab opa
             self.opa = self.data.v
-            if self.ram_select and self.cm.v():
+            if self.ram_select and self.cm.v:
                 # If we are the selected chip for RAM/I/O and cm is on, the CPU is telling us that we are processing a RAM/I/O instruction
                 # NOTE: We could have just checked that opr == 0b1110 during M1...
                 self.ram_inst = 1
@@ -55,7 +55,7 @@ class i4002:
 
         @X2ph2
         def _():
-            if self.cm.v():
+            if self.cm.v:
                 # An SRC instruction is in progress
                 if self.chip == (self.data.v >> 2):
                     # We are the selected RAM chip for RAM/I/O if self.chip == (self.data.v >> 2)

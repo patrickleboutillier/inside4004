@@ -167,12 +167,12 @@ class instx:
         opr, opa = 0b0010, odd
         @X2ph1
         def _():
-            inst.cm_rom.v(1)
+            inst.cm_rom.v = 1
             inst.cm_ram.v(inst.ram_bank)
             inst.scratch.enableRegPairH()
         @X3ph1
         def _():
-            inst.cm_rom.v(0)
+            inst.cm_rom.v = 0
             inst.cm_ram.v(0)
             inst.scratch.enableRegPairL()
 
