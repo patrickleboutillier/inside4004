@@ -11,9 +11,9 @@ class MCS4:
         self.clock = clock.clock()
  
         self.data = bus()
-        self.cm_rom = wire()
-        self.cm_ram = bus()
-        self.test = wire()
+        self.cm_rom = pwire()
+        self.cm_ram = pbus()
+        self.test = pwire()
         self.CPU = i4004.i4004(self.clock.ph1, self.clock.ph2, self.data, self.cm_rom, self.cm_ram, self.test)
 
         self.PROM = []

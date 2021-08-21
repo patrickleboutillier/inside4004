@@ -77,10 +77,10 @@ class TestTiming(unittest.TestCase):
         self.assertEqual(t.slave, 6) 
         c.tick(4)
         self.assertEqual(t.slave, 7)
-        sync.v(1)
+        sync.v = 1
         c.tick(4)
         self.assertEqual(t.slave, 0)
-        sync.v(0)
+        sync.v = 0
         # repeat
         c.tick(4)
         self.assertEqual(t.slave, 1)

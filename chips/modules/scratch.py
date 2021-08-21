@@ -20,28 +20,28 @@ class scratch:
         return 1 if self.index_reg[self.inst.opa] == 0 else 0
 
     def enableReg(self):
-        self.data.v(self.index_reg[self.inst.opa])
+        self.data.v = self.index_reg[self.inst.opa]
 
     def enableReg0(self):
-        self.data.v(self.index_reg[0])
+        self.data.v = self.index_reg[0]
 
     def enableReg1(self):
-        self.data.v(self.index_reg[1])
+        self.data.v = self.index_reg[1]
 
     def enableRegPairH(self):
-        self.data.v(self.index_reg[self.inst.opa & 0b1110])
+        self.data.v = self.index_reg[self.inst.opa & 0b1110]
 
     def enableRegPairL(self):
-        self.data.v(self.index_reg[self.inst.opa | 0b0001])
+        self.data.v = self.index_reg[self.inst.opa | 0b0001]
 
     def setReg(self):
-        self.index_reg[self.inst.opa] = self.data._v
+        self.index_reg[self.inst.opa] = self.data.v
 
     def setRegPairH(self):
-        self.index_reg[self.inst.opa & 0b1110] = self.data._v
+        self.index_reg[self.inst.opa & 0b1110] = self.data.v
 
     def setRegPairL(self):
-        self.index_reg[self.inst.opa | 0b0001] = self.data._v
+        self.index_reg[self.inst.opa | 0b0001] = self.data.v
 
 
     def dump(self):

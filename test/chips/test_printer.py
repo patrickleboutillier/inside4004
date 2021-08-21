@@ -23,7 +23,7 @@ import chips.printer as printer
 class TestPrinter(unittest.TestCase):
 
     def test_printer(self):
-        p = printer.printer(wire(), wire(), wire())
+        p = printer.printer(pwire(), pwire(), pwire())
 
         p.input().v(0x20000) ; p.fireHammers()
         self.assertEqual(p.peekLine(), "              0       ") ; p.nextSector()

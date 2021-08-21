@@ -131,7 +131,7 @@ class instx:
             @X2ph1
             def _():
                 if not inst.dcff:
-                    inst.data.v(inst.opa)
+                    inst.data.v = inst.opa
             @X2ph2
             def _():
                 if not inst.dcff:
@@ -144,10 +144,10 @@ class instx:
             inst.cpu.addr.decSP()
         @X2ph1
         def _():
-            inst.data.v(inst.opa)
+            inst.data.v = inst.opa
         @X2ph2
         def _():
-            inst.cpu.alu.acc = inst.data._v
+            inst.cpu.alu.acc = inst.data.v
 
         # ISZ
         opr, opa = 0b0111, any
@@ -180,13 +180,13 @@ class instx:
         opr, opa = 0b1110, [0b1001, 0b1010, 0b1100, 0b1101, 0b1110, 0b1111]
         @X2ph2
         def _():
-            inst.cpu.alu.acc = inst.data._v
+            inst.cpu.alu.acc = inst.data.v
 
         # WRM, WMP, WRR, WR0/1/2/3
         opr, opa = 0b1110, [0b0000, 0b0001, 0b0010, 0b0100, 0b0101, 0b0110, 0b0111]
         @X2ph1
         def _():
-            inst.data.v(inst.cpu.alu.acc)
+            inst.data.v = inst.cpu.alu.acc
 
         # ADM
         opr, opa = 0b1110, [0b1011]
@@ -212,7 +212,7 @@ class instx:
         opr, opa = 0b1101, any
         @X2pre
         def _():
-            inst.data.v(inst.opa)
+            inst.data.v = inst.opa
         @X3pre
         def _():
             inst.cpu.alu.runAdder(saveAcc=True)
@@ -286,7 +286,7 @@ class instx:
         @X2pre
         def _():
             # This is not be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
-            inst.data.v(0)
+            inst.data.v = 0
         @X3pre
         def _():
             inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
@@ -296,7 +296,7 @@ class instx:
         @X2pre
         def _():
             # This is not be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
-            inst.data.v(0)
+            inst.data.v = 0
         @X3pre
         def _():
             inst.cpu.alu.runAdder(saveCy=True)
@@ -309,7 +309,7 @@ class instx:
         @X2pre
         def _():
             # This is not be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
-            inst.data.v(0)
+            inst.data.v = 0
         @X2ph1
         def _():
             inst.cpu.alu.setADC(invert=True)
@@ -322,7 +322,7 @@ class instx:
         @X2pre
         def _():
             # This is not be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
-            inst.data.v(0)
+            inst.data.v = 0
         @X2ph1
         def _():
             inst.cpu.alu.setADA(invert=True)
@@ -335,7 +335,7 @@ class instx:
         @X2pre
         def _():
             # This is not be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
-            inst.data.v(0)
+            inst.data.v = 0
         @X2ph1
         def _():
             inst.cpu.alu.setADA()
@@ -348,7 +348,7 @@ class instx:
         @X2pre
         def _():
             # This is not be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
-            inst.data.v(0)
+            inst.data.v = 0
         @X2ph1
         def _():
             inst.cpu.alu.setADA()

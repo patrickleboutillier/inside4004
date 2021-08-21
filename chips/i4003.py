@@ -10,8 +10,8 @@ class i4003(sensor):
         self.name = name                # The chip name, for dump info
         self.clock = clock              # The clock that triggers a shift
         self.data_in = data_in          # The data_in wire
-        self.parallel_out = bus(n=10)   # The parallel out bus
-        self.serial_out = wire()        # The serial out wire, to chain multiple 4003s together
+        self.parallel_out = pbus(n=10)   # The parallel out bus
+        self.serial_out = pwire()        # The serial out wire, to chain multiple 4003s together
         self.enable = enable            # The enable wire (always on in our case)
         self.reg = 0                    # The internal register that stores the current value
 

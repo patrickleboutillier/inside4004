@@ -23,20 +23,20 @@ class addr:
             if self.cpu.inst.fin() and self.cpu.inst.dcff:
                 self.scratch.enableReg1()
             else:
-                self.data.v(self.stack[self.sp] & 0xF)
+                self.data.v = self.stack[self.sp] & 0xF
 
         @A2ph1
         def _():
             if self.cpu.inst.fin() and self.cpu.inst.dcff:
                 self.scratch.enableReg0()
             else:
-                self.data.v((self.stack[self.sp] >> 4) & 0xF)
+                self.data.v = (self.stack[self.sp] >> 4) & 0xF
 
         @A3ph1
         def _():
             # Order not important here
             self.cm_rom.v(1)
-            self.data.v(self.stack[self.sp] >> 8)
+            self.data.v = self.stack[self.sp] >> 8
 
         @A3ph2
         def _():
@@ -52,13 +52,13 @@ class addr:
 
 
     def setPH(self):
-        self.stack[self.sp] = (self.stack[self.sp] & 0x0FF) | self.data._v << 8
+        self.stack[self.sp] = (self.stack[self.sp] & 0x0FF) | self.data.v << 8
 
     def setPM(self):
-        self.stack[self.sp] = (self.stack[self.sp] & 0xF0F) | self.data._v << 4
+        self.stack[self.sp] = (self.stack[self.sp] & 0xF0F) | self.data.v << 4
 
     def setPL(self):
-        self.stack[self.sp] = (self.stack[self.sp] & 0xFF0) | self.data._v
+        self.stack[self.sp] = (self.stack[self.sp] & 0xFF0) | self.data.v
 
     def incPC(self):
         self.stack[self.sp] += 1

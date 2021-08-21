@@ -36,14 +36,14 @@ class timing(sensor):
             self.slave = self.master
             if self.gen_sync:
                 if self.slave == 7:
-                    self.sync.v(1)
+                    self.sync.v = 1
                 elif self.slave == 0:
-                    self.sync.v(0)
+                    self.sync.v = 0
         elif self.phx._v == 0b01:
             if self.gen_sync:
                 self.master = (self.master + 1) % 8
             else:
-                if self.sync.v():
+                if self.sync.v:
                     self.master = 0
                 else:
                     self.master += 1

@@ -14,9 +14,9 @@ _sector_period = int((28 * 1000) / 22)
 class printer(sensor):
     def __init__(self, fire, advance, color):
         sensor.__init__(self, fire, advance, color)
-        self._input = bus(n=20)
-        self._sector = wire()
-        self._index = wire()
+        self._input = pbus(n=20)
+        self._sector = pwire()
+        self._index = pwire()
         self._fire = fire
         self._advance = advance
         self._color = color
@@ -86,7 +86,7 @@ class printer(sensor):
     def fireHammers(self):
         # print("{:020b}".format(self._input.v()))
         for i in range(20):
-            if self._input.wire(i).v():
+            if self._input.pwire(i).v():
                 self.punchChar(i)
 
     def initLine(self):

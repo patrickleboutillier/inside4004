@@ -1,9 +1,9 @@
 import hdl
 
 
-class wire():
+class pwire():
     def __init__(self, v=0, bus=None, bit=0):
-        self._bus = hdl.bus(1, v) if bus is None else bus
+        self._bus = hdl.pbus(1, v) if bus is None else bus
         self._bit = bit
 
     def v(self, v=None):
@@ -13,3 +13,8 @@ class wire():
             v = (self._bus._v & ~(1 << self._bit)) | v << self._bit
             if self._bus._v != v:
                 self._bus.v(v)
+
+
+class wire():
+    def __init__(self, v=0):
+        self.v = v

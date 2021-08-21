@@ -1,7 +1,7 @@
 from hdl import *
 
 
-class buf(sensor):
+class pbuf(sensor):
     def __init__(self, i, o):
         sensor.__init__(self, i)
         self._i = i

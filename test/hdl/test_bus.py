@@ -4,14 +4,14 @@ from hdl import *
 
 class TestWire(unittest.TestCase):
 
-    def test_bus(self):
-        b = bus()
+    def test_pbus(self):
+        b = pbus()
         self.assertEqual(b._v, 0b0000, "v() failed")
         b.v(0b1010)
         self.assertEqual(b._v, 0b1010, "v() failed")
-        w = b.wire(1)
+        w = b.pwire(1)
         self.assertEqual(w.v(), 1, "v failed")
-        w = b.wire(0)
+        w = b.pwire(0)
         self.assertEqual(w.v(), 0, "v failed")
 
 
