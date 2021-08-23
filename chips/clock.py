@@ -25,7 +25,7 @@ class clock():
             if self.n == 0:
                 self.phx.v(0b10)
             elif self.n == 1:
-                self.phx.v(0b00)      # Optimization, skip signal propagation
+                self.phx.v(0b00)
             elif self.n == 2:
                 self.phx.v(0b01)
             else:   # n == 3
