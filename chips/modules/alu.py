@@ -14,7 +14,7 @@ class alu:
         self.adc = 0 
         self.acc_out = 0
         self.cy_out = 0
-        self.sum = 0
+        self.add = 0
 
         self.timing = timing
 
@@ -28,6 +28,12 @@ class alu:
         def _():
             self.acc_out = self.acc
             self.cy_out = self.cy
+        
+        @X2pre
+        def _():
+            # TODO: This is not supposed to be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
+            if self.inst.ope:
+                self.data.v = 0
         
         @X2ph1  # n0342, for non IO instructions
         def _():
@@ -45,21 +51,22 @@ class alu:
         if invertADB:
             self.adb = ~self.adb & 0xF
 
-        # print("acc:{} ada:{} tmp:{} adb:{} cy:{}, adc:{}".format(self.acc, self.ada, self.tmp, self.adb, self.cy, self.adc))
+        print("acc:{} ada:{} tmp:{} adb:{} cy:{}, adc:{}".format(self.acc, self.ada, self.tmp, self.adb, self.cy, self.adc))
 
-        self.sum = self.ada + self.adb + self.adc
-        co = self.sum >> 4
-        self.sum = self.sum & 0xF
+        self.add = self.ada + self.adb + self.adc
+        co = self.add >> 4
+        self.add = self.add & 0xF
+        print("add:{} co:{}".format(self.add, co))
 
         if shiftL:
-            self.cy = self.sum >> 3
+            self.cy = self.add >> 3
             self.acc = self.acc << 1 | self.cy_out
         elif shiftR:
-            self.cy = self.sum & 1
-            self.acc = self.cy_out << 3 | self.sum >> 1
+            self.cy = self.add & 1
+            self.acc = self.cy_out << 3 | self.add >> 1
         else:
             if saveAcc:
-                self.acc = self.sum
+                self.acc = self.add
             if saveCy:
                 self.cy = co
             elif saveCy1:
@@ -82,8 +89,8 @@ class alu:
     def enableAccOut(self):
         self.data.v = self.acc_out
 
-    def enableSum(self):
-        self.data.v = self.sum
+    def enableAdd(self):
+        self.data.v = self.add
 
     def enableCyOut(self):
         self.data.v = self.cy_out
@@ -95,5 +102,5 @@ class alu:
         return 1 if self.acc == 0 else 0
 
     def addZero(self):
-        return 1 if self.sum == 0 else 0
+        return 1 if self.add == 0 else 0
 

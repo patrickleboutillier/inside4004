@@ -31,4 +31,4 @@ for i in range(4):
 
 
 MCS4.program()
-MCS4.run()
+MCS4.run(dump=True)

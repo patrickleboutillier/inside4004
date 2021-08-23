@@ -237,7 +237,7 @@ class instx:
         @X3pre
         def _():
             inst.cpu.alu.runAdder()
-            inst.cpu.alu.enableSum()
+            inst.cpu.alu.enableAdd()
         @X3ph2
         def _():
             inst.scratch.setReg()            
@@ -306,7 +306,7 @@ class instx:
         @X2pre
         def _():
             # This is not be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
-            inst.data.v(0)
+            inst.data.v = 0
         @X2ph1
         def _():
             inst.cpu.alu.setADA()
@@ -372,7 +372,7 @@ class instx:
         @X2pre
         def _():
             # This is not be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
-            inst.data.v(0)
+            inst.data.v = 0 
         @X2ph1
         def _():
             inst.cpu.alu.setADC()
@@ -385,7 +385,7 @@ class instx:
         @X2pre
         def _():
             # This is not be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
-            inst.data.v(0)
+            inst.data.v = 0
         @X2ph1
         def _():
             inst.cpu.alu.setADA()
@@ -393,5 +393,19 @@ class instx:
         def _():
             # TODO: dac is not in sub_group!
             inst.cpu.alu.runAdder(invertADB=True, saveAcc=True, saveCy=True)
+
         # TCS
+
         # STC
+        opr, opa = 0b1111, [0b1010]
+        @X2pre
+        def _():
+            # This is not be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
+            inst.data.v = 0
+        @X2ph1
+        def _():
+            inst.cpu.alu.setADC(one=True)
+        @X3pre
+        def _():
+            # TODO: stc is not in sub_group!
+            inst.cpu.alu.runAdder(invertADB=True, saveCy=True)
