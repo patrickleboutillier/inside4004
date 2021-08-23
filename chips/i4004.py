@@ -19,7 +19,7 @@ class i4004:
 
 
     def testZero(self):
-        return 1 if self.test.v() == 0 else 0
+        return 1 if self.test.v == 0 else 0
 
     def decodeInst(self):
         opr = self.inst.opr
@@ -104,4 +104,4 @@ class i4004:
         self.addr.dump() ; print("  ", end='')
         self.inst.dump() ; print("  ", end='')
         self.scratch.dump() ; print("  ", end='')
-        print("TEST:{:b}  ACC/CY:{:04b}/{}".format(self.test.v(), self.alu.acc, self.alu.cy))
+        print("TEST:{:b}  ACC/CY:{:04b}/{}".format(self.test.v, self.alu.acc, self.alu.cy))

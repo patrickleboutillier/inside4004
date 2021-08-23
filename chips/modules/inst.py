@@ -34,7 +34,7 @@ class inst:
                 if self.cond:
                     self.cpu.addr.setPM()
             else:
-                self.opr = self.data._v
+                self.opr = self.data.v
 
         @M2ph1
         def _():
@@ -52,7 +52,7 @@ class inst:
                 if self.cond:
                     self.cpu.addr.setPL()
             else:
-                self.opa = self.data._v
+                self.opa = self.data.v
 
         self.registerX()
 

@@ -32,12 +32,12 @@ class alu:
         @X2ph1  # n0342, for non IO instructions
         def _():
             if not self.inst.io():
-                self.tmp = self.data._v
+                self.tmp = self.data.v
 
         @X2ph2  # n0342, for IO instructions
         def _():
             if self.inst.io():
-                self.tmp = self.data._v
+                self.tmp = self.data.v
 
 
     def runAdder(self, invertADB=False, saveAcc=False, saveCy=False, saveCy1=False, shiftL=False, shiftR=False):
@@ -80,13 +80,13 @@ class alu:
                 self.adc = ~self.adc & 1
         
     def enableAccOut(self):
-        self.data.v(self.acc_out)
+        self.data.v = self.acc_out
 
     def enableSum(self):
-        self.data.v(self.sum)
+        self.data.v = self.sum
 
     def enableCyOut(self):
-        self.data.v(self.cy_out)
+        self.data.v = self.cy_out
 
     def enableKBP(self):
         pass

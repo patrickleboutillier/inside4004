@@ -10,6 +10,6 @@ class lights:
 
     def display(self):
         return "({})({})({})".format(
-            "O" if self._overflow.v() else " ",
-            "-" if self._negative.v() else " ",
-            "M" if self._memory.v() else " ")
+            "O" if self._overflow.v else " ",
+            "-" if self._negative.v else " ",
+            "M" if self._memory.v else " ")

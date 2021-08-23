@@ -11,7 +11,7 @@ class i4002:
         self.chip = chip                            # The chip number or identifier (0-3). Bit 1 is the model number (-1 or -2) and bit 0 is the P0 signal
         self.data = data                            # The data bus
         self.cm = cm                                # The command line
-        self.output = bus()                         # The output bus
+        self.output = pbus()                         # The output bus
         self.src = 0                                # 1 if we are currently processing a SRC instruction
         self.ram_select = 0                         # 1 if this chip is selected (by SRC during X2) for RAM/I/O instructions
         self.ram_inst = 0                           # 1 if we are currently processing an RAM/I/O instruction
@@ -26,8 +26,8 @@ class i4002:
         @M2ph2
         def _():
             # Grab opa
-            self.opa = self.data._v
-            if self.ram_select and self.cm.v():
+            self.opa = self.data.v
+            if self.ram_select and self.cm.v:
                 # If we are the selected chip for RAM/I/O and cm is on, the CPU is telling us that we are processing a RAM/I/O instruction
                 # NOTE: We could have just checked that opr == 0b1110 during M1...
                 self.ram_inst = 1
@@ -39,30 +39,30 @@ class i4002:
             if self.ram_inst:
                 # A RAM/I/O instruction is on progress, execute the proper operation according to the value of opa
                 if self.opa == 0b1000:
-                    self.data.v(self.ram[self.reg][self.char])
+                    self.data.v = self.ram[self.reg][self.char]
                 elif self.opa == 0b1001:
-                    self.data.v(self.ram[self.reg][self.char])
+                    self.data.v = self.ram[self.reg][self.char]
                 elif self.opa == 0b1011:
-                    self.data.v(self.ram[self.reg][self.char])
+                    self.data.v = self.ram[self.reg][self.char]
                 elif self.opa == 0b1100:
-                    self.data.v(self.status[self.reg][0])
+                    self.data.v = self.status[self.reg][0]
                 elif self.opa == 0b1101:
-                    self.data.v(self.status[self.reg][1])
+                    self.data.v = self.status[self.reg][1]
                 elif self.opa == 0b1110:
-                    self.data.v(self.status[self.reg][2])
+                    self.data.v = self.status[self.reg][2]
                 elif self.opa == 0b1111:
-                    self.data.v(self.status[self.reg][3])
+                    self.data.v = self.status[self.reg][3]
 
         @X2ph2
         def _():
-            if self.cm.v():
+            if self.cm.v:
                 # An SRC instruction is in progress
-                if self.chip == (self.data._v >> 2):
-                    # We are the selected RAM chip for RAM/I/O if self.chip == (self.data._v >> 2)
+                if self.chip == (self.data.v >> 2):
+                    # We are the selected RAM chip for RAM/I/O if self.chip == (self.data.v >> 2)
                     self.src = 1
                     self.ram_select = 1
                     # Grab the selected RAM register
-                    self.reg = self.data._v & 0b0011
+                    self.reg = self.data.v & 0b0011
                 else:
                     self.ram_select = 0
             else:
@@ -70,23 +70,23 @@ class i4002:
             if self.ram_inst:
                 # A RAM/I/O instruction is on progress, execute the proper operation according to the value of opa
                 if self.opa == 0b0000:
-                    self.ram[self.reg][self.char] = self.data._v
+                    self.ram[self.reg][self.char] = self.data.v
                 elif self.opa == 0b0001:
-                    self.output.v(self.data._v)
+                    self.output.v(self.data.v)
                 elif self.opa == 0b0100:
-                    self.status[self.reg][0] = self.data._v
+                    self.status[self.reg][0] = self.data.v
                 elif self.opa == 0b0101:
-                    self.status[self.reg][1] = self.data._v
+                    self.status[self.reg][1] = self.data.v
                 elif self.opa == 0b0110:
-                    self.status[self.reg][2] = self.data._v
+                    self.status[self.reg][2] = self.data.v
                 elif self.opa == 0b0111:
-                    self.status[self.reg][3] = self.data._v
+                    self.status[self.reg][3] = self.data.v
 
         @X3ph2
         def _():
             # If we are processing an SRC instruction, grab the selected RAM character
             if self.src:
-                self.char = self.data._v
+                self.char = self.data.v
 
 
     def dump(self):

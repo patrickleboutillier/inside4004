@@ -22,22 +22,22 @@ for r in PROM:
     MCS4.addROM(r)
 
 # Create 2 RAMS
-RAM = [i4002.i4002(0, 0, ph1, ph2, sync, data, cm_ram.wire(0)), i4002.i4002(0, 1, ph1, ph2, sync, data, cm_ram.wire(0))]
+RAM = [i4002.i4002(0, 0, ph1, ph2, sync, data, cm_ram.pwire(0)), i4002.i4002(0, 1, ph1, ph2, sync, data, cm_ram.pwire(0))]
 for r in RAM:
     MCS4.addRAM(0, r)
 
 # Lights
-lights = lights.lights(memory=RAM[1].output.wire(0), overflow=RAM[1].output.wire(1), negative=RAM[1].output.wire(2))
+lights = lights.lights(memory=RAM[1].output.pwire(0), overflow=RAM[1].output.pwire(1), negative=RAM[1].output.pwire(2))
 
 # Create keyboard 4003
-kbdsr = i4003.i4003(name="KB", clock=PROM[0].io.wire(0), data_in=PROM[0].io.wire(1), enable=wire(1))
+kbdsr = i4003.i4003(name="KB", clock=PROM[0].io.pwire(0), data_in=PROM[0].io.pwire(1), enable=pwire(1))
 MCS4.addSR(kbdsr)
 
 # Keyboard
 keyboard = keyboard.keyboard(kbdsr.parallel_out, lights)
 for i in range(4):
-    buf(keyboard.output().wire(i), PROM[1].io.wire(i))
-buf(keyboard.advance(), PROM[2].io.wire(3))
+    pbuf(keyboard.output().pwire(i), PROM[1].io.pwire(i))
+pbuf(keyboard.advance(), PROM[2].io.pwire(3))
 kb = os.environ.get('KEY_BUFFER')
 if kb is not None:
     keyboard.setKeyBuffer(kb)
@@ -45,18 +45,18 @@ if kb is not None:
 
 # Create printer 4003s
 # Order important here to void race conditions
-psr2 = i4003.i4003(name="P2", clock=PROM[0].io.wire(2), data_in=PROM[0].io.wire(1), enable=wire(1))
-psr1 = i4003.i4003(name="P1", clock=PROM[0].io.wire(2), data_in=psr2.serial_out, enable=wire(1))
+psr2 = i4003.i4003(name="P2", clock=PROM[0].io.pwire(2), data_in=PROM[0].io.pwire(1), enable=pwire(1))
+psr1 = i4003.i4003(name="P1", clock=PROM[0].io.pwire(2), data_in=psr2.serial_out, enable=pwire(1))
 MCS4.addSR(psr1)
 MCS4.addSR(psr2)
 
 # Printer
-printer = printer.printer(fire=RAM[0].output.wire(1), advance=RAM[0].output.wire(3), color=RAM[0].output.wire(0))
+printer = printer.printer(fire=RAM[0].output.pwire(1), advance=RAM[0].output.pwire(3), color=RAM[0].output.pwire(0))
 for i in range(10):
-    buf(psr2.parallel_out.wire(i), printer.input().wire(i))
-    buf(psr1.parallel_out.wire(i), printer.input().wire(10+i))
-buf(printer.sector(), test)
-buf(printer.index(), PROM[2].io.wire(0))
+    pbuf(psr2.parallel_out.pwire(i), printer.input().pwire(i))
+    pbuf(psr1.parallel_out.pwire(i), printer.input().pwire(10+i))
+pbuf(printer.sector(), test)
+pbuf(printer.index(), PROM[2].io.pwire(0))
 
 
 # Load the program

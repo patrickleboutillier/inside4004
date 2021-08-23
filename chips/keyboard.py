@@ -35,8 +35,8 @@ class keyboard(sensor):
         sensor.__init__(self, input)
         self._input = input
         self._lights = lights
-        self._output = bus()
-        self._advance = wire()
+        self._output = pbus()
+        self._advance = pwire()
         self._dp_sw = [0, 0, 0, 0]        # Digital point switch position
         self._rnd_sw = [0, 0, 0, 0]       # Rounding switch position
         self._buffer = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0],
@@ -52,9 +52,9 @@ class keyboard(sensor):
 
     def always(self, signal):
         for i in range(10):
-            if self._input.wire(i).v() == 0:
+            if self._input.pwire(i).v == 0:
                 for j in range(4):
-                    self._output.wire(3-j).v(self._buffer[i][j])
+                    self._output.pwire(3-j).v = self._buffer[i][j]
                     if i < 8:   # Don't reset the switches!
                         self._buffer[i][j] = 0
 
@@ -62,7 +62,7 @@ class keyboard(sensor):
         self._key_buffer += buffer.split(",")
 
     def clearAdvance(self):
-        self._advance.v(0)
+        self._advance.v = 0
         
     def readKey(self):
         if len(self._key_buffer) == 0:
@@ -78,7 +78,7 @@ class keyboard(sensor):
                 elif k == 'r':
                     self.incRND()
                 elif k == 'a':
-                    self._advance.v(1)
+                    self._advance.v = 1
                 else:
                     for c in range(8):
                         for r in range(4):
