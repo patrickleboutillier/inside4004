@@ -67,7 +67,7 @@ class alu:
         else:
             if saveAcc:
                 if self.inst.daa() and (self.cy_out or self.acc_out > 9):
-                    self.acc = (self.acc + 6) & 0xF
+                    self.acc = (self.acc_out + 6) & 0xF
                 elif self.inst.tcs():
                     self.acc = 9 + self.cy_out
                 elif self.inst.kbp():
@@ -82,6 +82,8 @@ class alu:
             if saveCy:
                 if self.inst.daa() and (self.cy_out or self.acc_out > 9):
                     self.cy = 1
+                elif self.inst.tcs():
+                    self.cy = 0
                 else:
                     self.cy = co
 

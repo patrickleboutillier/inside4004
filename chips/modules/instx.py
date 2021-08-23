@@ -178,9 +178,9 @@ class instx:
 
         # RDM, RDR, RD0/1/2/3
         opr, opa = 0b1110, [0b1001, 0b1010, 0b1100, 0b1101, 0b1110, 0b1111]
-        @X2ph2
+        @A1ph1
         def _():
-            inst.cpu.alu.acc = inst.data.v
+            inst.cpu.alu.runAdder(saveAcc=True)
 
         # WRM, WMP, WRR, WR0/1/2/3
         opr, opa = 0b1110, [0b0000, 0b0001, 0b0010, 0b0100, 0b0101, 0b0110, 0b0111]
