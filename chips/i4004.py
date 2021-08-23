@@ -21,37 +21,6 @@ class i4004:
     def testZero(self):
         return 1 if self.test.v == 0 else 0
 
-    def decodeInst(self):
-        opr = self.inst.opr
-        if opr == 0b1111:
-            if self.inst.opa == 0b1001:
-                self.TCS()
-            elif self.inst.opa == 0b1011:
-                self.DAA()
-            elif self.inst.opa == 0b1100:
-                self.KBP()
-            elif self.inst.opa == 0b1101:
-                self.DCL()
-
-
-    def TCS(self):
-        self.alu.acc = 0b1010 if self.alu.cy else 0b1001
-        self.alu.cy = 0 
-
-    def DAA(self):
-        if self.alu.cy or self.alu.acc > 9:
-            self.alu.acc += 6
-            if self.alu.acc & 0x10:
-                self.alu.cy = 1
-                self.alu.acc = self.alu.acc & 0xF
-            
-    def KBP(self):
-        if self.alu.acc == 4:
-            self.alu.acc = 3
-        elif self.alu.acc == 8:
-            self.alu.acc = 4
-        elif self.alu.acc > 2:
-            self.alu.acc = 15
 
     def DCL(self):
         if self.alu.acc & 0b0111 == 0:
@@ -71,8 +40,6 @@ class i4004:
         elif self.alu.acc & 0b0111 == 7:
             self.inst.ram_bank = 14
 
-    def execute(self):
-        self.decodeInst()
 
     def dump(self, cycle):
         print("\nCYCLE #{}".format(cycle))

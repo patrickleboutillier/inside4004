@@ -5,4 +5,4 @@ if which pypy3 >/dev/null ; then
     PYTHON=pypy3
 fi
 
-$PYTHON 141-fp/mcs4.py 141-fp/ROM.bin
+cat 141-PF/ROM.bin | $PYTHON 141-PF/mcs4.py
