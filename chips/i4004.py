@@ -24,13 +24,13 @@ class i4004:
     def decodeInst(self):
         opr = self.inst.opr
         if opr == 0b1111:
-            if self.inst.opa == 0b0010:
-                self.IAC()
-            elif self.inst.opa == 0b0111:
-                self.TCC()
-            elif self.inst.opa == 0b1000:
-                self.DAC()
-            elif self.inst.opa == 0b1001:
+            #if self.inst.opa == 0b0010:
+            #    self.IAC()
+            #elif self.inst.opa == 0b0111:
+            #    self.TCC()
+            #if self.inst.opa == 0b1000:
+            #    self.DAC()
+            if self.inst.opa == 0b1001:
                 self.TCS()
             elif self.inst.opa == 0b1010:
                 self.STC()

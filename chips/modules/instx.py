@@ -302,7 +302,18 @@ class instx:
             inst.cpu.alu.runAdder(saveCy=True)
 
         # IAC
-
+        opr, opa = 0b1111, [0b0010]
+        @X2pre
+        def _():
+            # This is not be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
+            inst.data.v(0)
+        @X2ph1
+        def _():
+            inst.cpu.alu.setADA()
+            inst.cpu.alu.setADC(one=True)
+        @X3pre
+        def _():
+            inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
 
         # CMC
         opr, opa = 0b1111, [0b0011]
@@ -357,6 +368,30 @@ class instx:
             inst.cpu.alu.runAdder(shiftR=True)
             
         # TCC
+        opr, opa = 0b1111, [0b0111]
+        @X2pre
+        def _():
+            # This is not be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
+            inst.data.v(0)
+        @X2ph1
+        def _():
+            inst.cpu.alu.setADC()
+        @X3pre
+        def _():
+            inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
+
         # DAC
+        opr, opa = 0b1111, [0b1000]
+        @X2pre
+        def _():
+            # This is not be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
+            inst.data.v(0)
+        @X2ph1
+        def _():
+            inst.cpu.alu.setADA()
+        @X3pre
+        def _():
+            # TODO: dac is not in sub_group!
+            inst.cpu.alu.runAdder(invertADB=True, saveAcc=True, saveCy=True)
         # TCS
         # STC

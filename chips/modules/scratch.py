@@ -16,9 +16,6 @@ class scratch:
         self.timing = timing
 
 
-    def regZero(self):
-        return 1 if self.index_reg[self.inst.opa] == 0 else 0
-
     def enableReg(self):
         self.data.v(self.index_reg[self.inst.opa])
 
@@ -42,6 +39,9 @@ class scratch:
 
     def setRegPairL(self):
         self.index_reg[self.inst.opa | 0b0001] = self.data._v
+
+    def regZero(self):
+        return 1 if self.index_reg[self.inst.opa] == 0 else 0
 
 
     def dump(self):
