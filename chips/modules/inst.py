@@ -125,11 +125,11 @@ class inst:
     def ior(self):
         return self.io() and (self.opa >> 3) == 1
 
-    def ope(self):
-        return self.opr == 0b1111
-
     def ld(self):
         return self.opr == 0b1010
+
+    def ope(self):
+        return self.opr == 0b1111
 
     def tcs(self):
         return self.opr == 0b1111 and self.opa == 0b1001    

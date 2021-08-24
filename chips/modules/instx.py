@@ -158,6 +158,11 @@ class instx:
                 # TODO: Find proper timing for these operations
                 sum = inst.scratch.index_reg[inst.opa] + 1
                 inst.scratch.index_reg[inst.opa] = sum & 0xF
+                
+        # @X1ph2
+        # def _():
+        #     inst.scratch.enableReg()
+
         @X3ph2
         def _():
             if inst.dcff:
@@ -219,7 +224,7 @@ class instx:
 
         # LD
         opr, opa = 0b1010, any
-        @X2pre
+        @X1ph2
         def _():
             inst.scratch.enableReg()
         @X3pre
@@ -228,7 +233,7 @@ class instx:
 
         # INC
         opr, opa = 0b0110, any
-        @X2pre
+        @X1ph2
         def _():
             inst.scratch.enableReg()
         @X2ph1
@@ -244,7 +249,7 @@ class instx:
 
         # ADD
         opr, opa = 0b1000, any
-        @X2pre
+        @X1ph2
         def _():
             inst.scratch.enableReg()
         @X2ph1
@@ -257,7 +262,7 @@ class instx:
 
         # SUB
         opr, opa = 0b1001, any
-        @X2pre
+        @X1ph2
         def _():
             inst.scratch.enableReg()
         @X2ph1
@@ -270,7 +275,7 @@ class instx:
 
         # XCH
         opr, opa = 0b1011, any
-        @X2pre
+        @X1ph2
         def _():
             inst.scratch.enableReg()
         @X3pre

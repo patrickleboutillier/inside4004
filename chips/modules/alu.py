@@ -32,7 +32,7 @@ class alu:
         @X2pre
         def _():
             # TODO: This is not supposed to be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
-            if self.inst.ope:
+            if self.inst.ope():
                 self.data.v = 0
         
         @X2ph1  # n0342, for non IO instructions
