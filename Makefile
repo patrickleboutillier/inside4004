@@ -14,7 +14,7 @@ chips:
 asm:
 	@for t in test/asm/[0-9]*.py ; do echo -n "$$t: " ; \
 		$(PYTHON) $$t > /tmp/asm ; \
-		$(PYTHON) test/mcs4.py /tmp/asm > /tmp/out 2>&1 ; \
+		cat /tmp/asm | $(PYTHON) test/mcs4.py > /tmp/out 2>&1 ; \
 		if [ "$$?" = 0 ] ; then \
 			echo OK ; \
 		else \
@@ -25,9 +25,9 @@ asm:
 	done
 
 calc:
-	@for t in test/141-fp/[0-9]*.calc ; do echo -n "$$t: " ; \
+	@for t in test/141-PF/[0-9]*.calc ; do echo -n "$$t: " ; \
 		. $$t ; \
-		GOT=$$(./141-fp.sh | grep '\*' | tail -n1) ; \
+		GOT=$$(./141-PF.sh | grep '\*' | tail -n1) ; \
 		if [ "$$GOT" == "$$EXPECTED" ] ; then \
 			echo OK ; \
 		else \
@@ -40,4 +40,4 @@ calc:
 	done
 
 profile:
-	@$(PYTHON) -m cProfile 141-fp/mcs4.py 141-fp/ROM.bin
+	@$(PYTHON) -m cProfile 141-PF/mcs4.py 141-PF/ROM.bin

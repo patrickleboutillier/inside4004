@@ -94,9 +94,9 @@ class i4001():
 
 
     # This method is used to "program" the ROM from a filehandle.
-    def program(self, fi):
+    def program(self, fh):
         addr = 0
-        for line in fi:
+        for line in fh:
             inst = line[0:8]
             if inst[0] in ['0', '1']:
                 self.rom[addr] = int(inst, 2)
