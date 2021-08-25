@@ -12,9 +12,17 @@ class scratch:
         self.data = data            # The data bus
         self.inst = None            # Must be set after initialisation
         self.index_reg = [0] * 16   # The actual registers
+        self.row_num = 0
+        self.row_even = 0 
+        self.row_odd = 0
+        self.data_in = 0
+        self.data_out = 0
 
         self.timing = timing
 
+        @M2ph2
+        def _():
+            self.row_num = self.data.v >> 1
 
     def enableReg(self):
         self.data.v = self.index_reg[self.inst.opa]
