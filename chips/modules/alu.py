@@ -1,0 +1,123 @@
+from chips.modules.timing import *
+from hdl import *
+
+
+class alu:
+    def __init__(self, timing, data):
+        self.data = data
+        self.inst = None            # Must be set after initialization
+        self.acc = 0
+        self.tmp = 0
+        self.cy = 0 
+        self.ada = 0
+        self.adb = 0
+        self.adc = 0 
+        self.acc_out = 0
+        self.cy_out = 0
+        self.add = 0
+
+        self.timing = timing
+
+        @M1ph1
+        def _():
+            self.ada = 0
+            self.tmp = 0xF
+            self.adc = 0
+
+        @X1ph1
+        def _():
+            self.acc_out = self.acc
+            self.cy_out = self.cy
+        
+        @X2pre
+        def _():
+            # TODO: This is not supposed to be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
+            if self.inst.ope():
+                self.data.v = 0
+        
+        @X2ph1  # n0342, for non IO instructions
+        def _():
+            if not self.inst.io():
+                self.tmp = self.data.v
+
+        @X2ph2  # n0342, for IO instructions
+        def _():
+            if self.inst.io():
+                self.tmp = self.data.v
+
+
+    def runAdder(self, invertADB=False, saveAcc=False, saveCy=False, shiftL=False, shiftR=False):
+        self.adb = self.tmp
+        if invertADB:
+            self.adb = ~self.adb & 0xF
+
+        # print("acc:{} ada:{} tmp:{} adb:{} cy:{}, adc:{}".format(self.acc, self.ada, self.tmp, self.adb, self.cy, self.adc))
+
+        self.add = self.ada + self.adb + self.adc
+        co = self.add >> 4
+        self.add = self.add & 0xF
+        # print("add:{} co:{}".format(self.add, co))
+
+        if shiftL:
+            self.cy = self.add >> 3
+            self.acc = self.acc << 1 | self.cy_out
+        elif shiftR:
+            self.cy = self.add & 1
+            self.acc = self.cy_out << 3 | self.add >> 1
+        else:
+            if saveAcc:
+                if self.inst.daa() and (self.cy_out or self.acc_out > 9):
+                    self.acc = (self.acc_out + 6) & 0xF
+                elif self.inst.tcs():
+                    self.acc = 9 + self.cy_out
+                elif self.inst.kbp():
+                    if self.acc_out == 4:
+                        self.acc = 3
+                    elif self.acc_out == 8:
+                        self.acc =  4
+                    elif self.acc_out > 2:
+                        self.acc = 15
+                else:
+                    self.acc = self.add
+            if saveCy:
+                if self.inst.daa() and (self.cy_out or self.acc_out > 9):
+                    self.cy = 1
+                elif self.inst.tcs():
+                    self.cy = 0
+                else:
+                    self.cy = co
+
+    def setADA(self, invert=False):
+        self.ada = self.acc
+        if invert:
+            self.ada = ~self.ada & 0xF
+
+    def setADC(self, invert=False, one=False):
+        if one:
+            self.adc = 1
+        else:
+            self.adc = self.cy
+            if invert:
+                self.adc = ~self.adc & 1
+        
+    def enableAccOut(self):
+        self.data.v = self.acc_out
+
+    def enableAdd(self):
+        self.data.v = self.add
+
+    def enableCyOut(self):
+        self.data.v = self.cy_out
+
+    def enableKBP(self):
+        pass
+
+    def accZero(self):
+        return 1 if self.acc_out == 0 else 0
+
+    def addZero(self):
+        return 1 if self.add == 0 else 0
+
+    def carryOne(self):
+        return self.cy_out
+

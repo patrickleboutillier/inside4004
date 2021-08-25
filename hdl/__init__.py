@@ -1,5 +1,5 @@
 import atexit
 
+from .bus import *
 from .wire import *
-from .mem import *
-from .reg import *
+from .buf import *
