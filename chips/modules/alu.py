@@ -18,13 +18,13 @@ class alu:
 
         self.timing = timing
 
-        @M1clk1
+        @M12
         def _():
             self.ada = 0
             self.tmp = 0xF
             self.adc = 0
 
-        @X1clk1
+        @X12
         def _():
             self.acc_out = self.acc
             self.cy_out = self.cy

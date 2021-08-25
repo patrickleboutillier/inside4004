@@ -57,6 +57,7 @@ class timing(sensor):
 def A1clk1(f):
     active_timing.dispatch[0][0].append(f)
     return f
+A12 = A1clk1
 
 def A1clk2(f):
     active_timing.dispatch[0][2].append(f)
@@ -69,6 +70,7 @@ def A21(f):
 def A2clk1(f):
     active_timing.dispatch[1][0].append(f)
     return f
+A22 = A2clk1
 
 def A2clk2(f):
     active_timing.dispatch[1][2].append(f)
@@ -81,6 +83,7 @@ def A31(f):
 def A3clk1(f):
     active_timing.dispatch[2][0].append(f)
     return f
+A32 = A3clk1
 
 def A3clk2(f):
     active_timing.dispatch[2][2].append(f)
@@ -89,6 +92,7 @@ def A3clk2(f):
 def M1clk1(f):
     active_timing.dispatch[3][0].append(f)
     return f
+M12 = M1clk1
 
 def M1clk2(f):
     active_timing.dispatch[3][2].append(f)
@@ -97,6 +101,7 @@ def M1clk2(f):
 def M2clk1(f):
     active_timing.dispatch[4][0].append(f)
     return f
+M22 = M2clk1
 
 def M2clk2(f):
     active_timing.dispatch[4][2].append(f)
@@ -105,6 +110,7 @@ def M2clk2(f):
 def X1clk1(f):
     active_timing.dispatch[5][0].append(f)
     return f
+X12 = X1clk1
 
 def X1clk2(f):
     active_timing.dispatch[5][2].append(f)
@@ -117,6 +123,7 @@ def X21(f):
 def X2clk1(f):
     active_timing.dispatch[6][0].append(f)
     return f
+X22 = X2clk1
 
 def X2clk2(f):
     active_timing.dispatch[6][2].append(f)
@@ -129,6 +136,7 @@ def X31(f):
 def X3clk1(f):
     active_timing.dispatch[7][0].append(f)
     return f
+X32 = X3clk1
 
 def X3clk2(f):
     active_timing.dispatch[7][2].append(f)

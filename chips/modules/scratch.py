@@ -47,6 +47,17 @@ class scratch:
             if self.inst.sc:
                 self.row_num = self.data.v >> 1
 
+        @M12
+        @M22
+        @A1clk1
+        @A2clk1
+        @A3clk1
+        @X1clk1
+        @X2clk1
+        @X3clk1
+        def _():
+            self.data_in = self.data.v
+            
 
     def enableReg(self):
         self.data.v = self.index_reg[self.inst.opa]

@@ -18,25 +18,27 @@ class addr:
 
         self.timing = timing
 
-        @A1clk1 
+        @A11 
         def _():
             if self.cpu.inst.fin() and self.cpu.inst.dcff:
                 self.scratch.enableReg1()
             else:
                 self.data.v = self.stack[self.sp] & 0xF
 
-        @A2clk1
+        @A21
         def _():
             if self.cpu.inst.fin() and self.cpu.inst.dcff:
                 self.scratch.enableReg0()
             else:
                 self.data.v = (self.stack[self.sp] >> 4) & 0xF
 
+        @A31
+        def _():
+            self.data.v = self.stack[self.sp] >> 8
+
         @A3clk1
         def _():
-            # Order not important here
             self.cm_rom.v = 1
-            self.data.v = self.stack[self.sp] >> 8
 
         @A3clk2
         def _():
