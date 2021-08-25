@@ -171,7 +171,7 @@ class instx:
         @X1ph1
         def _():
             inst.dcff = ~inst.dcff & 1
-        @X1ph2
+        @X2pre
         def _():
             if inst.dcff:
                 inst.scratch.enableReg()
