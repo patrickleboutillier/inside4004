@@ -18,13 +18,13 @@ class alu:
 
         self.timing = timing
 
-        @M1ph1
+        @M1clk1
         def _():
             self.ada = 0
             self.tmp = 0xF
             self.adc = 0
 
-        @X1ph1
+        @X1clk1
         def _():
             self.acc_out = self.acc
             self.cy_out = self.cy
@@ -34,12 +34,12 @@ class alu:
             if self.inst.ope():
                 self.enableInitializer()
         
-        @X2ph1  # n0342, for non IO instructions
+        @X2clk1  # n0342, for non IO instructions
         def _():
             if not self.inst.io():
                 self.tmp = self.data.v
 
-        @X2ph2  # n0342, for IO instructions
+        @X2clk2  # n0342, for IO instructions
         def _():
             if self.inst.io():
                 self.tmp = self.data.v

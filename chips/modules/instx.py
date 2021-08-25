@@ -15,31 +15,31 @@ def register(f, x, n):
      for i in opa:
         active_instx.dispatch[opr][i][x][n] = f 
 
-def A1ph1(f):
+def A1clk1(f):
     register(f, 0, 0)
 
-def X1ph1(f):
+def X1clk1(f):
     register(f, 5, 0)
 
-def X1ph2(f):
+def X1clk2(f):
     register(f, 5, 2)
 
 def X21(f):
     register(f, 5, 3)
 
-def X2ph1(f):
+def X2clk1(f):
     register(f, 6, 0)
 
-def X2ph2(f):
+def X2clk2(f):
     register(f, 6, 2)
 
 def X31(f):
     register(f, 6, 3)
 
-def X3ph1(f):
+def X3clk1(f):
     register(f, 7, 0)
 
-def X3ph2(f):
+def X3clk2(f):
     register(f, 7, 2)
 
 
@@ -68,36 +68,36 @@ class instx:
 
         # NOP
         opr, opa = 0b0000, [0b0000]
-        @X1ph1
+        @X1clk1
         def _():
             pass
 
         # HLT
         opr, opa = 0b0000, [0b0001]
-        @X1ph1
+        @X1clk1
         def _():
             print("HALTED!")
             sys.exit()
 
         # ERR
         opr, opa = 0b0000, [0b0010]
-        @X1ph1
+        @X1clk1
         def _():
             sys.exit("ERROR!")
 
         # JCN
         opr, opa = 0b0001, any
-        @X1ph1
+        @X1clk1
         def _():
             inst.dcff = ~inst.dcff & 1
-        @X3ph2
+        @X3clk2
         def _():
             if inst.dcff:
                 inst.setJCNCond()  
 
         # FIM
         opr, opa = 0b0010, even
-        @X1ph1
+        @X1clk1
         def _():
             inst.dcff = ~inst.dcff & 1
 
@@ -116,36 +116,36 @@ class instx:
 
         # FIN
         opr, opa = 0b0011, even
-        @X1ph1
+        @X1clk1
         def _():
             inst.dcff = ~inst.dcff & 1
 
         # JIN
         opr, opa = 0b0011, odd
-        @X1ph1
+        @X1clk1
         def _():
             inst.scratch.enableRegPairH()
-        @X1ph2
+        @X1clk2
         def _():
             inst.cpu.addr.setPM()
-        @X2ph1
+        @X2clk1
         def _():
             inst.scratch.enableRegPairL()
-        @X2ph2
+        @X2clk2
         def _():
             inst.cpu.addr.setPL()
 
         # JUN, JMS
         opa = any
         for opr in [0b0100, 0b0101]:
-            @X1ph1
+            @X1clk1
             def _():
                 inst.dcff = ~inst.dcff & 1
-            @X2ph1
+            @X2clk1
             def _():
                 if not inst.dcff:
                     inst.data.v = inst.opa
-            @X2ph2
+            @X2clk2
             def _():
                 if not inst.dcff:
                     inst.cpu.addr.setPH()
@@ -155,27 +155,27 @@ class instx:
         @X21
         def _():
             inst.scratch.enableReg()
-        @X2ph1
+        @X2clk1
         def _():
             inst.cpu.alu.setADC(one=True)
         @X31
         def _():
             inst.cpu.alu.runAdder()
             inst.cpu.alu.enableAdd()
-        @X3ph2
+        @X3clk2
         def _():
             inst.scratch.setReg()    
 
         # ISZ
         opr, opa = 0b0111, any
-        @X1ph1
+        @X1clk1
         def _():
             inst.dcff = ~inst.dcff & 1
         @X21
         def _():
             if inst.dcff:
                 inst.scratch.enableReg()
-        @X2ph1
+        @X2clk1
         def _():
             if inst.dcff:
                 inst.cpu.alu.setADC(one=True)
@@ -184,7 +184,7 @@ class instx:
             if inst.dcff:
                 inst.cpu.alu.runAdder()
                 inst.cpu.alu.enableAdd()
-        @X3ph2
+        @X3clk2
         def _():
             if inst.dcff:
                 inst.scratch.setReg()
@@ -196,7 +196,7 @@ class instx:
         @X21
         def _():
             inst.scratch.enableReg()
-        @X2ph1
+        @X2clk1
         def _():
             inst.cpu.alu.setADA()
             inst.cpu.alu.setADC()
@@ -209,7 +209,7 @@ class instx:
         @X21
         def _():
             inst.scratch.enableReg()
-        @X2ph1
+        @X2clk1
         def _():
             inst.cpu.alu.setADA()
             inst.cpu.alu.setADC(invert=True)
@@ -235,19 +235,19 @@ class instx:
         def _():
             inst.cpu.alu.runAdder(saveAcc=True)
             inst.cpu.alu.enableAccOut()
-        @X3ph2
+        @X3clk2
         def _():
             inst.scratch.setReg()
 
         # BBL
         opr, opa = 0b1100, any
-        @X1ph1
+        @X1clk1
         def _():
             inst.cpu.addr.decSP()
-        @X2ph1
+        @X2clk1
         def _():
             inst.data.v = inst.opa
-        @X2ph2
+        @X2clk2
         def _():
             inst.cpu.alu.acc = inst.data.v
 
@@ -263,33 +263,33 @@ class instx:
 
         # RDM, RDR, RD0/1/2/3
         opr, opa = 0b1110, [0b1001, 0b1010, 0b1100, 0b1101, 0b1110, 0b1111]
-        @A1ph1
+        @A1clk1
         def _():
             inst.cpu.alu.runAdder(saveAcc=True)
 
         # WRM, WMP, WRR, WR0/1/2/3
         opr, opa = 0b1110, [0b0000, 0b0001, 0b0010, 0b0100, 0b0101, 0b0110, 0b0111]
-        @X2ph1
+        @X2clk1
         def _():
             inst.data.v = inst.cpu.alu.acc
 
         # ADM
         opr, opa = 0b1110, [0b1011]
-        @X2ph2
+        @X2clk2
         def _():
             inst.cpu.alu.setADA()
             inst.cpu.alu.setADC()
-        @A1ph1
+        @A1clk1
         def _():
             inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
 
         # SBM
         opr, opa = 0b1110, [0b1000]
-        @X2ph2
+        @X2clk2
         def _():
             inst.cpu.alu.setADA()
             inst.cpu.alu.setADC(invert=True)
-        @A1ph1
+        @A1clk1
         def _():
             inst.cpu.alu.runAdder(invertADB=True, saveAcc=True, saveCy=True)
 
@@ -308,7 +308,7 @@ class instx:
 
         # IAC
         opr, opa = 0b1111, [0b0010]
-        @X2ph1
+        @X2clk1
         def _():
             inst.cpu.alu.setADA()
             inst.cpu.alu.setADC(one=True)
@@ -318,7 +318,7 @@ class instx:
 
         # CMC
         opr, opa = 0b1111, [0b0011]
-        @X2ph1
+        @X2clk1
         def _():
             inst.cpu.alu.setADC(invert=True)
         @X31
@@ -327,7 +327,7 @@ class instx:
 
         # CMA
         opr, opa = 0b1111, [0b0100]
-        @X2ph1
+        @X2clk1
         def _():
             inst.cpu.alu.setADA(invert=True)
         @X31
@@ -336,7 +336,7 @@ class instx:
 
         # RAL
         opr, opa = 0b1111, [0b0101]
-        @X2ph1
+        @X2clk1
         def _():
             inst.cpu.alu.setADA()
         @X31
@@ -345,7 +345,7 @@ class instx:
 
         # RAR
         opr, opa = 0b1111, [0b0110]
-        @X2ph1
+        @X2clk1
         def _():
             inst.cpu.alu.setADA()
         @X31
@@ -354,7 +354,7 @@ class instx:
             
         # TCC
         opr, opa = 0b1111, [0b0111] 
-        @X2ph1
+        @X2clk1
         def _():
             inst.cpu.alu.setADC()
         @X31
@@ -363,7 +363,7 @@ class instx:
 
         # DAC
         opr, opa = 0b1111, [0b1000]
-        @X2ph1
+        @X2clk1
         def _():
             inst.cpu.alu.setADA()
         @X31
@@ -372,7 +372,7 @@ class instx:
 
         # TCS
         opr, opa = 0b1111, [0b1001]
-        @X2ph1
+        @X2clk1
         def _():
             inst.cpu.alu.setADC()
         @X31
@@ -381,7 +381,7 @@ class instx:
 
         # STC
         opr, opa = 0b1111, [0b1010]
-        @X2ph1
+        @X2clk1
         def _():
             inst.cpu.alu.setADC(one=True)
         @X31
@@ -390,7 +390,7 @@ class instx:
 
         # DAA
         opr, opa = 0b1111, [0b1011]
-        @X2ph1
+        @X2clk1
         def _():
             inst.cpu.alu.setADA()
         @X31

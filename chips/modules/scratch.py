@@ -20,13 +20,13 @@ class scratch:
 
         self.timing = timing
 
-        @A3ph2
+        @A3clk2
         def _():
             if self.inst.sc:
                 self.row_even = self.index_reg[self.row_num * 2]
                 self.row_odd = self.index_reg[(self.row_num * 2) + 1]
 
-        @X1ph2
+        @X1clk2
         def _():
             if self.inst.sc:
                 row_num = self.row_num
@@ -35,14 +35,14 @@ class scratch:
                 self.row_even = self.index_reg[row_num * 2]
                 self.row_odd = self.index_reg[(row_num * 2) + 1]
 
-        #@A1ph2
-        #@M1ph2
+        #@A1clk2
+        #@M1clk2
         #def _():
         #    if self.inst.sc:
         #        self.index_reg[self.row_num * 2] = self.row_even
         #        self.index_reg[(self.row_num * 2) + 1] = self.row_odd
 
-        @M2ph2
+        @M2clk2
         def _():
             if self.inst.sc:
                 self.row_num = self.data.v >> 1

@@ -3,19 +3,19 @@ from hdl import *
 
 # This class implements the 2-phase clock used by the entire MCS-4 system:
 #
-#       __              __              __              __
-# ph1: |  |____________|  |____________|  |____________|  |____________
-#               __              __              __              __
-# ph2: ________|  |____________|  |____________|  |____________|  |____
+#        __              __              __              __
+# clk1: |  |____________|  |____________|  |____________|  |____________
+#                __              __              __              __
+# clk2: ________|  |____________|  |____________|  |____________|  |____
 #
-#      |--   cycle   --|--   cycle   --|--   cycle   --|--   cycle   --|
+#       |--   cycle   --|--   cycle   --|--   cycle   --|--   cycle   --|
 
 
 class clock():
     def __init__(self):
         self.phx = pbus(2)
-        self.ph1 = self.phx.pwire(1)
-        self.ph2 = self.phx.pwire(0)
+        self.clk1 = self.phx.pwire(1)
+        self.clk2 = self.phx.pwire(0)
         self.n = 0
         self.map = [0b10, 0b00, 0b01, 0b00]
 

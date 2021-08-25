@@ -25,7 +25,7 @@ class inst:
 
         self.timing = timing
 
-        @A1ph1
+        @A1clk1
         def _():
             if self.cpu.inst.sc and (self.cpu.inst.fin() or self.cpu.inst.fim() or self.cpu.inst.jun() or 
                 self.cpu.inst.jms() or self.cpu.inst.jcn() or self.cpu.inst.isz()):
@@ -33,7 +33,7 @@ class inst:
             else:
                 self.cpu.inst.sc = 1
 
-        @M1ph2
+        @M1clk2
         def _():
             if self.fim() and not self.sc:
                 self.scratch.setRegPairH()
@@ -47,13 +47,13 @@ class inst:
             else:
                 self.opr = self.data.v
 
-        @M2ph1
+        @M2clk1
         def _():
-            # This signal turned off at X1ph1 below
+            # This signal turned off at X1clk1 below
             if self.opr == 0b1110:
                 self.cm_ram.v(self.ram_bank)
 
-        @M2ph2
+        @M2clk2
         def _():
             if self.fim() and not self.sc:
                 self.scratch.setRegPairL()
@@ -67,7 +67,7 @@ class inst:
             else:
                 self.opa = self.data.v
 
-        @X1ph1
+        @X1clk1
         def _():
             if self.opr == 0b1110:
                 self.cm_ram.v(0) 
@@ -165,15 +165,15 @@ class inst:
             if f is not None:
                 f()
 
-        @A1ph1
+        @A1clk1
         def _():
             dispatch(0, 0)
 
-        @X1ph1
+        @X1clk1
         def _():
             dispatch(5, 0)
 
-        @X1ph2
+        @X1clk2
         def _():
             dispatch(5, 2)
 
@@ -181,11 +181,11 @@ class inst:
         def _():
             dispatch(5, 3)
 
-        @X2ph1
+        @X2clk1
         def _():
             dispatch(6, 0)
 
-        @X2ph2
+        @X2clk2
         def _():
             dispatch(6, 2)
 
@@ -193,11 +193,11 @@ class inst:
         def _():
             dispatch(6, 3)
 
-        @X3ph1
+        @X3clk1
         def _():
             dispatch(7, 0)
 
-        @X3ph2
+        @X3clk2
         def _():
             dispatch(7, 2)
             

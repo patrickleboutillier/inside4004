@@ -6,7 +6,7 @@ from hdl import *
 
 
 class i4002:
-    def __init__(self, bank, chip, ph1, ph2, sync, data, cm):
+    def __init__(self, bank, chip, clk1, clk2, sync, data, cm):
         self.bank = bank                            # The bank that this RAM belongs to. For dump purposes only.
         self.chip = chip                            # The chip number or identifier (0-3). Bit 1 is the model number (-1 or -2) and bit 0 is the P0 signal
         self.data = data                            # The data bus
@@ -21,9 +21,9 @@ class i4002:
         self.ram = [[0] * 16, [0] * 16, [0] * 16, [0] * 16] # The actual RAM cells
         self.status = [[0] * 4, [0] * 4, [0] * 4, [0] * 4]  # The actual status cells                    
    
-        self.timing = timing(ph1, ph2, sync)        # The timing module and associated callback functions
+        self.timing = timing(clk1, clk2, sync)        # The timing module and associated callback functions
  
-        @M2ph2
+        @M2clk2
         def _():
             # Grab opa
             self.opa = self.data.v
@@ -34,7 +34,7 @@ class i4002:
             else:
                 self.ram_inst = 0
 
-        @X2ph1
+        @X2clk1
         def _():
             if self.ram_inst:
                 # A RAM/I/O instruction is on progress, execute the proper operation according to the value of opa
@@ -53,7 +53,7 @@ class i4002:
                 elif self.opa == 0b1111:
                     self.data.v = self.status[self.reg][3]
 
-        @X2ph2
+        @X2clk2
         def _():
             if self.cm.v:
                 # An SRC instruction is in progress
@@ -82,7 +82,7 @@ class i4002:
                 elif self.opa == 0b0111:
                     self.status[self.reg][3] = self.data.v
 
-        @X3ph2
+        @X3clk2
         def _():
             # If we are processing an SRC instruction, grab the selected RAM character
             if self.src:
