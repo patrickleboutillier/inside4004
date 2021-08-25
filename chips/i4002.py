@@ -23,7 +23,7 @@ class i4002:
    
         self.timing = timing(clk1, clk2, sync)        # The timing module and associated callback functions
  
-        @M2clk2
+        @M22clk2
         def _():
             # Grab opa
             self.opa = self.data.v
@@ -34,7 +34,7 @@ class i4002:
             else:
                 self.ram_inst = 0
 
-        @X2clk1
+        @X22clk1
         def _():
             if self.ram_inst:
                 # A RAM/I/O instruction is on progress, execute the proper operation according to the value of opa
@@ -53,7 +53,7 @@ class i4002:
                 elif self.opa == 0b1111:
                     self.data.v = self.status[self.reg][3]
 
-        @X2clk2
+        @X22clk2
         def _():
             if self.cm.v:
                 # An SRC instruction is in progress

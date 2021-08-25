@@ -34,12 +34,12 @@ class alu:
             if self.inst.ope():
                 self.enableInitializer()
         
-        @X2clk1  # n0342, for non IO instructions
+        @X22clk1  # n0342, for non IO instructions
         def _():
             if not self.inst.io():
                 self.tmp = self.data.v
 
-        @X2clk2  # n0342, for IO instructions
+        @X22clk2  # n0342, for IO instructions
         def _():
             if self.inst.io():
                 self.tmp = self.data.v

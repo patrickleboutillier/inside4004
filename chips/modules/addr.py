@@ -20,14 +20,14 @@ class addr:
 
         @A11 
         def _():
-            if self.cpu.inst.fin() and self.cpu.inst.dcff:
+            if self.cpu.inst.fin() and self.cpu.inst.sc:
                 self.scratch.enableReg1()
             else:
                 self.data.v = self.stack[self.sp] & 0xF
 
         @A21
         def _():
-            if self.cpu.inst.fin() and self.cpu.inst.dcff:
+            if self.cpu.inst.fin() and not self.cpu.inst.sc:
                 self.scratch.enableReg0()
             else:
                 self.data.v = (self.stack[self.sp] >> 4) & 0xF
@@ -42,14 +42,14 @@ class addr:
 
         @A3clk2
         def _():
-            if self.cpu.inst.fin() and self.cpu.inst.dcff:
+            if self.cpu.inst.fin() and not self.cpu.inst.sc:
                 return
             self.incPC()
 
-        @M1clk1
+        @M12clk1
         def _():
             self.cm_rom.v = 0
-            if self.cpu.inst.jms() and self.cpu.inst.dcff:
+            if self.cpu.inst.jms() and not self.cpu.inst.sc:
                 self.incSP()
 
 

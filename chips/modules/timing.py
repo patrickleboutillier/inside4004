@@ -54,12 +54,12 @@ class timing(sensor):
 
 
 # Decorators
-def A1clk1(f):
+def A12clk1(f):
     active_timing.dispatch[0][0].append(f)
     return f
-A12 = A1clk1
+A12 = A12clk1
 
-def A1clk2(f):
+def A12clk2(f):
     active_timing.dispatch[0][2].append(f)
     return f
 
@@ -67,12 +67,12 @@ def A21(f):
     active_timing.dispatch[0][3].append(f)
     return f
 
-def A2clk1(f):
+def A22clk1(f):
     active_timing.dispatch[1][0].append(f)
     return f
-A22 = A2clk1
+A22 = A22clk1
 
-def A2clk2(f):
+def A22clk2(f):
     active_timing.dispatch[1][2].append(f)
     return f
 
@@ -89,30 +89,30 @@ def A3clk2(f):
     active_timing.dispatch[2][2].append(f)
     return f
 
-def M1clk1(f):
+def M12clk1(f):
     active_timing.dispatch[3][0].append(f)
     return f
-M12 = M1clk1
+M12 = M12clk1
 
-def M1clk2(f):
+def M12clk2(f):
     active_timing.dispatch[3][2].append(f)
     return f
 
-def M2clk1(f):
+def M22clk1(f):
     active_timing.dispatch[4][0].append(f)
     return f
-M22 = M2clk1
+M22 = M22clk1
 
-def M2clk2(f):
+def M22clk2(f):
     active_timing.dispatch[4][2].append(f)
     return f
 
-def X1clk1(f):
+def X12clk1(f):
     active_timing.dispatch[5][0].append(f)
     return f
-X12 = X1clk1
+X12 = X12clk1
 
-def X1clk2(f):
+def X12clk2(f):
     active_timing.dispatch[5][2].append(f)
     return f
 
@@ -120,12 +120,12 @@ def X21(f):
     active_timing.dispatch[5][3].append(f)
     return f
 
-def X2clk1(f):
+def X22clk1(f):
     active_timing.dispatch[6][0].append(f)
     return f
-X22 = X2clk1
+X22 = X22clk1
 
-def X2clk2(f):
+def X22clk2(f):
     active_timing.dispatch[6][2].append(f)
     return f
 

@@ -23,12 +23,12 @@ class i4001():
 
         self.timing = timing(clk1, clk2, sync)            # The timing module and associated callback functions
 
-        @A1clk2
+        @A12clk2
         def _():
             # Record addrl
             self.addrl = self.data.v
 
-        @A2clk2
+        @A22clk2
         def _():
             # Record addrh
             self.addrh = self.data.v
@@ -39,38 +39,38 @@ class i4001():
             if self.cm.v:
                 self.rom_select = 1 if self.chipnum == self.data.v else 0
 
-        @M1clk1
+        @M12clk1
         def _():
             # If we are the selected chip for instructions, send out opr
             if self.rom_select:
                 opr = self.rom[self.addrh << 4 | self.addrl] >> 4
                 self.data.v = opr
 
-        @M1clk2
+        @M12clk2
         def _():
             # opr is on the bus, no matter who put it there (us or another ROM chip). Check if an I/O instruction is in progress
             self.io_inst = 1 if self.data.v == 0b1110 else 0
 
-        @M2clk1
+        @M22clk1
         def _():
             # If we are the selected chip for instructions, send out opr
             if self.rom_select:
                 self.opa = self.rom[self.addrh << 4 | self.addrl] & 0xF
                 self.data.v = self.opa
 
-        @M2clk2
+        @M22clk2
         def _():
             # opa is on the bus, no matter who put it there (us or another ROM chip). Check if a RDR or WRR I/O instruction is in progress
             self.rdr = 1 if self.io_inst and self.data.v == 0b1010 else 0
             self.wrr = 1 if self.io_inst and self.data.v == 0b0010 else 0
 
-        @X2clk1
+        @X22clk1
         def _():
             # Send data for RDR
             if self.io_select and self.rdr:
                 self.data.v = self.io._v
 
-        @X2clk2
+        @X22clk2
         def _():
             if self.cm.v:
                 # A SRC instruction is in progress

@@ -26,7 +26,7 @@ class scratch:
                 self.row_even = self.index_reg[self.row_num * 2]
                 self.row_odd = self.index_reg[(self.row_num * 2) + 1]
 
-        @X1clk2
+        @X12clk2
         def _():
             if self.inst.sc:
                 row_num = self.row_num
@@ -35,29 +35,29 @@ class scratch:
                 self.row_even = self.index_reg[row_num * 2]
                 self.row_odd = self.index_reg[(row_num * 2) + 1]
 
-        #@A1clk2
-        #@M1clk2
+        #@A12clk2
+        #@M12clk2
         #def _():
         #    if self.inst.sc:
         #        self.index_reg[self.row_num * 2] = self.row_even
         #        self.index_reg[(self.row_num * 2) + 1] = self.row_odd
 
-        @M2clk2
+        @M22clk2
         def _():
             if self.inst.sc:
                 self.row_num = self.data.v >> 1
 
         @M12
         @M22
-        @A1clk1
-        @A2clk1
+        @A12clk1
+        @A22clk1
         @A3clk1
-        @X1clk1
-        @X2clk1
+        @X12clk1
+        @X22clk1
         @X3clk1
         def _():
             self.data_in = self.data.v
-            
+
 
     def enableReg(self):
         self.data.v = self.index_reg[self.inst.opa]

@@ -17,7 +17,6 @@ class inst:
         self.ram_bank = 1
         self.cm_rom = cm_rom
         self.cm_ram = cm_ram
-        self.dcff = 0
         self.sc = 1
         self.cond = 0
         self.opr = 0
@@ -25,7 +24,7 @@ class inst:
 
         self.timing = timing
 
-        @A1clk1
+        @A12clk1
         def _():
             if self.cpu.inst.sc and (self.cpu.inst.fin() or self.cpu.inst.fim() or self.cpu.inst.jun() or 
                 self.cpu.inst.jms() or self.cpu.inst.jcn() or self.cpu.inst.isz()):
@@ -33,41 +32,41 @@ class inst:
             else:
                 self.cpu.inst.sc = 1
 
-        @M1clk2
+        @M12clk2
         def _():
             if self.fim() and not self.sc:
                 self.scratch.setRegPairH()
-            elif self.fin() and self.dcff:
+            elif self.fin() and not self.sc:
                 self.scratch.setRegPairH()
-            elif (self.jun() or self.jms()) and self.dcff:
+            elif (self.jun() or self.jms()) and not self.sc:
                 self.cpu.addr.setPM()
-            elif (self.jcn() or self.isz()) and self.dcff:
+            elif (self.jcn() or self.isz()) and not self.sc:
                 if self.cond:
                     self.cpu.addr.setPM()
             else:
                 self.opr = self.data.v
 
-        @M2clk1
+        @M22clk1
         def _():
-            # This signal turned off at X1clk1 below
+            # This signal turned off at X12clk1 below
             if self.opr == 0b1110:
                 self.cm_ram.v(self.ram_bank)
 
-        @M2clk2
+        @M22clk2
         def _():
             if self.fim() and not self.sc:
                 self.scratch.setRegPairL()
-            elif self.fin() and self.dcff:
+            elif self.fin() and not self.sc:
                 self.scratch.setRegPairL()
-            elif (self.jun() or self.jms()) and self.dcff:
+            elif (self.jun() or self.jms()) and not self.sc:
                 self.cpu.addr.setPL()
-            elif (self.jcn() or self.isz()) and self.dcff:
+            elif (self.jcn() or self.isz()) and not self.sc:
                 if self.cond:
                     self.cpu.addr.setPL()
             else:
                 self.opa = self.data.v
 
-        @X1clk1
+        @X12clk1
         def _():
             if self.opr == 0b1110:
                 self.cm_ram.v(0) 
@@ -117,6 +116,13 @@ class inst:
         elif self.cpu.alu.acc_out & 0b0111 == 7:
             self.ram_bank = 14
 
+
+    def opa_odd(self):
+        return self.opa & 1
+
+    def opa_even(self):
+        return not (self.opa & 1)
+
     def fim(self):
         return self.opr == 0b0010 and not self.opa & 0b0001
 
@@ -165,15 +171,15 @@ class inst:
             if f is not None:
                 f()
 
-        @A1clk1
+        @A12clk1
         def _():
             dispatch(0, 0)
 
-        @X1clk1
+        @X12clk1
         def _():
             dispatch(5, 0)
 
-        @X1clk2
+        @X12clk2
         def _():
             dispatch(5, 2)
 
@@ -181,11 +187,11 @@ class inst:
         def _():
             dispatch(5, 3)
 
-        @X2clk1
+        @X22clk1
         def _():
             dispatch(6, 0)
 
-        @X2clk2
+        @X22clk2
         def _():
             dispatch(6, 2)
 
@@ -203,5 +209,5 @@ class inst:
             
 
     def dump(self):
-        print("OPR/OPA:{:04b}/{:04b}  DC:{}  CM-RAM:{:04b}".format(self.opr, self.opa, self.dcff, self.ram_bank), end = '')
+        print("OPR/OPA:{:04b}/{:04b}  SC:{}  CM-RAM:{:04b}".format(self.opr, self.opa, self.sc, self.ram_bank), end = '')
 
