@@ -21,7 +21,7 @@ class alu:
         @M1ph1
         def _():
             self.ada = 0
-            self.tmp = 0
+            self.tmp = 0xF
             self.adc = 0
 
         @X1ph1

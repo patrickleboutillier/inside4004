@@ -171,7 +171,7 @@ class instx:
         @X1ph1
         def _():
             inst.dcff = ~inst.dcff & 1
-        @X1ph2
+        @X2pre
         def _():
             if inst.dcff:
                 inst.scratch.enableReg()
@@ -378,7 +378,6 @@ class instx:
             inst.cpu.alu.setADC()
         @X3pre
         def _():
-            # TODO: dac is not in sub_group!
             # TODO: runAdder knows about the TCS instruction
             inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
 
