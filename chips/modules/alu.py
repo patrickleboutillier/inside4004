@@ -29,7 +29,7 @@ class alu:
             self.acc_out = self.acc
             self.cy_out = self.cy
         
-        @X2pre
+        @X21
         def _():
             if self.inst.ope():
                 self.enableInitializer()

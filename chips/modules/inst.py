@@ -177,7 +177,7 @@ class inst:
         def _():
             dispatch(5, 2)
 
-        @X2pre
+        @X21
         def _():
             dispatch(5, 3)
 
@@ -189,7 +189,7 @@ class inst:
         def _():
             dispatch(6, 2)
 
-        @X3pre
+        @X31
         def _():
             dispatch(6, 3)
 

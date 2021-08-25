@@ -24,7 +24,7 @@ def X1ph1(f):
 def X1ph2(f):
     register(f, 5, 2)
 
-def X2pre(f):
+def X21(f):
     register(f, 5, 3)
 
 def X2ph1(f):
@@ -33,7 +33,7 @@ def X2ph1(f):
 def X2ph2(f):
     register(f, 6, 2)
 
-def X3pre(f):
+def X31(f):
     register(f, 6, 3)
 
 def X3ph1(f):
@@ -103,12 +103,12 @@ class instx:
 
         # SRC
         opr, opa = 0b0010, odd
-        @X2pre
+        @X21
         def _():
             inst.scratch.enableRegPairH()
             inst.cm_rom.v = 1
             inst.cm_ram.v(inst.ram_bank)
-        @X3pre
+        @X31
         def _():
             inst.scratch.enableRegPairL()
             inst.cm_rom.v = 0
@@ -152,13 +152,13 @@ class instx:
 
         # INC
         opr, opa = 0b0110, any
-        @X2pre
+        @X21
         def _():
             inst.scratch.enableReg()
         @X2ph1
         def _():
             inst.cpu.alu.setADC(one=True)
-        @X3pre
+        @X31
         def _():
             inst.cpu.alu.runAdder()
             inst.cpu.alu.enableAdd()
@@ -171,7 +171,7 @@ class instx:
         @X1ph1
         def _():
             inst.dcff = ~inst.dcff & 1
-        @X2pre
+        @X21
         def _():
             if inst.dcff:
                 inst.scratch.enableReg()
@@ -179,7 +179,7 @@ class instx:
         def _():
             if inst.dcff:
                 inst.cpu.alu.setADC(one=True)
-        @X3pre
+        @X31
         def _():
             if inst.dcff:
                 inst.cpu.alu.runAdder()
@@ -193,45 +193,45 @@ class instx:
 
         # ADD
         opr, opa = 0b1000, any
-        @X2pre
+        @X21
         def _():
             inst.scratch.enableReg()
         @X2ph1
         def _():
             inst.cpu.alu.setADA()
             inst.cpu.alu.setADC()
-        @X3pre
+        @X31
         def _():
             inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
 
         # SUB
         opr, opa = 0b1001, any
-        @X2pre
+        @X21
         def _():
             inst.scratch.enableReg()
         @X2ph1
         def _():
             inst.cpu.alu.setADA()
             inst.cpu.alu.setADC(invert=True)
-        @X3pre
+        @X31
         def _():
             inst.cpu.alu.runAdder(invertADB=True, saveAcc=True, saveCy=True)
 
         # LD
         opr, opa = 0b1010, any
-        @X2pre
+        @X21
         def _():
             inst.scratch.enableReg()
-        @X3pre
+        @X31
         def _():
             inst.cpu.alu.runAdder(saveAcc=True)
 
         # XCH
         opr, opa = 0b1011, any
-        @X2pre
+        @X21
         def _():
             inst.scratch.enableReg()
-        @X3pre
+        @X31
         def _():
             inst.cpu.alu.runAdder(saveAcc=True)
             inst.cpu.alu.enableAccOut()
@@ -253,10 +253,10 @@ class instx:
 
         # LDM
         opr, opa = 0b1101, any
-        @X2pre
+        @X21
         def _():
             inst.data.v = inst.opa
-        @X3pre
+        @X31
         def _():
             inst.cpu.alu.runAdder(saveAcc=True)
 
@@ -296,13 +296,13 @@ class instx:
 
         # CLB
         opr, opa = 0b1111, [0b0000]
-        @X3pre
+        @X31
         def _():
             inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
 
         # CLC
         opr, opa = 0b1111, [0b0001]
-        @X3pre
+        @X31
         def _():
             inst.cpu.alu.runAdder(saveCy=True)
 
@@ -312,7 +312,7 @@ class instx:
         def _():
             inst.cpu.alu.setADA()
             inst.cpu.alu.setADC(one=True)
-        @X3pre
+        @X31
         def _():
             inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
 
@@ -321,7 +321,7 @@ class instx:
         @X2ph1
         def _():
             inst.cpu.alu.setADC(invert=True)
-        @X3pre
+        @X31
         def _():
             inst.cpu.alu.runAdder(invertADB=True, saveCy=True)
 
@@ -330,7 +330,7 @@ class instx:
         @X2ph1
         def _():
             inst.cpu.alu.setADA(invert=True)
-        @X3pre
+        @X31
         def _():
             inst.cpu.alu.runAdder(saveAcc=True)
 
@@ -339,7 +339,7 @@ class instx:
         @X2ph1
         def _():
             inst.cpu.alu.setADA()
-        @X3pre
+        @X31
         def _():
             inst.cpu.alu.runAdder(shiftL=True)
 
@@ -348,7 +348,7 @@ class instx:
         @X2ph1
         def _():
             inst.cpu.alu.setADA()
-        @X3pre
+        @X31
         def _():
             inst.cpu.alu.runAdder(shiftR=True)
             
@@ -357,7 +357,7 @@ class instx:
         @X2ph1
         def _():
             inst.cpu.alu.setADC()
-        @X3pre
+        @X31
         def _():
             inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
 
@@ -366,7 +366,7 @@ class instx:
         @X2ph1
         def _():
             inst.cpu.alu.setADA()
-        @X3pre
+        @X31
         def _():
             inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
 
@@ -375,7 +375,7 @@ class instx:
         @X2ph1
         def _():
             inst.cpu.alu.setADC()
-        @X3pre
+        @X31
         def _():
             inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
 
@@ -384,7 +384,7 @@ class instx:
         @X2ph1
         def _():
             inst.cpu.alu.setADC(one=True)
-        @X3pre
+        @X31
         def _():
             inst.cpu.alu.runAdder(saveCy=True)
 
@@ -393,18 +393,18 @@ class instx:
         @X2ph1
         def _():
             inst.cpu.alu.setADA()
-        @X3pre
+        @X31
         def _():
             inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
 
         # KBP
         opr, opa = 0b1111, [0b1100]
-        @X3pre
+        @X31
         def _():
             inst.cpu.alu.runAdder(saveAcc=True)
 
         # DCL
         opr, opa = 0b1111, [0b1101]
-        @X2pre
+        @X21
         def _():
             inst.setRAMBank()

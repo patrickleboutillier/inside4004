@@ -1,3 +1,3 @@
 - Analyze addr block:
-  - Analyze radb2, radb1, radb0
+  - Analyze radb0=a11, radb1=a21, radb0=a31
 

@@ -102,7 +102,7 @@ def X1ph2(f):
     active_timing.dispatch[5][2].append(f)
     return f
 
-def X2pre(f):
+def X21(f):
     active_timing.dispatch[5][3].append(f)
     return f
 
@@ -114,7 +114,7 @@ def X2ph2(f):
     active_timing.dispatch[6][2].append(f)
     return f
 
-def X3pre(f):
+def X31(f):
     active_timing.dispatch[6][3].append(f)
     return f
 
