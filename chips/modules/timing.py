@@ -56,54 +56,72 @@ class timing(sensor):
 # Decorators
 def A1ph1(f):
     active_timing.dispatch[0][0].append(f)
+    return f
 
 def A1ph2(f):
     active_timing.dispatch[0][2].append(f)
+    return f
 
 def A2ph1(f):
     active_timing.dispatch[1][0].append(f)
+    return f
 
 def A2ph2(f):
     active_timing.dispatch[1][2].append(f)
+    return f
 
 def A3ph1(f):
     active_timing.dispatch[2][0].append(f)
+    return f
 
 def A3ph2(f):
     active_timing.dispatch[2][2].append(f)
+    return f
 
 def M1ph1(f):
     active_timing.dispatch[3][0].append(f)
+    return f
 
 def M1ph2(f):
     active_timing.dispatch[3][2].append(f)
+    return f
 
 def M2ph1(f):
     active_timing.dispatch[4][0].append(f)
+    return f
 
 def M2ph2(f):
     active_timing.dispatch[4][2].append(f)
+    return f
 
 def X1ph1(f):
     active_timing.dispatch[5][0].append(f)
+    return f
 
 def X1ph2(f):
     active_timing.dispatch[5][2].append(f)
+    return f
 
 def X2pre(f):
     active_timing.dispatch[5][3].append(f)
+    return f
 
 def X2ph1(f):
     active_timing.dispatch[6][0].append(f)
+    return f
 
 def X2ph2(f):
     active_timing.dispatch[6][2].append(f)
+    return f
 
 def X3pre(f):
     active_timing.dispatch[6][3].append(f)
+    return f
 
 def X3ph1(f):
     active_timing.dispatch[7][0].append(f)
+    return f
 
 def X3ph2(f):
     active_timing.dispatch[7][2].append(f)
+    return f

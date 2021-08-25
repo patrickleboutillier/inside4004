@@ -20,9 +20,33 @@ class scratch:
 
         self.timing = timing
 
+        @A3ph2
+        def _():
+            if self.inst.sc:
+                self.row_even = self.index_reg[self.row_num * 2]
+                self.row_odd = self.index_reg[(self.row_num * 2) + 1]
+
+        @X1ph2
+        def _():
+            if self.inst.sc:
+                row_num = self.row_num
+                if self.inst.fin():
+                    row_num = 0                  
+                self.row_even = self.index_reg[row_num * 2]
+                self.row_odd = self.index_reg[(row_num * 2) + 1]
+
+        #@A1ph2
+        #@M1ph2
+        #def _():
+        #    if self.inst.sc:
+        #        self.index_reg[self.row_num * 2] = self.row_even
+        #        self.index_reg[(self.row_num * 2) + 1] = self.row_odd
+
         @M2ph2
         def _():
-            self.row_num = self.data.v >> 1
+            if self.inst.sc:
+                self.row_num = self.data.v >> 1
+
 
     def enableReg(self):
         self.data.v = self.index_reg[self.inst.opa]
