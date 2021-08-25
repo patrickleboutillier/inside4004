@@ -20,7 +20,7 @@ class scratch:
 
         self.timing = timing
 
-        @A3clk2
+        @A32clk2
         def _():
             if self.inst.sc:
                 self.row_even = self.index_reg[self.row_num * 2]
@@ -35,12 +35,12 @@ class scratch:
                 self.row_even = self.index_reg[row_num * 2]
                 self.row_odd = self.index_reg[(row_num * 2) + 1]
 
-        #@A12clk2
-        #@M12clk2
-        #def _():
-        #    if self.inst.sc:
-        #        self.index_reg[self.row_num * 2] = self.row_even
-        #        self.index_reg[(self.row_num * 2) + 1] = self.row_odd
+        @A12clk2
+        @M12clk2
+        def _():
+            if self.inst.sc:
+                self.index_reg[self.row_num * 2] = self.row_even
+                self.index_reg[(self.row_num * 2) + 1] = self.row_odd
 
         @M22clk2
         def _():
@@ -51,41 +51,41 @@ class scratch:
         @M22
         @A12clk1
         @A22clk1
-        @A3clk1
+        @A32clk1
         @X12clk1
         @X22clk1
-        @X3clk1
+        @X32clk1
         def _():
             self.data_in = self.data.v
 
 
     def enableReg(self):
-        self.data.v = self.index_reg[self.inst.opa]
-
-    def enableReg0(self):
-        self.data.v = self.index_reg[0]
-
-    def enableReg1(self):
-        self.data.v = self.index_reg[1]
+        self.data.v = self.row_even if self.inst.opa_even() else self.row_odd
 
     def enableRegPairH(self):
-        self.data.v = self.index_reg[self.inst.opa & 0b1110]
+        self.data.v = self.row_even
 
     def enableRegPairL(self):
-        self.data.v = self.index_reg[self.inst.opa | 0b0001]
+        self.data.v = self.row_odd
 
     def setReg(self):
-        self.index_reg[self.inst.opa] = self.data.v
+        if self.inst.opa_even():
+            self.row_even = self.data_in
+        else:
+            self.row_odd = self.data_in
 
     def setRegPairH(self):
-        self.index_reg[self.inst.opa & 0b1110] = self.data.v
+        self.row_even = self.data.v
 
     def setRegPairL(self):
-        self.index_reg[self.inst.opa | 0b0001] = self.data.v
+        self.row_odd = self.data.v
 
+    # TODO: This should be replaced by addZero when the condition ff is figured out
     def regZero(self):
-        return 1 if self.index_reg[self.inst.opa] == 0 else 0
-
+        if self.inst.opa_even():
+            return 1 if self.row_even == 0 else 0
+        else:
+            return 1 if self.row_odd == 0 else 0
 
     def dump(self):
         print("INDEX:{}".format("".join(["{:x}".format(x) for x in self.index_reg])), end='')

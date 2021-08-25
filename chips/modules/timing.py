@@ -80,12 +80,12 @@ def A31(f):
     active_timing.dispatch[1][3].append(f)
     return f
 
-def A3clk1(f):
+def A32clk1(f):
     active_timing.dispatch[2][0].append(f)
     return f
-A32 = A3clk1
+A32 = A32clk1
 
-def A3clk2(f):
+def A32clk2(f):
     active_timing.dispatch[2][2].append(f)
     return f
 
@@ -133,12 +133,12 @@ def X31(f):
     active_timing.dispatch[6][3].append(f)
     return f
 
-def X3clk1(f):
+def X32clk1(f):
     active_timing.dispatch[7][0].append(f)
     return f
-X32 = X3clk1
+X32 = X32clk1
 
-def X3clk2(f):
+def X32clk2(f):
     active_timing.dispatch[7][2].append(f)
     return f
 

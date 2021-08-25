@@ -36,10 +36,10 @@ def X22clk2(f):
 def X31(f):
     register(f, 6, 3)
 
-def X3clk1(f):
+def X32clk1(f):
     register(f, 7, 0)
 
-def X3clk2(f):
+def X32clk2(f):
     register(f, 7, 2)
 
 
@@ -87,7 +87,7 @@ class instx:
 
         # JCN
         opr, opa = 0b0001, any
-        @X3clk2
+        @X32clk2
         def _():
             if inst.sc:
                 inst.setJCNCond()  
@@ -113,23 +113,23 @@ class instx:
 
         # JIN
         opr, opa = 0b0011, odd
-        @X12clk1
+        @X21
         def _():
             inst.scratch.enableRegPairH()
-        @X12clk2
+        @X22clk2
         def _():
             inst.cpu.addr.setPM()
-        @X22clk1
+        @X31
         def _():
             inst.scratch.enableRegPairL()
-        @X22clk2
+        @X32clk2
         def _():
             inst.cpu.addr.setPL()
 
         # JUN, JMS
         opa = any
         for opr in [0b0100, 0b0101]:
-            @X22clk1
+            @X21
             def _():
                 if not inst.sc:
                     inst.data.v = inst.opa
@@ -150,7 +150,7 @@ class instx:
         def _():
             inst.cpu.alu.runAdder()
             inst.cpu.alu.enableAdd()
-        @X3clk2
+        @X32clk2
         def _():
             inst.scratch.setReg()    
 
@@ -169,7 +169,7 @@ class instx:
             if inst.sc:
                 inst.cpu.alu.runAdder()
                 inst.cpu.alu.enableAdd()
-        @X3clk2
+        @X32clk2
         def _():
             if inst.sc:
                 inst.scratch.setReg()
@@ -220,7 +220,7 @@ class instx:
         def _():
             inst.cpu.alu.runAdder(saveAcc=True)
             inst.cpu.alu.enableAccOut()
-        @X3clk2
+        @X32clk2
         def _():
             inst.scratch.setReg()
 

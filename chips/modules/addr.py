@@ -21,14 +21,14 @@ class addr:
         @A11 
         def _():
             if self.cpu.inst.fin() and self.cpu.inst.sc:
-                self.scratch.enableReg1()
+                self.scratch.enableRegPairL()
             else:
                 self.data.v = self.stack[self.sp] & 0xF
 
         @A21
         def _():
             if self.cpu.inst.fin() and not self.cpu.inst.sc:
-                self.scratch.enableReg0()
+                self.scratch.enableRegPairH()
             else:
                 self.data.v = (self.stack[self.sp] >> 4) & 0xF
 
@@ -36,11 +36,11 @@ class addr:
         def _():
             self.data.v = self.stack[self.sp] >> 8
 
-        @A3clk1
+        @A32clk1
         def _():
             self.cm_rom.v = 1
 
-        @A3clk2
+        @A32clk2
         def _():
             if self.cpu.inst.fin() and not self.cpu.inst.sc:
                 return

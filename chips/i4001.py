@@ -33,7 +33,7 @@ class i4001():
             # Record addrh
             self.addrh = self.data.v
 
-        @A3clk2
+        @A32clk2
         def _():
             # If cm is on, we are the selected ROM chip for instructions if self.chipnum == self.data.v
             if self.cm.v:
@@ -86,7 +86,7 @@ class i4001():
                     # Grab data for WRR
                     self.io.v(self.data.v)
 
-        @X3clk2
+        @X32clk2
         def _():
             if self.src:
                 # Data @ X3 is ignored

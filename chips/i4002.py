@@ -82,7 +82,7 @@ class i4002:
                 elif self.opa == 0b0111:
                     self.status[self.reg][3] = self.data.v
 
-        @X3clk2
+        @X32clk2
         def _():
             # If we are processing an SRC instruction, grab the selected RAM character
             if self.src:
