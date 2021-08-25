@@ -34,11 +34,6 @@ class timing(sensor):
         if self.phx._v == 0b10:
             # A new step starts when ph1 goes high
             self.slave = self.master
-            if self.gen_sync:
-                if self.slave == 7:
-                    self.sync.v = 1
-                elif self.slave == 0:
-                    self.sync.v = 0
         elif self.phx._v == 0b01:
             if self.gen_sync:
                 self.master = (self.master + 1) % 8
@@ -47,6 +42,12 @@ class timing(sensor):
                     self.master = 0
                 else:
                     self.master += 1
+        elif self.phase == 3:
+            if self.gen_sync:
+                if self.slave == 6:
+                    self.sync.v = 1
+                elif self.slave == 7:
+                    self.sync.v = 0
 
         for f in self.dispatch[self.slave][self.phase]:
             f()
