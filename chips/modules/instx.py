@@ -368,8 +368,7 @@ class instx:
             inst.cpu.alu.setADA()
         @X3pre
         def _():
-            # TODO: dac is not in sub_group!
-            inst.cpu.alu.runAdder(invertADB=True, saveAcc=True, saveCy=True)
+            inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
 
         # TCS
         opr, opa = 0b1111, [0b1001]
@@ -378,7 +377,6 @@ class instx:
             inst.cpu.alu.setADC()
         @X3pre
         def _():
-            # TODO: runAdder knows about the TCS instruction
             inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
 
         # STC
@@ -388,8 +386,7 @@ class instx:
             inst.cpu.alu.setADC(one=True)
         @X3pre
         def _():
-            # TODO: stc is not in sub_group!
-            inst.cpu.alu.runAdder(invertADB=True, saveCy=True)
+            inst.cpu.alu.runAdder(saveCy=True)
 
         # DAA
         opr, opa = 0b1111, [0b1011]
@@ -398,14 +395,12 @@ class instx:
             inst.cpu.alu.setADA()
         @X3pre
         def _():
-            # TODO: runAdder knows about the DAA instruction
             inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
 
         # KBP
         opr, opa = 0b1111, [0b1100]
         @X3pre
         def _():
-            # TODO: runAdder knows about the KBP instruction
             inst.cpu.alu.runAdder(saveAcc=True)
 
         # DCL

@@ -18,6 +18,7 @@ class inst:
         self.cm_rom = cm_rom
         self.cm_ram = cm_ram
         self.dcff = 0
+        self.sc = 1
         self.cond = 0
         self.opr = 0
         self.opa = 0
