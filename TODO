@@ -1,4 +1,2 @@
-- Figure out sc and dc
-    - sc = ~dc
-    = dc is true during the second cycle (from A12 to A12)
-      - must be set globally using ifs in inst
+- Analyse addr block
+

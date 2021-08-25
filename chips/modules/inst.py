@@ -32,10 +32,10 @@ class inst:
                 self.cpu.inst.sc = 0
             else:
                 self.cpu.inst.sc = 1
-                
+
         @M1ph2
         def _():
-            if self.fim() and self.dcff:
+            if self.fim() and not self.sc:
                 self.scratch.setRegPairH()
             elif self.fin() and self.dcff:
                 self.scratch.setRegPairH()
@@ -55,7 +55,7 @@ class inst:
 
         @M2ph2
         def _():
-            if self.fim() and self.dcff:
+            if self.fim() and not self.sc:
                 self.scratch.setRegPairL()
             elif self.fin() and self.dcff:
                 self.scratch.setRegPairL()
