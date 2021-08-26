@@ -1,2 +1,2 @@
 - Analyze addr block:
-  - Analyze condition flip-flop
+  - Analyze CLK2(JMS&DC&M22+BBL(M22+X12+X22)), ADDR-PTR.1, ADDR-PTR.0, N0409, N0420

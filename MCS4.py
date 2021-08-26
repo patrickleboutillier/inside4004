@@ -6,8 +6,9 @@ from hdl import *
 
 import argparse
 parser = argparse.ArgumentParser()
+parser.add_argument("ROM_FILE")
 parser.add_argument("-d", "--debug", help="output debug information",
-                    action="store_true")
+                    action="store_true")                
 args = parser.parse_args()
 
 
@@ -39,7 +40,7 @@ class MCS4:
         self.SR.append(sr)
 
     def program(self):
-        fh = sys.stdin
+        fh = open(args.ROM_FILE, 'r')
         if self.PROM[0].program(fh) == 0:
             sys.exit("ERROR: No instructions loaded!") 
         elif len(self.PROM) > 1:

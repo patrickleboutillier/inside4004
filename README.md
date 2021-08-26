@@ -1,5 +1,3 @@
-# i4004-sw2hw
+# inside4004
 
-A software journey to transform a i4004 software simulator into a i4004 hardware simulator.
-
-You can follow my blog here: https://i4004-sw2hw.blogspot.com/
+An RTL-level simulator for the Intel 4004 microprocesor, written in Python.

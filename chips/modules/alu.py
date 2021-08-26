@@ -2,49 +2,54 @@ from chips.modules.timing import *
 from hdl import *
 
 
+# Tihs class implemts the ALU of the 4004.
+
+
 class alu:
     def __init__(self, timing, data):
         self.data = data
         self.inst = None            # Must be set after initialization
-        self.acc = 0
-        self.tmp = 0
-        self.cy = 0 
-        self.ada = 0
-        self.adb = 0
-        self.adc = 0 
-        self.acc_out = 0
-        self.cy_out = 0
-        self.add = 0
+        self.acc = 0                # The accumulator
+        self.tmp = 0                # The tmp register
+        self.cy = 0                 # Carry
+        self.ada = 0                # Input A of the adder (4 bits)
+        self.adb = 0                # Input B of the adder (4 bits)
+        self.adc = 0                # Input C od the adder (1 bit)
+        self.acc_out = 0            # Accumulator output
+        self.cy_out = 0             # Carry output
+        self.add = 0                # The result of the adder (not a register in the real 4004 as the adder is combinational)
 
         self.timing = timing
 
-        @M12
+        
+        @M12    # Initialize the ALU before each instruction
         def _():
             self.ada = 0
             self.tmp = 0xF
             self.adc = 0
 
-        @X12
+        @X12    # Save acc and cy to their output registers. 
         def _():
             self.acc_out = self.acc
             self.cy_out = self.cy
         
-        @X21
+        @X21    # Set the bus with the proper initialization value, depending on the current instruction.
         def _():
             if self.inst.ope():
                 self.enableInitializer()
         
-        @X22clk1  # n0342, for non IO instructions
+        @X22clk1  # Set input B by sampling data from the bus (n0342, for non IO instructions).
         def _():
             if not self.inst.io():
                 self.tmp = self.data.v
 
-        @X22clk2  # n0342, for IO instructions
+        @X22clk2  # Set input B by sampling data from the bus (n0342, for IO instructions).
         def _():
             if self.inst.io():
                 self.tmp = self.data.v
 
 
+    # The Adder implementation
     def runAdder(self, invertADB=False, saveAcc=False, saveCy=False, shiftL=False, shiftR=False):
         self.adb = self.tmp
         if invertADB:
@@ -67,16 +72,19 @@ class alu:
             if saveAcc:
                 self.acc = self.add
             if saveCy:
+                # WARNING: a bit of DAA logic here...
                 if self.inst.daa() and (self.cy_out or self.acc_out > 9):
                     self.cy = 1
                 else:
                     self.cy = co
 
+    # Set input A
     def setADA(self, invert=False):
         self.ada = self.acc
         if invert:
             self.ada = ~self.ada & 0xF
 
+    # Set input C
     def setADC(self, invert=False, one=False):
         if one:
             self.adc = 1
@@ -85,15 +93,19 @@ class alu:
             if invert:
                 self.adc = ~self.adc & 1
         
+    # Place acc_out on the bus.
     def enableAccOut(self):
         self.data.v = self.acc_out
 
+    # Place adder result on the bus
     def enableAdd(self):
         self.data.v = self.add
 
+    # Place carry out on the bus
     def enableCyOut(self):
         self.data.v = self.cy_out
 
+    # Bus initialisation routine. This is really clever...
     def enableInitializer(self):
         if self.inst.opa >> 3:
             if self.inst.daa():
@@ -117,12 +129,15 @@ class alu:
         else:
             self.data.v = 0
 
+    # Is acc == 0?
     def accZero(self):
         return 1 if self.acc_out == 0 else 0
 
+    # Is adder result == 0?
     def addZero(self):
         return 1 if self.add == 0 else 0
 
+    # Is carry == 1?
     def carryOne(self):
         return self.cy_out
 
