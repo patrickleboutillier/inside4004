@@ -80,12 +80,6 @@ class scratch:
     def setRegPairL(self):
         self.row_odd = self.data.v
 
-    # TODO: This should be replaced by addZero when the condition ff is figured out
-    def regZero(self):
-        if self.inst.opa_even():
-            return 1 if self.row_even == 0 else 0
-        else:
-            return 1 if self.row_odd == 0 else 0
 
     def dump(self):
         print("INDEX:{}".format("".join(["{:x}".format(x) for x in self.index_reg])), end='')
