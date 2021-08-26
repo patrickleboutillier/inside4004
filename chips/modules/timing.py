@@ -52,6 +52,15 @@ class timing(sensor):
         for f in self.dispatch[self.slave][self.phase]:
             f()
 
+    def x1(self):
+        return self.slave == 5
+
+    def x2(self):
+        return self.slave == 6
+
+    def x3(self):
+        return self.slave == 7
+
 
 # Decorators
 def A12clk1(f):
