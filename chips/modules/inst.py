@@ -26,11 +26,14 @@ class inst:
 
         @A12clk1
         def _():
-            if self.cpu.inst.sc and (self.cpu.inst.fin() or self.cpu.inst.fim() or self.cpu.inst.jun() or 
-                self.cpu.inst.jms() or self.cpu.inst.jcn() or self.cpu.inst.isz()):
-                self.cpu.inst.sc = 0
+            if self.sc and (self.fin() or self.fim() or self.jun() or self.jms() or self.jcn() or self.isz()):
+                self.sc = 0
+                if self.jcn():
+                    self.setJCNCond()
+                if self.isz():
+                    self.cond = ~self.cpu.alu.addZero() & 1
             else:
-                self.cpu.inst.sc = 1
+                self.sc = 1
 
         @M12clk2
         def _():

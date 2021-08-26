@@ -87,10 +87,6 @@ class instx:
 
         # JCN
         opr, opa = 0b0001, any
-        @X32clk2
-        def _():
-            if inst.sc:
-                inst.setJCNCond()  
 
         # FIM
         opr, opa = 0b0010, even
@@ -172,9 +168,7 @@ class instx:
         @X32clk2
         def _():
             if inst.sc:
-                inst.scratch.setReg()
-                # TODO fix timing here
-                inst.cond = ~inst.scratch.regZero() & 1        
+                inst.scratch.setReg()     
 
         # ADD
         opr, opa = 0b1000, any
