@@ -21,7 +21,7 @@ class MCS4:
         self.cm_rom = pwire()
         self.cm_ram = pbus()
         self.test = pwire()
-        self.CPU = i4004.i4004(self.clock.ph1, self.clock.ph2, self.data, self.cm_rom, self.cm_ram, self.test)
+        self.CPU = i4004.i4004(self.clock.clk1, self.clock.clk2, self.data, self.cm_rom, self.cm_ram, self.test)
 
         self.PROM = []
         self.RAM = [None, [], [], None, [], None, None, None, []]

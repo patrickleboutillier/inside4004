@@ -19,36 +19,7 @@
 //
 ////////////////////////////////////////////////////////////////////////
  
-module instruction_pointer (
-	input  wire			sysclk,					// 50 MHz FPGA clock
- 
-	// Inputs from the Timing and I/O board
-	input  wire			clk1,
-	input  wire			clk2,
-	input  wire			a12,
-	input  wire			a22,
-	input  wire			a32,
-	input  wire			m12,
-	input  wire			m22,
-	input  wire			x12,
-	input  wire			x22,
-	input  wire			x32,
-	input  wire			poc,					// Power-On Clear (reset)
-	input  wire			m12_m22_clk1_m11_m12,	// M12+M22+CLK1~(M11+M12)
- 
-	// Common 4-bit data bus
-	inout  wire	[3:0]	data,
- 
-	// Inputs from the Instruction Decode board
-	input  wire			jcn_isz,				// JCN+ISZ
-	input  wire			jin_fin,				// JIN+FIN
-	input  wire			jun_jms,				// JUN+JMS
-	input  wire			cn_n,					// ~CN
-	input  wire			bbl,					// BBL
-	input  wire			jms,					// JMS
-	input  wire			sc,						// SC (Single Cycle)
-	input  wire			dc						// DC (Double Cycle, ~SC)
-	);
+module instruction_pointer ();
  
 	reg  [11:0]	dram_array [0:3];
 	reg  [11:0]	dram_temp;
@@ -74,38 +45,17 @@ module instruction_pointer (
 		.step_b(~addr_ptr[0]), 
 		.q(addr_ptr[1])
 	);
- 
-	// Refresh counter stuff
-	wire [1:0]	addr_rfsh;				// Row Refresh counter
-	wire		addr_rfsh_step;			// (~INH)&X32&CLK2
- 
-	assign addr_rfsh_step = ~inh & x32 & clk2;
- 
-	counter addr_rfsh_0 (
-		.sysclk(sysclk), 
-		.step_a(clk1), 
-		.step_b(addr_rfsh_step), 
-		.q(addr_rfsh[0])
-	);
-	counter addr_rfsh_1 (
-		.sysclk(sysclk), 
-		.step_a( addr_rfsh[0]), 
-		.step_b(~addr_rfsh[0]), 
-		.q(addr_rfsh[1])
-	);
+
  
 	// Row selection mux
 	reg  [1:0]	row;					// {N0409, N0420}
 	always @(posedge sysclk) begin
-		if (x12)
-			row <= addr_rfsh;
 		if (x32)
 			row <= addr_ptr;
 	end
  
  
 	// Row Precharge/Read/Write stuff
-	wire		precharge;				// (~INH)(X11+X31)CLK1
 	wire		row_read;				// (~POC)CLK2(X12+X32)~INH
 	wire		row_write;				// ((~SC)(JIN+FIN))CLK1(M11+X21~INH)
  
@@ -114,7 +64,6 @@ module instruction_pointer (
 		if (clk2)
 			n0517 <= ~(m22 | x22);
 	end
-	assign precharge = ~(n0517 | inh | ~clk1);
  
 	assign row_read = ~poc & clk2 & (x12 | x32) & ~inh;
  
@@ -160,9 +109,6 @@ module instruction_pointer (
  
 	// Manage the row data buffer
 	always @(posedge sysclk) begin
-		if (precharge)
-			dram_temp <= 12'b0;
- 
 		if (row_read)
 			dram_temp <= dram_array[row];
  

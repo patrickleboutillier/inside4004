@@ -1,3 +1,2 @@
-- Validate N0342
-- Figure out sc and dc
-
+- Analyze addr block:
+  - Analyze condition flip-flop

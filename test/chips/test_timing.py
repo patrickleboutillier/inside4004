@@ -8,7 +8,7 @@ class TestTiming(unittest.TestCase):
     def test_timing(self):
         # gen_sync mode
         c = clock.clock()
-        t = timing.timing(c.ph1, c.ph2, None)
+        t = timing.timing(c.clk1, c.clk2, None)
         # At power on
         self.assertEqual(t.slave, 0)
         # start
@@ -53,7 +53,7 @@ class TestTiming(unittest.TestCase):
         # ! gen_sync mode
         c = clock.clock()
         sync = wire()
-        t = timing.timing(c.ph1, c.ph2, sync)
+        t = timing.timing(c.clk1, c.clk2, sync)
         # At power on
         self.assertEqual(t.slave, 0)
         # start

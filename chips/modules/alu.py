@@ -18,29 +18,28 @@ class alu:
 
         self.timing = timing
 
-        @M1ph1
+        @M12
         def _():
             self.ada = 0
             self.tmp = 0xF
             self.adc = 0
 
-        @X1ph1
+        @X12
         def _():
             self.acc_out = self.acc
             self.cy_out = self.cy
         
-        @X2pre
+        @X21
         def _():
-            # TODO: This is not supposed to be required, the bus should be clear if no one is writing to it. I assume pull-down registers are used?
             if self.inst.ope():
-                self.data.v = 0
+                self.enableInitializer()
         
-        @X2ph1  # n0342, for non IO instructions
+        @X22clk1  # n0342, for non IO instructions
         def _():
             if not self.inst.io():
                 self.tmp = self.data.v
 
-        @X2ph2  # n0342, for IO instructions
+        @X22clk2  # n0342, for IO instructions
         def _():
             if self.inst.io():
                 self.tmp = self.data.v
@@ -51,11 +50,11 @@ class alu:
         if invertADB:
             self.adb = ~self.adb & 0xF
 
-        # print("acc:{} ada:{} tmp:{} adb:{} cy:{}, adc:{}".format(self.acc, self.ada, self.tmp, self.adb, self.cy, self.adc))
-
         self.add = self.ada + self.adb + self.adc
         co = self.add >> 4
         self.add = self.add & 0xF
+
+        # print("acc:{} ada:{} tmp:{} adb:{} cy:{}, adc:{}".format(self.acc, self.ada, self.tmp, self.adb, self.cy, self.adc))
         # print("add:{} co:{}".format(self.add, co))
 
         if shiftL:
@@ -66,24 +65,10 @@ class alu:
             self.acc = self.cy_out << 3 | self.add >> 1
         else:
             if saveAcc:
-                if self.inst.daa() and (self.cy_out or self.acc_out > 9):
-                    self.acc = (self.acc_out + 6) & 0xF
-                elif self.inst.tcs():
-                    self.acc = 9 + self.cy_out
-                elif self.inst.kbp():
-                    if self.acc_out == 4:
-                        self.acc = 3
-                    elif self.acc_out == 8:
-                        self.acc =  4
-                    elif self.acc_out > 2:
-                        self.acc = 15
-                else:
-                    self.acc = self.add
+                self.acc = self.add
             if saveCy:
                 if self.inst.daa() and (self.cy_out or self.acc_out > 9):
                     self.cy = 1
-                elif self.inst.tcs():
-                    self.cy = 0
                 else:
                     self.cy = co
 
@@ -109,8 +94,28 @@ class alu:
     def enableCyOut(self):
         self.data.v = self.cy_out
 
-    def enableKBP(self):
-        pass
+    def enableInitializer(self):
+        if self.inst.opa >> 3:
+            if self.inst.daa():
+                if self.cy_out or self.acc_out > 9:
+                    self.data.v = 6
+                else:
+                    self.data.v = 0 
+            elif self.inst.tcs():
+                self.data.v = 9
+            elif self.inst.kbp():
+                if self.acc_out == 4:
+                    self.data.v = 3
+                elif self.acc_out == 8:
+                    self.data.v = 4
+                elif self.acc_out > 2:
+                    self.data.v = 15
+                else:
+                    self.data.v = self.acc_out
+            else:
+                self.data.v = 0xF 
+        else:
+            self.data.v = 0
 
     def accZero(self):
         return 1 if self.acc_out == 0 else 0

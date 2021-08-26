@@ -18,36 +18,38 @@ class addr:
 
         self.timing = timing
 
-        @A1ph1 
+        @A11 
         def _():
-            if self.cpu.inst.fin() and self.cpu.inst.dcff:
-                self.scratch.enableReg1()
+            if self.cpu.inst.fin() and self.cpu.inst.sc:
+                self.scratch.enableRegPairL()
             else:
                 self.data.v = self.stack[self.sp] & 0xF
 
-        @A2ph1
+        @A21
         def _():
-            if self.cpu.inst.fin() and self.cpu.inst.dcff:
-                self.scratch.enableReg0()
+            if self.cpu.inst.fin() and not self.cpu.inst.sc:
+                self.scratch.enableRegPairH()
             else:
                 self.data.v = (self.stack[self.sp] >> 4) & 0xF
 
-        @A3ph1
+        @A31
         def _():
-            # Order not important here
-            self.cm_rom.v = 1
             self.data.v = self.stack[self.sp] >> 8
 
-        @A3ph2
+        @A32clk1
         def _():
-            if self.cpu.inst.fin() and self.cpu.inst.dcff:
+            self.cm_rom.v = 1
+
+        @A32clk2
+        def _():
+            if self.cpu.inst.fin() and not self.cpu.inst.sc:
                 return
             self.incPC()
 
-        @M1ph1
+        @M12clk1
         def _():
             self.cm_rom.v = 0
-            if self.cpu.inst.jms() and self.cpu.inst.dcff:
+            if self.cpu.inst.jms() and not self.cpu.inst.sc:
                 self.incSP()
 
 

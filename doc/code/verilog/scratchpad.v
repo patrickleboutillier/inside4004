@@ -19,66 +19,12 @@
 //
 ////////////////////////////////////////////////////////////////////////
  
-module scratchpad (
-	input  wire			sysclk,					// 50 MHz FPGA clock
- 
-	// Inputs from the Timing and I/O board
-	input  wire			clk1,
-	input  wire			clk2,
-	input  wire			a12,
-	input  wire			a22,
-	input  wire			a32,
-	input  wire			m12,
-	input  wire			m22,
-	input  wire			x12,
-	input  wire			x22,
-	input  wire			x32,
-	input  wire			poc,					// Power-On Clear (reset)
-	input  wire			m12_m22_clk1_m11_m12,	// M12+M22+CLK1~(M11+M12)
- 
-	// Common 4-bit data bus
-	inout  wire	[3:0]	data,
- 
-	// Inputs from the Instruction Decode board
-	input  wire			n0636,					// JIN+FIN
-	input  wire			sc_m22_clk2,			// SC&M22&CLK2 
-	input  wire			fin_fim_src_jin,		// FIN+FIM+SRC+JIN
-	input  wire			inc_isz_add_sub_xch_ld,	// INC+ISZ+ADD+SUB+XCH+LD
-	input  wire			inc_isz_xch,			// INC+ISZ+XCH
-	input  wire			opa0_n,					// ~OPA.0
-	input  wire			sc,						// SC (Single Cycle)
-	input  wire			dc						// DC (Double Cycle, ~SC)
-	);
- 
+module scratchpad ()
+
 	reg  [7:0]	dram_array [0:7];
 	reg  [7:0]	dram_temp;
 	reg  [3:0]	din_n;
- 
-	// Refresh counter stuff
-	wire [2:0]	reg_rfsh;				// Row Refresh counter
-	wire		reg_rfsh_step;			// SC&A12&CLK2
- 
-	assign reg_rfsh_step = sc & a12 & clk2;
- 
-	counter reg_rfsh_0 (
-		.sysclk(sysclk), 
-		.step_a(clk1), 
-		.step_b(reg_rfsh_step), 
-		.q(reg_rfsh[0])
-	);
-	counter reg_rfsh_1 (
-		.sysclk(sysclk), 
-		.step_a( reg_rfsh[0]), 
-		.step_b(~reg_rfsh[0]), 
-		.q(reg_rfsh[1])
-	);
-	counter reg_rfsh_2 (
-		.sysclk(sysclk), 
-		.step_a( reg_rfsh[1]), 
-		.step_b(~reg_rfsh[1]), 
-		.q(reg_rfsh[2])
-	);
- 
+  
 	// Row selection mux
 	reg  [2:0]	row;					// {N0646, N0617, N0582}
 	always @(posedge sysclk) begin
@@ -90,11 +36,9 @@ module scratchpad (
  
  
 	// Row Precharge/Read/Write stuff
-	wire		precharge;				// SC(A22+M22)CLK2
 	wire		row_read;				// (~POC)&CLK2&SC(A32+X12)
 	wire		row_write;				// CLK2&SC(A12+M12)
  
-	assign precharge = sc & (a22 | m22) & clk2;
 	assign row_read  = ~(poc | ~(clk2 & sc & (a32 | x12)));
 	assign row_write = sc & (a12 | m12) & clk2;
  
@@ -128,10 +72,7 @@ module scratchpad (
 	wire fin_x12 = (n0636 & opa0_n) & x12;
  
 	// Manage the row data buffer
-	always @(posedge sysclk) begin
-		if (precharge)
-			dram_temp <= 8'b0;
- 
+	always @(posedge sysclk) begin 
 		if (row_read)
 			dram_temp <= dram_array[fin_x12 ? 3'b000 : row];
  
@@ -161,7 +102,7 @@ module scratchpad (
  
 	// Data In latch
 	always @(posedge sysclk) begin
-		if (m12_m22_clk1_m11_m12)
+		if (gate)
 			din_n <= ~data;
 	end
  
