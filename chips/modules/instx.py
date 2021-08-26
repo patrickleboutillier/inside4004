@@ -229,12 +229,12 @@ class instx:
         @X12clk1
         def _():
             inst.cpu.addr.decSP()
-        @X22clk1
+        @X21
         def _():
             inst.data.v = inst.opa
-        @X22clk2
+        @X31
         def _():
-            inst.cpu.alu.acc = inst.data.v
+            inst.cpu.alu.runAdder(saveAcc=True)
 
         # LDM
         opr, opa = 0b1101, any
