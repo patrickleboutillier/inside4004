@@ -52,6 +52,9 @@ class timing(sensor):
         for f in self.dispatch[self.slave][self.phase]:
             f()
 
+    def now(self):
+        return (self.slave, self.phase)
+
     def x1(self):
         return self.slave == 5
 
@@ -63,10 +66,14 @@ class timing(sensor):
 
 
 # Decorators
+def A12(f):
+    for i in [0, 2, 3]:
+        active_timing.dispatch[0][i].append(f)   
+    return f
+
 def A12clk1(f):
     active_timing.dispatch[0][0].append(f)
     return f
-A12 = A12clk1
 
 def A12clk2(f):
     active_timing.dispatch[0][2].append(f)
@@ -76,10 +83,14 @@ def A21(f):
     active_timing.dispatch[0][3].append(f)
     return f
 
+def A22(f):
+    for i in [0, 2, 3]:
+        active_timing.dispatch[1][i].append(f)  
+    return f
+
 def A22clk1(f):
     active_timing.dispatch[1][0].append(f)
     return f
-A22 = A22clk1
 
 def A22clk2(f):
     active_timing.dispatch[1][2].append(f)
@@ -89,37 +100,53 @@ def A31(f):
     active_timing.dispatch[1][3].append(f)
     return f
 
+def A32(f):
+    for i in [0, 2, 3]:
+        active_timing.dispatch[2][i].append(f)  
+    return f
+
 def A32clk1(f):
     active_timing.dispatch[2][0].append(f)
     return f
-A32 = A32clk1
 
 def A32clk2(f):
     active_timing.dispatch[2][2].append(f)
     return f
 
+def M12(f):
+    for i in [0, 2, 3]:
+        active_timing.dispatch[3][i].append(f)
+    return f
+
 def M12clk1(f):
     active_timing.dispatch[3][0].append(f)
     return f
-M12 = M12clk1
 
 def M12clk2(f):
     active_timing.dispatch[3][2].append(f)
     return f
 
+def M22(f):
+    for i in [0, 2, 3]:
+        active_timing.dispatch[4][i].append(f)
+    return f
+
 def M22clk1(f):
     active_timing.dispatch[4][0].append(f)
     return f
-M22 = M22clk1
 
 def M22clk2(f):
     active_timing.dispatch[4][2].append(f)
     return f
 
+def X12(f):
+    for i in [0, 2, 3]:
+        active_timing.dispatch[5][i].append(f)
+    return f
+
 def X12clk1(f):
     active_timing.dispatch[5][0].append(f)
     return f
-X12 = X12clk1
 
 def X12clk2(f):
     active_timing.dispatch[5][2].append(f)
@@ -129,10 +156,14 @@ def X21(f):
     active_timing.dispatch[5][3].append(f)
     return f
 
+def X22(f):
+    for i in [0, 2, 3]:
+        active_timing.dispatch[8][i].append(f)
+    return f
+
 def X22clk1(f):
     active_timing.dispatch[6][0].append(f)
     return f
-X22 = X22clk1
 
 def X22clk2(f):
     active_timing.dispatch[6][2].append(f)
@@ -142,10 +173,14 @@ def X31(f):
     active_timing.dispatch[6][3].append(f)
     return f
 
+def X32(f):
+    for i in [0, 2, 3]:
+        active_timing.dispatch[7][i].append(f)
+    return f
+
 def X32clk1(f):
     active_timing.dispatch[7][0].append(f)
     return f
-X32 = X32clk1
 
 def X32clk2(f):
     active_timing.dispatch[7][2].append(f)

@@ -13,8 +13,8 @@ chips:
 
 asm:
 	@for t in test/asm/[0-9]*.py ; do echo -n "$$t: " ; \
-		$(PYTHON) $$t > /tmp/asm ; \
-		cat /tmp/asm | $(PYTHON) test/mcs4.py > /tmp/out 2>&1 ; \
+		$(PYTHON) $$t > /tmp/rom ; \
+		$(PYTHON) test/mcs4.py /tmp/rom > /tmp/out 2>&1 ; \
 		if [ "$$?" = 0 ] ; then \
 			echo OK ; \
 		else \
@@ -40,4 +40,4 @@ calc:
 	done
 
 profile:
-	@$(PYTHON) -m cProfile 141-PF/mcs4.py 141-PF/ROM.bin
+	@PROFILE=1 ./141-PF.sh

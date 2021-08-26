@@ -31,8 +31,8 @@ module instruction_pointer ();
 	wire [1:0]	addr_ptr;				// Effective Address counter
 	wire		addr_ptr_step;			// CLK2(JMS&DC&M22+BBL(M22+X12+X22))
  
-	assign addr_ptr_step = ~(~clk2 | ~(((m22 | x12 | x22) & bbl) |
-									   (m22 & dc & jms)));
+	assign addr_ptr_step = clk2 & (((m22 | x12 | x22) & bbl) | (m22 & dc & jms)))
+	
 	counter addr_ptr_0 (
 		.sysclk(sysclk), 
 		.step_a(clk1), 
