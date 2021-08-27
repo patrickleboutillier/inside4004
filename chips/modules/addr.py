@@ -57,6 +57,22 @@ class addr:
             if self.cpu.inst.jms() and not self.cpu.inst.sc:
                 self.incSP()
 
+        @M12clk2
+        def _():
+            if (self.cpu.inst.jun() or self.cpu.inst.jms()) and not self.cpu.inst.sc:
+                self.setPM()
+            elif (self.cpu.inst.jcn() or self.cpu.inst.isz()) and not self.cpu.inst.sc:
+                if self.cpu.inst.cond:
+                    self.setPM()
+
+        @M22clk2
+        def _():
+            if (self.cpu.inst.jun() or self.cpu.inst.jms()) and not self.cpu.inst.sc:
+                self.setPL()
+            elif (self.cpu.inst.jcn() or self.cpu.inst.isz()) and not self.cpu.inst.sc:
+                if self.cpu.inst.cond:
+                    self.setPL()
+
 
     def isPC(self, addr):
         pc = self.stack[self.sp]['h'] << 8 | self.stack[self.sp]['m'] << 4 | self.stack[self.sp]['l']

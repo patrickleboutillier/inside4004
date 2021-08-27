@@ -48,11 +48,17 @@ class scratch:
                 self.index_reg[self.row_num * 2] = self.row_even
                 self.index_reg[(self.row_num * 2) + 1] = self.row_odd
 
-        @M22clk2    # Read OPA from te data bus and set the working row.
+        @M12clk2
+        def _():
+            if (self.inst.fim() or self.inst.fin()) and not self.inst.sc:
+                self.setRegPairH()
+
+        @M22clk2    # Read OPA from the data bus and set the working row. Also, save 
         def _():
             if self.inst.sc:
                 self.row_num = self.data.v >> 1
-
+            if (self.inst.fim() or self.inst.fin()) and not self.inst.sc:
+                self.setRegPairL()
 
 
     # Enable the working register (according to whether OPA is even or odd) to the bus.

@@ -37,14 +37,7 @@ class inst:
 
         @M12clk2
         def _():
-            if (self.fim() or self.fin()) and not self.sc:
-                self.scratch.setRegPairH()
-            elif (self.jun() or self.jms()) and not self.sc:
-                self.cpu.addr.setPM()
-            elif (self.jcn() or self.isz()) and not self.sc:
-                if self.cond:
-                    self.cpu.addr.setPM()
-            else:
+            if self.sc:
                 self.opr = self.data.v
 
         @M22clk1
@@ -55,14 +48,7 @@ class inst:
 
         @M22clk2
         def _():
-            if (self.fim() or self.fin()) and not self.sc:
-                self.scratch.setRegPairL()
-            elif (self.jun() or self.jms()) and not self.sc:
-                self.cpu.addr.setPL()
-            elif (self.jcn() or self.isz()) and not self.sc:
-                if self.cond:
-                    self.cpu.addr.setPL()
-            else:
+            if self.sc:
                 self.opa = self.data.v
 
         @X12clk1
