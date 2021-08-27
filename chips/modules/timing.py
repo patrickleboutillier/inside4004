@@ -67,9 +67,9 @@ class timing(sensor):
 
 # Decorators
 def A12(f):
-    for i in [0, 2, 3]:
-        active_timing.dispatch[0][i].append(f)   
-    return f
+    #for i in [0, 2, 3]:
+    #    active_timing.dispatch[0][i].append(f)   
+    return A12clk1(f)
 
 def A12clk1(f):
     active_timing.dispatch[0][0].append(f)
@@ -84,9 +84,9 @@ def A21(f):
     return f
 
 def A22(f):
-    for i in [0, 2, 3]:
-        active_timing.dispatch[1][i].append(f)  
-    return f
+    #for i in [0, 2, 3]:
+    #    active_timing.dispatch[1][i].append(f)  
+    return A22clk1(f)
 
 def A22clk1(f):
     active_timing.dispatch[1][0].append(f)
@@ -101,9 +101,9 @@ def A31(f):
     return f
 
 def A32(f):
-    for i in [0, 2, 3]:
-        active_timing.dispatch[2][i].append(f)  
-    return f
+    #for i in [0, 2, 3]:
+    #    active_timing.dispatch[2][i].append(f)  
+    return A32clk1(f)
 
 def A32clk1(f):
     active_timing.dispatch[2][0].append(f)
@@ -140,9 +140,9 @@ def M22clk2(f):
     return f
 
 def X12(f):
-    for i in [0, 2, 3]:
-        active_timing.dispatch[5][i].append(f)
-    return f
+    #for i in [0, 2, 3]:
+    #    active_timing.dispatch[5][i].append(f)
+    return X12clk1(f)
 
 def X12clk1(f):
     active_timing.dispatch[5][0].append(f)
@@ -157,9 +157,9 @@ def X21(f):
     return f
 
 def X22(f):
-    for i in [0, 2, 3]:
-        active_timing.dispatch[8][i].append(f)
-    return f
+    #for i in [0, 2, 3]:
+    #    active_timing.dispatch[8][i].append(f)
+    return X22clk1(f)
 
 def X22clk1(f):
     active_timing.dispatch[6][0].append(f)
@@ -174,9 +174,9 @@ def X31(f):
     return f
 
 def X32(f):
-    for i in [0, 2, 3]:
-        active_timing.dispatch[7][i].append(f)
-    return f
+    #for i in [0, 2, 3]:
+    #    active_timing.dispatch[7][i].append(f)
+    return X32clk1(f)
 
 def X32clk1(f):
     active_timing.dispatch[7][0].append(f)

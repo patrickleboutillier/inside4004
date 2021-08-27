@@ -13,8 +13,13 @@ class addr:
         self.scratch = scratch
         self.data = data 
         self.cm_rom = cm_rom
+        self.incr_in = 0
+        self.row_h = 0
+        self.row_l = 0
+        self.row_m = 0
         self.sp = 0
-        self.stack = [0, 0, 0, 0]
+        self.row_num = 0
+        self.stack = [{'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}]
 
         self.timing = timing
 
@@ -23,18 +28,18 @@ class addr:
             if self.cpu.inst.fin() and self.cpu.inst.sc:
                 self.scratch.enableRegPairL()
             else:
-                self.data.v = self.stack[self.sp] & 0xF
+                self.data.v = self.stack[self.sp]['l']
 
         @A21
         def _():
             if self.cpu.inst.fin() and not self.cpu.inst.sc:
                 self.scratch.enableRegPairH()
             else:
-                self.data.v = (self.stack[self.sp] >> 4) & 0xF
+                self.data.v = self.stack[self.sp]['m']
 
         @A31
         def _():
-            self.data.v = self.stack[self.sp] >> 8
+            self.data.v = self.stack[self.sp]['h']
 
         @A32clk1
         def _():
@@ -53,17 +58,25 @@ class addr:
                 self.incSP()
 
 
+    def isPC(self, addr):
+        pc = self.stack[self.sp]['h'] << 8 | self.stack[self.sp]['m'] << 4 | self.stack[self.sp]['l']
+        return pc == addr
+
     def setPH(self):
-        self.stack[self.sp] = (self.stack[self.sp] & 0x0FF) | self.data.v << 8
+        self.stack[self.sp]['h'] = self.data.v
 
     def setPM(self):
-        self.stack[self.sp] = (self.stack[self.sp] & 0xF0F) | self.data.v << 4
+        self.stack[self.sp]['m'] = self.data.v
 
     def setPL(self):
-        self.stack[self.sp] = (self.stack[self.sp] & 0xFF0) | self.data.v
+        self.stack[self.sp]['l'] = self.data.v
 
     def incPC(self):
-        self.stack[self.sp] += 1
+        pc = self.stack[self.sp]['h'] << 8 | self.stack[self.sp]['m'] << 4 | self.stack[self.sp]['l']
+        pc = pc + 1
+        self.stack[self.sp]['h'] = pc >> 8
+        self.stack[self.sp]['m'] = pc >> 4 & 0xF
+        self.stack[self.sp]['l'] = pc & 0xF
 
     def incSP(self):
         self.sp = (self.sp + 1) & 0b11
