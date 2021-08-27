@@ -131,6 +131,9 @@ class inst:
     def fin(self):
         return self.opr == 0b0011 and not self.opa & 0b0001
 
+    def jin(self):
+        return self.opr == 0b0011 and self.opa & 0b0001
+
     def jun(self):
         return self.opr == 0b0100
 
@@ -152,6 +155,9 @@ class inst:
     def ld(self):
         return self.opr == 0b1010
 
+    def bbl(self):
+        return self.opr == 0b1100
+
     def ope(self):
         return self.opr == 0b1111
 
@@ -164,6 +170,10 @@ class inst:
     def kbp(self):
         return self.opr == 0b1111 and self.opa == 0b1100   
 
+    def inh(self):
+        return ((self.jin() or self.fin()) and self.sc) or (((self.jun() or self.jms()) | ((self.jcn() or self.isz()) and self.cond)) and not self.sc)
+
+
     def registerX(self):
         def dispatch(x, n):
             f = self.x.dispatch[self.opr][self.opa][x][n]
@@ -173,6 +183,10 @@ class inst:
         @A12clk1
         def _():
             dispatch(0, 0)
+
+        @M22clk2
+        def _():
+            dispatch(4, 2)
 
         @X12clk1
         def _():

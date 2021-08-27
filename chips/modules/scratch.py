@@ -19,6 +19,17 @@ class scratch:
 
         self.timing = timing
 
+        @M12
+        @M22
+        @A12clk1
+        @A22clk1
+        @A32clk1
+        @X12clk1
+        @X22clk1
+        @X32clk1    # Sample data from the bus at these times.
+        def _():
+            self.data_in = self.data.v
+
         @A32clk2
         @X12clk2    # Set working row from the register array. There is a 0 override for FIN during X12.
         def _():
@@ -42,16 +53,6 @@ class scratch:
             if self.inst.sc:
                 self.row_num = self.data.v >> 1
 
-        @M12
-        @M22
-        @A12clk1
-        @A22clk1
-        @A32clk1
-        @X12clk1
-        @X22clk1
-        @X32clk1    # Sample data from the bus at these times.
-        def _():
-            self.data_in = self.data.v
 
 
     # Enable the working register (according to whether OPA is even or odd) to the bus.

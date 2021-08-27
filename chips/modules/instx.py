@@ -18,6 +18,9 @@ def register(f, x, n):
 def A12clk1(f):
     register(f, 0, 0)
 
+def M22clk2(f):
+    register(f, 4, 2)
+
 def X12clk1(f):
     register(f, 5, 0)
 
@@ -220,7 +223,9 @@ class instx:
 
         # BBL
         opr, opa = 0b1100, any
-        @X12clk1
+        @M22clk2
+        @X12clk2
+        @X22clk2
         def _():
             inst.cpu.addr.decSP()
         @X21
