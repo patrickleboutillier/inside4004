@@ -17,33 +17,47 @@ def register(f, x, n):
 
 def A12clk1(f):
     register(f, 0, 0)
+    return f
+
+def M12clk2(f):
+    register(f, 3, 2)
+    return f
 
 def M22clk2(f):
     register(f, 4, 2)
+    return f
 
 def X12clk1(f):
     register(f, 5, 0)
+    return f
 
 def X12clk2(f):
     register(f, 5, 2)
+    return f
 
 def X21(f):
     register(f, 5, 3)
+    return f
 
 def X22clk1(f):
     register(f, 6, 0)
+    return f
 
 def X22clk2(f):
     register(f, 6, 2)
+    return f
 
 def X31(f):
     register(f, 6, 3)
+    return f
 
 def X32clk1(f):
     register(f, 7, 0)
+    return f
 
 def X32clk2(f):
     register(f, 7, 2)
+    return f
 
 
 class instx:
@@ -93,6 +107,14 @@ class instx:
 
         # FIM
         opr, opa = 0b0010, even
+        @M12clk2 
+        def _():
+            if not inst.sc:
+                inst.scratch.setRegPairH()
+        @M22clk2 
+        def _():
+            if not inst.sc:
+                inst.scratch.setRegPairL()
 
         # SRC
         opr, opa = 0b0010, odd
@@ -109,6 +131,30 @@ class instx:
 
         # FIN
         opr, opa = 0b0011, even
+        @M12clk2 
+        def _():
+            if not inst.sc:
+                inst.scratch.setRegPairH()
+        @M22clk2 
+        def _():
+            if not inst.sc:
+                inst.scratch.setRegPairL()
+        @X21
+        def _():
+            if inst.sc:
+                inst.scratch.enableRegPairH()
+        @X22clk2
+        def _():
+            if inst.sc:
+                inst.cpu.addr.setPM()
+        @X31
+        def _():
+            if inst.sc:
+                inst.scratch.enableRegPairL()
+        @X32clk2
+        def _():
+            if inst.sc:
+                inst.cpu.addr.setPL()
 
         # JIN
         opr, opa = 0b0011, odd
@@ -227,7 +273,7 @@ class instx:
         @X12clk2
         @X22clk2
         def _():
-            inst.cpu.addr.decSP()
+            inst.cpu.addr.incSP()
         @X21
         def _():
             inst.data.v = inst.opa

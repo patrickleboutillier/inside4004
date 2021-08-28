@@ -26,6 +26,7 @@ class inst:
 
         @A12clk1
         def _():
+            # WARNING
             if self.sc and (self.fin() or self.fim() or self.jun() or self.jms() or self.jcn() or self.isz()):
                 self.sc = 0
                 if self.jcn():
@@ -43,7 +44,7 @@ class inst:
         @M22clk1
         def _():
             # This signal turned off at X12clk1 below
-            if self.opr == 0b1110:
+            if self.io():
                 self.cm_ram.v(self.ram_bank)
 
         @M22clk2
@@ -53,15 +54,11 @@ class inst:
 
         @X12clk1
         def _():
-            if self.opr == 0b1110:
+            if self.io():
                 self.cm_ram.v(0) 
-
 
         self.registerX()
 
-
-    def jcn(self):
-        return self.opr == 0b0001
 
     # C1 = 0 Do not invert jump condition
     # C1 = 1 Invert jump condition
@@ -108,6 +105,9 @@ class inst:
     def opa_even(self):
         return not (self.opa & 1)
 
+    def jcn(self):
+        return self.opr == 0b0001
+    
     def fim(self):
         return self.opr == 0b0010 and not self.opa & 0b0001
 
@@ -157,7 +157,7 @@ class inst:
         return self.opr == 0b1111 and self.opa == 0b1100   
 
     def inh(self):
-        return ((self.jin() or self.fin()) and self.sc) or (((self.jun() or self.jms()) | ((self.jcn() or self.isz()) and self.cond)) and not self.sc)
+        return ((self.jin() or self.fin()) and self.sc) or (((self.jun() or self.jms()) or ((self.jcn() or self.isz()) and self.cond)) and not self.sc)
 
 
     def registerX(self):
@@ -169,6 +169,10 @@ class inst:
         @A12clk1
         def _():
             dispatch(0, 0)
+
+        @M12clk2
+        def _():
+            dispatch(3, 2)
 
         @M22clk2
         def _():
@@ -208,5 +212,5 @@ class inst:
             
 
     def dump(self):
-        print("OPR/OPA:{:04b}/{:04b}  SC:{}  CM-RAM:{:04b}".format(self.opr, self.opa, self.sc, self.ram_bank), end = '')
+        print("OPR/OPA:{:04b}/{:04b}  SC:{}  COND:{}  CM-RAM:{:04b}".format(self.opr, self.opa, self.sc, self.cond, self.ram_bank), end = '')
 
