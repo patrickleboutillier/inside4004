@@ -1,3 +1,4 @@
-- Analyze addr block:
-  - Finalize address incrementer
-- Mode TODO block to instructions
+- Document addr
+- Move the maximum number of handlers to their respective instructions
+- Check the big table
+- Do IO stuff (cm_rom, cm_ram)
