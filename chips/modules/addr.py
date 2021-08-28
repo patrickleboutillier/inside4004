@@ -9,16 +9,15 @@ from hdl import *
 
 class addr:
     def __init__(self, inst, timing, data, cm_rom):
-        self.data = data 
+        self.data = data            # The data bus 
         self.inst = inst
-        self.cm_rom = cm_rom
-        self.incr_in = 0
-        self.data_in = 0
-        self.ph = 0
-        self.pl = 0
-        self.pm = 0
-        self.sp = 0
-        self.row_num = 0
+        self.cm_rom = cm_rom        # The cm-com signal
+        self.incr_in = 0            # The input to the address incrementer
+        self.ph = 0                 # The high nibble of the program counter 
+        self.pl = 0                 # The middle nibble of the program counter
+        self.pm = 0                 # The low nibble of the program counter
+        self.sp = 0                 # The stack pointer
+        self.row_num = 0            # The working row in the stack
         self.stack = [{'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}]
 
         self.timing = timing
@@ -34,27 +33,27 @@ class addr:
         def _():
             self.incr_in = self.data.v
 
-        @A11 
+        @A11        # Output pl to the data bus.
         def _():
             self.data.v = self.pl
 
-        @A21
+        @A21        # Output pm to the data bus.
         def _():
             self.data.v = self.pm
 
-        @A31
+        @A31        # Output ph to the data bus.
         def _():
             self.data.v = self.ph
 
-        @A32clk1
+        @A32clk1    # Turn on cm-rom for the 4001 chips that are listening.
         def _():
             self.cm_rom.v = 1
 
-        @A32clk2
+        @A32clk2    # Increment the program counter
         def _():
             self.incPC()
 
-        @M12clk1
+        @M12clk1    # Turn off cm-rom for the 4001 chips that are listening.
         def _():
             self.cm_rom.v = 0
 
@@ -80,7 +79,7 @@ class addr:
                     self.setPL()
 
         @X12clk2
-        @X32clk2
+        @X32clk2       # Update the program counter with the contents of the stack.
         def _():
             if not self.inst.inh():
                 self.ph = self.stack[self.row_num]['h']
@@ -89,7 +88,7 @@ class addr:
                 #print("restored", self.ph << 8 | self.pm << 4 | self.pl)
 
         @M12clk1
-        @X22clk1
+        @X22clk1        # Update the stack with the contents of the program counter. 
         def _():
             if self.timing.x2() and self.inst.inh:
                 return
@@ -99,11 +98,11 @@ class addr:
                 self.stack[self.row_num]['m'] = self.pm
                 self.stack[self.row_num]['l'] = self.pl
 
-        @X32
+        @X32            # Commit the stack pointer to row_num
         def _():
             self.row_num = self.sp
 
-
+    # Used in the calculator simulator to check the value of the program counter. 
     def isPC(self, addr):
         pc = self.ph << 8 | self.pm << 4 | self.pl
         return pc == addr
@@ -117,6 +116,7 @@ class addr:
     def setPL(self):
         self.pl = self.data.v
 
+    # Increment the program counter
     def incPC(self):
         pc = self.ph << 8 | self.pm << 4 | self.pl
         pc = pc + 1
@@ -124,6 +124,7 @@ class addr:
         self.pm = pc >> 4 & 0xF
         self.pl = pc & 0xF
 
+    # Increment the stack pointer
     def incSP(self):
         self.sp = (self.sp + 1) & 0b11
 
