@@ -1,5 +1,4 @@
 from chips.modules.timing import *
-import chips.modules.instx as x
 from hdl import *
 
 
