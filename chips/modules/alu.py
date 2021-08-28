@@ -6,9 +6,9 @@ from hdl import *
 
 
 class alu:
-    def __init__(self, timing, data):
+    def __init__(self, inst, timing, data):
         self.data = data
-        self.inst = None            # Must be set after initialization
+        self.inst = inst
         self.acc = 0                # The accumulator
         self.tmp = 0                # The tmp register
         self.cy = 0                 # Carry

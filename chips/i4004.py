@@ -1,5 +1,5 @@
 import chips.modules.timing as timing
-import chips.modules.addr as addr, chips.modules.inst as inst, chips.modules.scratch as scratch, chips.modules.alu as alu
+import chips.modules.addr as addr, chips.modules.inst as inst, chips.modules.scratch as scratch, chips.modules.alu as alu, chips.modules.control as control
 from hdl import *
 
 
@@ -8,12 +8,11 @@ class i4004:
         self.timing = timing.timing(clk1, clk2, None)
         self.sync = self.timing.sync
         self.data = data
-        self.scratch = scratch.scratch(self.timing, data)
-        self.alu = alu.alu(self.timing, data)
-        self.addr = addr.addr(self, self.scratch, self.timing, self.data, cm_rom)
-        self.inst = inst.inst(self, self.scratch, self.timing, self.data, cm_rom, cm_ram)
-        self.scratch.inst = self.inst
-        self.alu.inst = self.inst
+        self.inst = inst.inst(self, self.timing, self.data, cm_rom, cm_ram)
+        self.alu = alu.alu(self.inst, self.timing, data)
+        self.scratch = scratch.scratch(self.inst, self.timing, data)
+        self.addr = addr.addr(self.inst, self.timing, self.data, cm_rom)
+        self.control = control.control(self.inst)
 
         self.test = test
 

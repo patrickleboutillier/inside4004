@@ -1,4 +1,4 @@
-import sys
+import chips.modules.timing as timing
 from hdl import *
 
 
@@ -6,14 +6,14 @@ even = list(range(0, 16, 2))
 odd = list(range(1, 16, 2))
 any = list(range(16))
 
-active_instx = None
+active_control = None
 opr = 0
 opa = []
 
 
 def register(f, x, n):
      for i in opa:
-        active_instx.dispatch[opr][i][x][n] = f 
+        active_control.dispatch[opr][i][x][n] = f 
 
 def A12clk1(f):
     register(f, 0, 0)
@@ -60,12 +60,13 @@ def X32clk2(f):
     return f
 
 
-class instx:
+class control:
     def __init__(self, inst):
-        global active_instx
-        active_instx = self
+        global active_control
+        active_control = self
 
         self.inst = inst
+
         self.dispatch = []
         for i in range(16):
             self.dispatch.append([])
@@ -77,6 +78,58 @@ class instx:
                     self.dispatch[i][j][k].append(None)
 
         self.register()
+
+        def dispatch(x, n):
+            f = self.dispatch[self.inst.opr][self.inst.opa][x][n]
+            if f is not None:
+                f()
+
+        @timing.A12clk1
+        def _():
+            dispatch(0, 0)
+
+        @timing.M12clk2
+        def _():
+            dispatch(3, 2)
+
+        @timing.M22clk2
+        def _():
+            dispatch(4, 2)
+
+        @timing.X12clk1
+        def _():
+            dispatch(5, 0)
+
+        @timing.X12clk2
+        def _():
+            dispatch(5, 2)
+
+        @timing.X21
+        def _():
+            dispatch(5, 3)
+
+        @timing.X22clk1
+        def _():
+            dispatch(6, 0)
+
+        @timing.X22clk2
+        def _():
+            dispatch(6, 2)
+
+        @timing.X31
+        def _():
+            dispatch(6, 3)
+
+        @timing.X32clk1
+        def _():
+            dispatch(7, 0)
+
+        @timing.X32clk2
+        def _():
+            dispatch(7, 2)
+
+
+###############################################################################
 
 
     def register(_):
@@ -110,22 +163,22 @@ class instx:
         @M12clk2 
         def _():
             if not inst.sc:
-                inst.scratch.setRegPairH()
+                inst.cpu.scratch.setRegPairH()
         @M22clk2 
         def _():
             if not inst.sc:
-                inst.scratch.setRegPairL()
+                inst.cpu.scratch.setRegPairL()
 
         # SRC
         opr, opa = 0b0010, odd
         @X21
         def _():
-            inst.scratch.enableRegPairH()
+            inst.cpu.scratch.enableRegPairH()
             inst.cm_rom.v = 1
             inst.cm_ram.v(inst.ram_bank)
         @X31
         def _():
-            inst.scratch.enableRegPairL()
+            inst.cpu.scratch.enableRegPairL()
             inst.cm_rom.v = 0
             inst.cm_ram.v(0)
 
@@ -134,15 +187,15 @@ class instx:
         @M12clk2 
         def _():
             if not inst.sc:
-                inst.scratch.setRegPairH()
+                inst.cpu.scratch.setRegPairH()
         @M22clk2 
         def _():
             if not inst.sc:
-                inst.scratch.setRegPairL()
+                inst.cpu.scratch.setRegPairL()
         @X21
         def _():
             if inst.sc:
-                inst.scratch.enableRegPairH()
+                inst.cpu.scratch.enableRegPairH()
         @X22clk2
         def _():
             if inst.sc:
@@ -150,7 +203,7 @@ class instx:
         @X31
         def _():
             if inst.sc:
-                inst.scratch.enableRegPairL()
+                inst.cpu.scratch.enableRegPairL()
         @X32clk2
         def _():
             if inst.sc:
@@ -160,13 +213,13 @@ class instx:
         opr, opa = 0b0011, odd
         @X21
         def _():
-            inst.scratch.enableRegPairH()
+            inst.cpu.scratch.enableRegPairH()
         @X22clk2
         def _():
             inst.cpu.addr.setPM()
         @X31
         def _():
-            inst.scratch.enableRegPairL()
+            inst.cpu.scratch.enableRegPairL()
         @X32clk2
         def _():
             inst.cpu.addr.setPL()
@@ -187,7 +240,7 @@ class instx:
         opr, opa = 0b0110, any
         @X21
         def _():
-            inst.scratch.enableReg()
+            inst.cpu.scratch.enableReg()
         @X22clk1
         def _():
             inst.cpu.alu.setADC(one=True)
@@ -197,14 +250,14 @@ class instx:
             inst.cpu.alu.enableAdd()
         @X32clk2
         def _():
-            inst.scratch.setReg()    
+            inst.cpu.scratch.setReg()    
 
         # ISZ
         opr, opa = 0b0111, any
         @X21
         def _():
             if inst.sc:
-                inst.scratch.enableReg()
+                inst.cpu.scratch.enableReg()
         @X22clk1
         def _():
             if inst.sc:
@@ -217,13 +270,13 @@ class instx:
         @X32clk2
         def _():
             if inst.sc:
-                inst.scratch.setReg()     
+                inst.cpu.scratch.setReg()     
 
         # ADD
         opr, opa = 0b1000, any
         @X21
         def _():
-            inst.scratch.enableReg()
+            inst.cpu.scratch.enableReg()
         @X22clk1
         def _():
             inst.cpu.alu.setADA()
@@ -236,7 +289,7 @@ class instx:
         opr, opa = 0b1001, any
         @X21
         def _():
-            inst.scratch.enableReg()
+            inst.cpu.scratch.enableReg()
         @X22clk1
         def _():
             inst.cpu.alu.setADA()
@@ -249,7 +302,7 @@ class instx:
         opr, opa = 0b1010, any
         @X21
         def _():
-            inst.scratch.enableReg()
+            inst.cpu.scratch.enableReg()
         @X31
         def _():
             inst.cpu.alu.runAdder(saveAcc=True)
@@ -258,14 +311,14 @@ class instx:
         opr, opa = 0b1011, any
         @X21
         def _():
-            inst.scratch.enableReg()
+            inst.cpu.scratch.enableReg()
         @X31
         def _():
             inst.cpu.alu.runAdder(saveAcc=True)
             inst.cpu.alu.enableAccOut()
         @X32clk2
         def _():
-            inst.scratch.setReg()
+            inst.cpu.scratch.setReg()
 
         # BBL
         opr, opa = 0b1100, any
@@ -438,3 +491,5 @@ class instx:
         @X21
         def _():
             inst.setRAMBank()
+
+

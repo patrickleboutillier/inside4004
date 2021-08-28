@@ -9,10 +9,8 @@ from hdl import *
 
 
 class inst:
-    def __init__(self, cpu, scratch, timing, data, cm_rom, cm_ram):
-        self.x = x.instx(self)
+    def __init__(self, cpu, timing, data, cm_rom, cm_ram):
         self.cpu = cpu
-        self.scratch = scratch
         self.data = data
         self.ram_bank = 1
         self.cm_rom = cm_rom
@@ -57,7 +55,7 @@ class inst:
             if self.io():
                 self.cm_ram.v(0) 
 
-        self.registerX()
+        # self.registerX()
 
 
     # C1 = 0 Do not invert jump condition
@@ -156,61 +154,7 @@ class inst:
     def kbp(self):
         return self.opr == 0b1111 and self.opa == 0b1100   
 
+    # Inhibit program counter commit
+    # inh = (jin_fin & sc) | ((jun_jms | (jcn_isz & cond)) & ~sc)
     def inh(self):
         return ((self.jin() or self.fin()) and self.sc) or (((self.jun() or self.jms()) or ((self.jcn() or self.isz()) and self.cond)) and not self.sc)
-
-
-    def registerX(self):
-        def dispatch(x, n):
-            f = self.x.dispatch[self.opr][self.opa][x][n]
-            if f is not None:
-                f()
-
-        @A12clk1
-        def _():
-            dispatch(0, 0)
-
-        @M12clk2
-        def _():
-            dispatch(3, 2)
-
-        @M22clk2
-        def _():
-            dispatch(4, 2)
-
-        @X12clk1
-        def _():
-            dispatch(5, 0)
-
-        @X12clk2
-        def _():
-            dispatch(5, 2)
-
-        @X21
-        def _():
-            dispatch(5, 3)
-
-        @X22clk1
-        def _():
-            dispatch(6, 0)
-
-        @X22clk2
-        def _():
-            dispatch(6, 2)
-
-        @X31
-        def _():
-            dispatch(6, 3)
-
-        @X32clk1
-        def _():
-            dispatch(7, 0)
-
-        @X32clk2
-        def _():
-            dispatch(7, 2)
-            
-
-    def dump(self):
-        print("OPR/OPA:{:04b}/{:04b}  SC:{}  COND:{}  CM-RAM:{:04b}".format(self.opr, self.opa, self.sc, self.cond, self.ram_bank), end = '')
-
