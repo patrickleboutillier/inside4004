@@ -10,12 +10,13 @@ class i4004:
         self.sync = self.timing.sync
         self.data = data
         self.test = test
-        self.inst = inst.inst(self.data, cm_rom, cm_ram)
+        self.inst = inst.inst(self.data)
         self.alu = alu.alu(self.inst, data)
         self.scratch = scratch.scratch(self.inst, self.timing, data)
-        self.addr = addr.addr(self.inst, self.timing, self.data, cm_rom)
-        self.control = control.control(self.inst)
+        self.addr = addr.addr(self.inst, self.timing, self.data)
         self.io = io.io(self.inst, test, cm_rom, cm_ram)
+        self.control = control.control(self.inst)
+
 
 
     def dump(self, cycle):

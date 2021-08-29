@@ -8,11 +8,8 @@ from hdl import *
 
 
 class inst:
-    def __init__(self, data, cm_rom, cm_ram):
+    def __init__(self, data):
         self.data = data
-        self.cm_rom = cm_rom
-        self.cm_ram = cm_ram
-        self.ram_bank = 1
         self.sc = 1
         self.cond = 0
         self.opr = 0
@@ -60,24 +57,6 @@ class inst:
             self.cond = 1
         elif test and (t ^ invert):
             self.cond = 1
-
-    def setRAMBank(self):
-        if self.alu.acc_out & 0b0111 == 0:
-            self.ram_bank = 1
-        elif self.alu.acc_out & 0b0111 == 1:
-            self.ram_bank = 2
-        elif self.alu.acc_out & 0b0111 == 2:
-            self.ram_bank = 4
-        elif self.alu.acc_out & 0b0111 == 3:
-            self.ram_bank = 3
-        elif self.alu.acc_out & 0b0111 == 4:
-            self.ram_bank = 8
-        elif self.alu.acc_out & 0b0111 == 5:
-            self.ram_bank = 10
-        elif self.alu.acc_out & 0b0111 == 6:
-            self.ram_bank = 12
-        elif self.alu.acc_out & 0b0111 == 7:
-            self.ram_bank = 14
 
 
     def opa_odd(self):

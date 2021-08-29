@@ -8,11 +8,10 @@ from hdl import *
 
 
 class addr:
-    def __init__(self, inst, timing, data, cm_rom):
+    def __init__(self, inst, timing, data):
         self.data = data            # The data bus 
         self.inst = inst
         self.inst.addr = self
-        self.cm_rom = cm_rom        # The cm-com signal
         self.incr_in = 0            # The input to the address incrementer
         self.ph = 0                 # The high nibble of the program counter 
         self.pl = 0                 # The middle nibble of the program counter
@@ -46,17 +45,10 @@ class addr:
         def _():
             self.data.v = self.ph
 
-        @A32clk1    # Turn on cm-rom for the 4001 chips that are listening.
-        def _():
-            self.cm_rom.v = 1
-
         @A32clk2    # Increment the program counter
         def _():
             self.incPC()
 
-        @M12clk1    # Turn off cm-rom for the 4001 chips that are listening.
-        def _():
-            self.cm_rom.v = 0
 
         @X12clk2
         @X32clk2       # Update the program counter with the contents of the stack.

@@ -140,7 +140,7 @@ class control:
         alu = inst.alu
         scratch = inst.scratch
         addr = inst.addr
-        io = inst.io
+        ioc = inst.ioc
 
         # NOP
         opr, opa = 0b0000, [0b0000]
@@ -188,13 +188,13 @@ class control:
         @X21
         def _():
             scratch.enableRegPairH()
-            inst.cm_rom.v = 1
-            inst.cm_ram.v(inst.ram_bank)
+            ioc.cm_rom.v = 1
+            ioc.cm_ram.v(ioc.ram_bank)
         @X31
         def _():
             scratch.enableRegPairL()
-            inst.cm_rom.v = 0
-            inst.cm_ram.v(0)
+            ioc.cm_rom.v = 0
+            ioc.cm_ram.v(0)
 
         # FIN
         opr, opa = 0b0011, even
@@ -540,6 +540,6 @@ class control:
         opr, opa = 0b1111, [0b1101]
         @X21
         def _():
-            inst.setRAMBank()
+            ioc.setRAMBank()
 
 
