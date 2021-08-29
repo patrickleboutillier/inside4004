@@ -3,3 +3,4 @@
 - check ~COM in simulator
 - Add 'h' (help) to calculator
 - Fix keyboard buffer to be able to enter numbers in one shot
+- Fix stepping in 141-FP

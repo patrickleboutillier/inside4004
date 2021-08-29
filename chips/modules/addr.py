@@ -75,9 +75,12 @@ class addr:
             self.row_num = self.sp
 
     # Used in the calculator simulator to check the value of the program counter. 
-    def isPC(self, addr):
+    def isPCin(self, addrs):
         pc = self.ph << 8 | self.pm << 4 | self.pl
-        return pc == addr
+        for addr in addrs:
+            if pc == addr:
+                return True
+        return False
 
     def setPH(self):
         self.ph = self.data.v

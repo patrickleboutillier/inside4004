@@ -8,12 +8,14 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("ROM_FILE")
 parser.add_argument("-d", "--debug", help="output debug information",
-                    action="store_true")                
-args = parser.parse_args()
+                    action="store_true")      
+parser.add_argument("-o", "--optimize", help="optimize for speed",
+                    action="store_true")             
 
 
 class MCS4:
     def __init__(self):
+        global parser
         self.ram_chip = 0                   # This represents the currently active RAM chip
 
         self.clock = clock.clock()
@@ -28,6 +30,7 @@ class MCS4:
         self.RAM = [None, [], [], None, [], None, None, None, []]
         self.SR = []
       
+        self.args = parser.parse_args()
 
     def addROM(self, rom):
         self.PROM.append(rom)
@@ -40,7 +43,7 @@ class MCS4:
         self.SR.append(sr)
 
     def program(self):
-        fh = open(args.ROM_FILE, 'r')
+        fh = open(self.args.ROM_FILE, 'r')
         if self.PROM[0].program(fh) == 0:
             sys.exit("ERROR: No instructions loaded!") 
         elif len(self.PROM) > 1:
@@ -50,7 +53,7 @@ class MCS4:
         fh.close()
 
     def run(self, callback=None):
-        dump = args.debug
+        dump = self.args.debug
         nb = 0
         while (True):
             if callback is not None:

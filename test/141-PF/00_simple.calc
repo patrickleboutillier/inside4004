@@ -1,2 +1,2 @@
-export KEY_BUFFER='2,+,2,+,=,q'
+export KEY_BUFFER='2+2+=q'
 export EXPECTED='>>>  |              4    *  |'

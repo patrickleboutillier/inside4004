@@ -36,11 +36,11 @@ MCS4.addSR(kbdsr)
 # Keyboard
 keyboard = keyboard.keyboard(kbdsr.parallel_out, lights)
 for i in range(4):
-    pbuf(keyboard.output().pwire(i), PROM[1].io.pwire(i))
-pbuf(keyboard.advance(), PROM[2].io.pwire(3))
+    pbuf(keyboard.output.pwire(i), PROM[1].io.pwire(i))
+pbuf(keyboard.advance, PROM[2].io.pwire(3))
 kb = os.environ.get('KEY_BUFFER')
 if kb is not None:
-    keyboard.setKeyBuffer(kb)
+    keyboard.appendKeyBuffer(kb)
 
 
 # Create printer 4003s
@@ -65,29 +65,27 @@ MCS4.program()
 
 # TODO: Use argparse to handle these options
 step = False
-dump = False
 wait_for_start_sector_pulse = [0x001, 0x22c, 0x23f, 0x24b]
 wait_for_end_sector_pulse = [0x0fd, 0x26e]
 kb_toggle = False
-optimize = False
 
 
 def callback(nb):
-    global step, kb_toggle, optimize
+    global step, kb_toggle, MCS4
     # Save some time by not waiting for nothing...
-    if optimize:
-        if CPU.addr.getPC() in wait_for_start_sector_pulse and test.v() == 0:
+    if MCS4.args.optimize:
+        if CPU.addr.isPCin(wait_for_start_sector_pulse) and CPU.io.testZero():
             printer.endSectorPeriod()
             printer.startSectorPulse()
-        elif CPU.addr.getPC() in wait_for_end_sector_pulse and test.v() == 1:
+        elif CPU.addr.isPCin(wait_for_end_sector_pulse) and not CPU.io.testZero():
             printer.endSectorPulse()
         else:
             printer.cycle()
     else:
         printer.cycle()
 
-    if CPU.addr.isPC(0x003) and RAM[0].status[0][3] == 0: # Before keyboard scanning in main loop, and a button is not currently held down)
-        keyboard.clearAdvance() # In case we "pressed" the paper advance button
+    if CPU.addr.isPCin([0x003]) and RAM[0].status[0][3] == 0:   # Before keyboard scanning in main loop, and a button is not currently held down)
+        keyboard.clearAdvance()                             # In case we "pressed" the paper advance button
         kb_toggle = not kb_toggle
         if not kb_toggle:
             keyboard.readKey()
@@ -98,8 +96,6 @@ def callback(nb):
         if s == 'c':
             # pass
             step = False
-    elif dump:
-       MCS4.dump(nb)
 
 
 # Run the system

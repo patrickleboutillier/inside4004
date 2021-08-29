@@ -27,7 +27,7 @@ asm:
 calc:
 	@for t in test/141-PF/[0-9]*.calc ; do echo -n "$$t: " ; \
 		. $$t ; \
-		GOT=$$(./141-PF.sh | grep '\*' | tail -n1) ; \
+		GOT=$$(./141-PF.sh -o | grep '\*' | tail -n1) ; \
 		if [ "$$GOT" == "$$EXPECTED" ] ; then \
 			echo OK ; \
 		else \
