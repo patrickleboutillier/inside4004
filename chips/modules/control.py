@@ -134,7 +134,13 @@ class control:
 
     def register(_):
         global opr, opa
-        inst = _.inst 
+        inst = _.inst
+
+        # Some short cuts...
+        alu = inst.alu
+        scratch = inst.scratch
+        addr = inst.addr
+        io = inst.io
 
         # NOP
         opr, opa = 0b0000, [0b0000]
@@ -160,33 +166,33 @@ class control:
         @M12clk2 
         def _():
             if not inst.sc:
-                inst.cpu.addr.setPM()
+                addr.setPM()
         @M22clk2 
         def _():
             if not inst.sc:
-                inst.cpu.addr.setPL()
+                addr.setPL()
 
         # FIM
         opr, opa = 0b0010, even
         @M12clk2 
         def _():
             if not inst.sc:
-                inst.cpu.scratch.setRegPairH()
+                scratch.setRegPairH()
         @M22clk2 
         def _():
             if not inst.sc:
-                inst.cpu.scratch.setRegPairL()
+                scratch.setRegPairL()
 
         # SRC
         opr, opa = 0b0010, odd
         @X21
         def _():
-            inst.cpu.scratch.enableRegPairH()
+            scratch.enableRegPairH()
             inst.cm_rom.v = 1
             inst.cm_ram.v(inst.ram_bank)
         @X31
         def _():
-            inst.cpu.scratch.enableRegPairL()
+            scratch.enableRegPairL()
             inst.cm_rom.v = 0
             inst.cm_ram.v(0)
 
@@ -195,53 +201,53 @@ class control:
         @M12clk2 
         def _():
             if not inst.sc:
-                inst.cpu.scratch.setRegPairH()
+                scratch.setRegPairH()
         @M22clk2 
         def _():
             if not inst.sc:
-                inst.cpu.scratch.setRegPairL()
+                scratch.setRegPairL()
         @X21
         def _():
             if inst.sc:
-                inst.cpu.scratch.enableRegPairH()
+                scratch.enableRegPairH()
         @X22clk2
         def _():
             if inst.sc:
-                inst.cpu.addr.setPM()
+                addr.setPM()
         @X31
         def _():
             if inst.sc:
-                inst.cpu.scratch.enableRegPairL()
+                scratch.enableRegPairL()
         @X32clk2
         def _():
             if inst.sc:
-                inst.cpu.addr.setPL()
+                addr.setPL()
 
         # JIN
         opr, opa = 0b0011, odd
         @X21
         def _():
-            inst.cpu.scratch.enableRegPairH()
+            scratch.enableRegPairH()
         @X22clk2
         def _():
-            inst.cpu.addr.setPM()
+            addr.setPM()
         @X31
         def _():
-            inst.cpu.scratch.enableRegPairL()
+            scratch.enableRegPairL()
         @X32clk2
         def _():
-            inst.cpu.addr.setPL()
+            addr.setPL()
 
         # JUN
         opr, opa = 0b0100, any
         @M12clk2 
         def _():
             if not inst.sc:
-                inst.cpu.addr.setPM()
+                addr.setPM()
         @M22clk2 
         def _():
             if not inst.sc:
-                inst.cpu.addr.setPL()
+                addr.setPL()
         @X21
         def _():
             if not inst.sc:
@@ -249,20 +255,20 @@ class control:
         @X22clk2
         def _():
             if not inst.sc:
-                inst.cpu.addr.setPH()
+                addr.setPH()
 
         # JMS
         opr, opa = 0b0101, any 
         @M12clk2 
         def _():
             if not inst.sc:
-                inst.cpu.addr.setPM()
+                addr.setPM()
         @M22clk2 
         def _():
             if not inst.sc:
                 # Order not important here since sp in not copied to row_num until x32
-                inst.cpu.addr.setPL()
-                inst.cpu.addr.decSP()
+                addr.setPL()
+                addr.decSP()
         @X21
         def _():
             if not inst.sc:
@@ -270,99 +276,99 @@ class control:
         @X22clk2
         def _():
             if not inst.sc:
-                inst.cpu.addr.setPH()
+                addr.setPH()
 
         # INC
         opr, opa = 0b0110, any
         @X21
         def _():
-            inst.cpu.scratch.enableReg()
+            scratch.enableReg()
         @X22clk1
         def _():
-            inst.cpu.alu.setADC(one=True)
+            alu.setADC(one=True)
         @X31
         def _():
-            inst.cpu.alu.runAdder()
-            inst.cpu.alu.enableAdd()
+            alu.runAdder()
+            alu.enableAdd()
         @X32clk2
         def _():
-            inst.cpu.scratch.setReg()    
+            scratch.setReg()    
 
         # ISZ
         opr, opa = 0b0111, any
         @M12clk2 
         def _():
             if not inst.sc:
-                inst.cpu.addr.setPM()
+                addr.setPM()
         @M22clk2 
         def _():
             if not inst.sc:
-                inst.cpu.addr.setPL()
+                addr.setPL()
         @X21
         def _():
             if inst.sc:
-                inst.cpu.scratch.enableReg()
+                scratch.enableReg()
         @X22clk1
         def _():
             if inst.sc:
-                inst.cpu.alu.setADC(one=True)
+                alu.setADC(one=True)
         @X31
         def _():
             if inst.sc:
-                inst.cpu.alu.runAdder()
-                inst.cpu.alu.enableAdd()
+                alu.runAdder()
+                alu.enableAdd()
         @X32clk2
         def _():
             if inst.sc:
-                inst.cpu.scratch.setReg()     
+                scratch.setReg()     
 
         # ADD
         opr, opa = 0b1000, any
         @X21
         def _():
-            inst.cpu.scratch.enableReg()
+            scratch.enableReg()
         @X22clk1
         def _():
-            inst.cpu.alu.setADA()
-            inst.cpu.alu.setADC()
+            alu.setADA()
+            alu.setADC()
         @X31
         def _():
-            inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
+            alu.runAdder(saveAcc=True, saveCy=True)
 
         # SUB
         opr, opa = 0b1001, any
         @X21
         def _():
-            inst.cpu.scratch.enableReg()
+            scratch.enableReg()
         @X22clk1
         def _():
-            inst.cpu.alu.setADA()
-            inst.cpu.alu.setADC(invert=True)
+            alu.setADA()
+            alu.setADC(invert=True)
         @X31
         def _():
-            inst.cpu.alu.runAdder(invertADB=True, saveAcc=True, saveCy=True)
+            alu.runAdder(invertADB=True, saveAcc=True, saveCy=True)
 
         # LD
         opr, opa = 0b1010, any
         @X21
         def _():
-            inst.cpu.scratch.enableReg()
+            scratch.enableReg()
         @X31
         def _():
-            inst.cpu.alu.runAdder(saveAcc=True)
+            alu.runAdder(saveAcc=True)
 
         # XCH
         opr, opa = 0b1011, any
         @X21
         def _():
-            inst.cpu.scratch.enableReg()
+            scratch.enableReg()
         @X31
         def _():
-            inst.cpu.alu.runAdder(saveAcc=True)
-            inst.cpu.alu.enableAccOut()
+            alu.runAdder(saveAcc=True)
+            alu.enableAccOut()
         @X32clk2
         def _():
-            inst.cpu.scratch.setReg()
+            scratch.setReg()
 
         # BBL
         opr, opa = 0b1100, any
@@ -370,13 +376,13 @@ class control:
         @X12clk2
         @X22clk2
         def _():
-            inst.cpu.addr.decSP()
+            addr.decSP()
         @X21
         def _():
             inst.data.v = inst.opa
         @X31
         def _():
-            inst.cpu.alu.runAdder(saveAcc=True)
+            alu.runAdder(saveAcc=True)
 
         # LDM
         opr, opa = 0b1101, any
@@ -385,150 +391,150 @@ class control:
             inst.data.v = inst.opa
         @X31
         def _():
-            inst.cpu.alu.runAdder(saveAcc=True)
+            alu.runAdder(saveAcc=True)
 
 
         # WRM, WMP, WRR, WR0/1/2/3
         opr, opa = 0b1110, [0b0000, 0b0001, 0b0010, 0b0100, 0b0101, 0b0110, 0b0111]
         @X22clk1
         def _():
-            inst.data.v = inst.cpu.alu.acc
+            inst.data.v = alu.acc
 
         # SBM
         opr, opa = 0b1110, [0b1000]
         @X22clk2
         def _():
-            inst.cpu.alu.setADA()
-            inst.cpu.alu.setADC(invert=True)
+            alu.setADA()
+            alu.setADC(invert=True)
         @A12
         def _():
-            inst.cpu.alu.runAdder(invertADB=True, saveAcc=True, saveCy=True)
+            alu.runAdder(invertADB=True, saveAcc=True, saveCy=True)
 
         # RDM, RDR, RD0/1/2/3
         opr, opa = 0b1110, [0b1001, 0b1010, 0b1100, 0b1101, 0b1110, 0b1111]
         @A12
         def _():
-            inst.cpu.alu.runAdder(saveAcc=True)
+            alu.runAdder(saveAcc=True)
 
         # ADM
         opr, opa = 0b1110, [0b1011]
         @X22clk2
         def _():
-            inst.cpu.alu.setADA()
-            inst.cpu.alu.setADC()
+            alu.setADA()
+            alu.setADC()
         @A12
         def _():
-            inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
+            alu.runAdder(saveAcc=True, saveCy=True)
 
 
         # CLB
         opr, opa = 0b1111, [0b0000]
         @X31
         def _():
-            inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
+            alu.runAdder(saveAcc=True, saveCy=True)
 
         # CLC
         opr, opa = 0b1111, [0b0001]
         @X31
         def _():
-            inst.cpu.alu.runAdder(saveCy=True)
+            alu.runAdder(saveCy=True)
 
         # IAC
         opr, opa = 0b1111, [0b0010]
         @X22clk1
         def _():
-            inst.cpu.alu.setADA()
-            inst.cpu.alu.setADC(one=True)
+            alu.setADA()
+            alu.setADC(one=True)
         @X31
         def _():
-            inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
+            alu.runAdder(saveAcc=True, saveCy=True)
 
         # CMC
         opr, opa = 0b1111, [0b0011]
         @X22clk1
         def _():
-            inst.cpu.alu.setADC(invert=True)
+            alu.setADC(invert=True)
         @X31
         def _():
-            inst.cpu.alu.runAdder(invertADB=True, saveCy=True)
+            alu.runAdder(invertADB=True, saveCy=True)
 
         # CMA
         opr, opa = 0b1111, [0b0100]
         @X22clk1
         def _():
-            inst.cpu.alu.setADA(invert=True)
+            alu.setADA(invert=True)
         @X31
         def _():
-            inst.cpu.alu.runAdder(saveAcc=True)
+            alu.runAdder(saveAcc=True)
 
         # RAL
         opr, opa = 0b1111, [0b0101]
         @X22clk1
         def _():
-            inst.cpu.alu.setADA()
+            alu.setADA()
         @X31
         def _():
-            inst.cpu.alu.runAdder(shiftL=True)
+            alu.runAdder(shiftL=True)
 
         # RAR
         opr, opa = 0b1111, [0b0110]
         @X22clk1
         def _():
-            inst.cpu.alu.setADA()
+            alu.setADA()
         @X31
         def _():
-            inst.cpu.alu.runAdder(shiftR=True)
+            alu.runAdder(shiftR=True)
             
         # TCC
         opr, opa = 0b1111, [0b0111] 
         @X22clk1
         def _():
-            inst.cpu.alu.setADC()
+            alu.setADC()
         @X31
         def _():
-            inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
+            alu.runAdder(saveAcc=True, saveCy=True)
 
         # DAC
         opr, opa = 0b1111, [0b1000]
         @X22clk1
         def _():
-            inst.cpu.alu.setADA()
+            alu.setADA()
         @X31
         def _():
-            inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
+            alu.runAdder(saveAcc=True, saveCy=True)
 
         # TCS
         opr, opa = 0b1111, [0b1001]
         @X22clk1
         def _():
-            inst.cpu.alu.setADC()
+            alu.setADC()
         @X31
         def _():
-            inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
+            alu.runAdder(saveAcc=True, saveCy=True)
 
         # STC
         opr, opa = 0b1111, [0b1010]
         @X22clk1
         def _():
-            inst.cpu.alu.setADC(one=True)
+            alu.setADC(one=True)
         @X31
         def _():
-            inst.cpu.alu.runAdder(saveCy=True)
+            alu.runAdder(saveCy=True)
 
         # DAA
         opr, opa = 0b1111, [0b1011]
         @X22clk1
         def _():
-            inst.cpu.alu.setADA()
+            alu.setADA()
         @X31
         def _():
-            inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
+            alu.runAdder(saveAcc=True, saveCy=True)
 
         # KBP
         opr, opa = 0b1111, [0b1100]
         @X31
         def _():
-            inst.cpu.alu.runAdder(saveAcc=True)
+            alu.runAdder(saveAcc=True)
 
         # DCL
         opr, opa = 0b1111, [0b1101]

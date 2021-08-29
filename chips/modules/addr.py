@@ -11,6 +11,7 @@ class addr:
     def __init__(self, inst, timing, data, cm_rom):
         self.data = data            # The data bus 
         self.inst = inst
+        self.inst.addr = self
         self.cm_rom = cm_rom        # The cm-com signal
         self.incr_in = 0            # The input to the address incrementer
         self.ph = 0                 # The high nibble of the program counter 

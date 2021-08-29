@@ -11,6 +11,7 @@ class scratch:
     def __init__(self, inst, timing, data):
         self.data = data            # The data bus
         self.inst = inst
+        self.inst.scratch = self
         self.index_reg = [0] * 16   # The actual registers
         self.row_num = 0            # The working row number
         self.row_even = 0           # The even register in the working row

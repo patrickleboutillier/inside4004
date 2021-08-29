@@ -8,18 +8,15 @@ from hdl import *
 
 
 class inst:
-    def __init__(self, cpu, timing, data, cm_rom, cm_ram):
-        self.cpu = cpu
+    def __init__(self, data, cm_rom, cm_ram):
         self.data = data
-        self.ram_bank = 1
         self.cm_rom = cm_rom
         self.cm_ram = cm_ram
+        self.ram_bank = 1
         self.sc = 1
         self.cond = 0
         self.opr = 0
         self.opa = 0
-
-        self.timing = timing
 
         @A12clk1
         def _():
@@ -29,7 +26,7 @@ class inst:
                 if self.jcn():
                     self.setJCNCond()
                 if self.isz():
-                    self.cond = ~self.cpu.alu.addZero() & 1
+                    self.cond = ~self.alu.addZero() & 1
             else:
                 self.sc = 1
 
@@ -38,23 +35,10 @@ class inst:
             if self.sc:
                 self.opr = self.data.v
 
-        @M22clk1
-        def _():
-            # This signal turned off at X12clk1 below
-            if self.io():
-                self.cm_ram.v(self.ram_bank)
-
         @M22clk2
         def _():
             if self.sc:
                 self.opa = self.data.v
-
-        @X12clk1
-        def _():
-            if self.io():
-                self.cm_ram.v(0) 
-
-        # self.registerX()
 
 
     # C1 = 0 Do not invert jump condition
@@ -63,9 +47,9 @@ class inst:
     # C3 = 1 Jump if the carry/link content is 1
     # C4 = 1 Jump if test signal (pin 10 on 4004) is zero.
     def setJCNCond(self):
-        z = self.cpu.alu.accZero()
-        c = self.cpu.alu.carryOne()
-        t = self.cpu.testZero()
+        z = self.alu.accZero()
+        c = self.alu.carryOne()
+        t = self.ioc.testZero()
 
         invert = (self.opa & 0b1000) >> 3
         (zero, cy, test) = (self.opa & 0b0100, self.opa & 0b0010, self.opa & 0b0001)
@@ -78,21 +62,21 @@ class inst:
             self.cond = 1
 
     def setRAMBank(self):
-        if self.cpu.alu.acc_out & 0b0111 == 0:
+        if self.alu.acc_out & 0b0111 == 0:
             self.ram_bank = 1
-        elif self.cpu.alu.acc_out & 0b0111 == 1:
+        elif self.alu.acc_out & 0b0111 == 1:
             self.ram_bank = 2
-        elif self.cpu.alu.acc_out & 0b0111 == 2:
+        elif self.alu.acc_out & 0b0111 == 2:
             self.ram_bank = 4
-        elif self.cpu.alu.acc_out & 0b0111 == 3:
+        elif self.alu.acc_out & 0b0111 == 3:
             self.ram_bank = 3
-        elif self.cpu.alu.acc_out & 0b0111 == 4:
+        elif self.alu.acc_out & 0b0111 == 4:
             self.ram_bank = 8
-        elif self.cpu.alu.acc_out & 0b0111 == 5:
+        elif self.alu.acc_out & 0b0111 == 5:
             self.ram_bank = 10
-        elif self.cpu.alu.acc_out & 0b0111 == 6:
+        elif self.alu.acc_out & 0b0111 == 6:
             self.ram_bank = 12
-        elif self.cpu.alu.acc_out & 0b0111 == 7:
+        elif self.alu.acc_out & 0b0111 == 7:
             self.ram_bank = 14
 
 
