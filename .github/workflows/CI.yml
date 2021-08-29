@@ -21,4 +21,4 @@ jobs:
         
     - name: Run test suite
       run: |
-        PYTHONPATH=. make
+        PYTHONPATH=. make hdl asm

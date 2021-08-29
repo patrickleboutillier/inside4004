@@ -20,11 +20,11 @@ _lookup = [
     ["CM",  "RM", "M-",     "M+"],
     ["SQ",  "%",  "M=-",    "M=+"],
     ["<>",  "/",  "*",      "="],
-    ["-",   "+",  "#",      "000"],
+    ["-",   "+",  "#",      None],
     ["9",   "6",  "3",      "."],
-    ["8",   "5",  "2",      "00"],
+    ["8",   "5",  "2",      None],
     ["7",   "4",  "1",      "0"],
-    ["S",   "EX", "CE",     "C"]
+    ["S",   "EX", "CE",     "CA"]
 ]
 for c in _lookup:
     c.reverse()
@@ -33,68 +33,81 @@ for c in _lookup:
 class keyboard(sensor):
     def __init__(self, input, lights):
         sensor.__init__(self, input)
-        self._input = input
-        self._lights = lights
-        self._output = pbus()
-        self._advance = pwire()
-        self._dp_sw = [0, 0, 0, 0]        # Digital point switch position
-        self._rnd_sw = [0, 0, 0, 0]       # Rounding switch position
-        self._buffer = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0],
-            self._dp_sw, self._rnd_sw] 
-        self._key_buffer = []
+        self.input = input
+        self.lights = lights
+        self.output = pbus()
+        self.advance = pwire()
+        self.dp_sw = [0, 0, 0, 0]        # Digital point switch position
+        self.rnd_sw = [0, 0, 0, 0]       # Rounding switch position
+        self.buffer = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0],
+            self.dp_sw, self.rnd_sw] 
+        self.key_buffer = ""
 
-
-    def output(self):
-        return self._output
-
-    def advance(self):
-        return self._advance
 
     def always(self, signal):
         for i in range(10):
-            if self._input.pwire(i).v == 0:
+            if self.input.pwire(i).v == 0:
                 for j in range(4):
-                    self._output.pwire(3-j).v = self._buffer[i][j]
+                    self.output.pwire(3-j).v = self.buffer[i][j]
                     if i < 8:   # Don't reset the switches!
-                        self._buffer[i][j] = 0
+                        self.buffer[i][j] = 0
 
-    def setKeyBuffer(self, buffer):
-        self._key_buffer += buffer.split(",")
+    def appendKeyBuffer(self, buffer):
+        self.key_buffer += buffer.replace(",", "")
+
+    def getKeyBufferHead(self):
+        head = None
+        if len(self.key_buffer) == 0:
+            return head
+        for k in ['q', 'd', 'r', 'a']:
+            if self.key_buffer.startswith(k):
+                head = k
+        if head is None:
+            for c in range(8):
+                for r in range(4):
+                    s = _lookup[c][r]
+                    if s is not None and self.key_buffer.startswith(s):
+                        head = s
+                        # break out of the 2 loops
+        if head is None:
+            head = self.key_buffer[0]
+        # Remove head from key_buffer
+        self.key_buffer = self.key_buffer[len(head):]
+        return head
 
     def clearAdvance(self):
-        self._advance.v = 0
+        self.advance.v = 0
         
     def readKey(self):
-        if len(self._key_buffer) == 0:
-            k = input("### {} {}: ".format(self.switches(), self._lights.display())).strip()
-            self._key_buffer += k.split(",")
-        if len(self._key_buffer): 
-            k = self._key_buffer.pop(0).strip()
-            if k != "":
-                if k == 'q':
-                    sys.exit()
-                if k == 'd':
-                    self.incDP()
-                elif k == 'r':
-                    self.incRND()
-                elif k == 'a':
-                    self._advance.v = 1
-                else:
-                    for c in range(8):
-                        for r in range(4):
-                            s = _lookup[c][r]
-                            if k == s:
-                                self._buffer[c][r] = 1
-                                return
-                    print("!!! ERROR: Unknown key '{}'!".format(k), file=sys.stderr)
+        if len(self.key_buffer) == 0:
+            k = input("### {} {}: ".format(self.switches(), self.lights.display())).strip()
+            self.appendKeyBuffer(k)
+        k = self.getKeyBufferHead()
+        if k is not None:
+            if k == 'q':
+                sys.exit()
+            if k == 'd':
+                self.incDP()
+            elif k == 'r':
+                self.incRND()
+            elif k == 'a':
+                self.advance.v = 1
+            else:
+                for c in range(8):
+                    for r in range(4):
+                        s = _lookup[c][r]
+                        if s is not None and k == s:
+                            self.buffer[c][r] = 1
+                            return
+                print("!!! ERROR: Unknown key '{}'!".format(k), file=sys.stderr)
 
     def incDP(self):
-        n = int("".join(map(str, self._dp_sw)), 2)
+        n = int("".join(map(str, self.dp_sw)), 2)
         n = (n + 1) % 9
-        self._dp_sw[:] = list(map(int, list("{:04b}".format(n))))
+        self.dp_sw[:] = list(map(int, list("{:04b}".format(n))))
 
     def incRND(self):
-        n = int("".join(map(str, self._rnd_sw)), 2)
+        n = int("".join(map(str, self.rnd_sw)), 2)
         if n == 0:
             n = 1
             desc = "round"
@@ -104,11 +117,11 @@ class keyboard(sensor):
         else:
             n = 0
             desc = "float"
-        self._rnd_sw[:] = list(map(int, list("{:04b}".format(n))))
+        self.rnd_sw[:] = list(map(int, list("{:04b}".format(n))))
 
     def switches(self):
-        dp = int("".join(map(str, self._dp_sw)), 2)
-        rnd = int("".join(map(str, self._rnd_sw)), 2)
+        dp = int("".join(map(str, self.dp_sw)), 2)
+        rnd = int("".join(map(str, self.rnd_sw)), 2)
         if rnd == 0:
             r = "F"
         elif rnd == 1:
