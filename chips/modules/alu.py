@@ -6,9 +6,10 @@ from hdl import *
 
 
 class alu:
-    def __init__(self, timing, data):
+    def __init__(self, inst, data):
         self.data = data
-        self.inst = None            # Must be set after initialization
+        self.inst = inst
+        self.inst.alu = self
         self.acc = 0                # The accumulator
         self.tmp = 0                # The tmp register
         self.cy = 0                 # Carry
@@ -18,10 +19,7 @@ class alu:
         self.acc_out = 0            # Accumulator output
         self.cy_out = 0             # Carry output
         self.add = 0                # The result of the adder (not a register in the real 4004 as the adder is combinational)
-
-        self.timing = timing
-
-        
+ 
         @M12    # Initialize the ALU before each instruction
         def _():
             self.ada = 0

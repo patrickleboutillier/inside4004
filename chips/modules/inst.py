@@ -1,5 +1,4 @@
 from chips.modules.timing import *
-import chips.modules.instx as x
 from hdl import *
 
 
@@ -9,73 +8,35 @@ from hdl import *
 
 
 class inst:
-    def __init__(self, cpu, scratch, timing, data, cm_rom, cm_ram):
-        self.x = x.instx(self)
-        self.cpu = cpu
-        self.scratch = scratch
+    def __init__(self, data):
         self.data = data
-        self.ram_bank = 1
-        self.cm_rom = cm_rom
-        self.cm_ram = cm_ram
         self.sc = 1
         self.cond = 0
         self.opr = 0
         self.opa = 0
 
-        self.timing = timing
-
         @A12clk1
         def _():
+            # WARNING: Instruction logic here
             if self.sc and (self.fin() or self.fim() or self.jun() or self.jms() or self.jcn() or self.isz()):
                 self.sc = 0
                 if self.jcn():
                     self.setJCNCond()
                 if self.isz():
-                    self.cond = ~self.cpu.alu.addZero() & 1
+                    self.cond = ~self.alu.addZero() & 1
             else:
                 self.sc = 1
 
         @M12clk2
         def _():
-            if (self.fim() or self.fin()) and not self.sc:
-                self.scratch.setRegPairH()
-            elif (self.jun() or self.jms()) and not self.sc:
-                self.cpu.addr.setPM()
-            elif (self.jcn() or self.isz()) and not self.sc:
-                if self.cond:
-                    self.cpu.addr.setPM()
-            else:
+            if self.sc:
                 self.opr = self.data.v
-
-        @M22clk1
-        def _():
-            # This signal turned off at X12clk1 below
-            if self.opr == 0b1110:
-                self.cm_ram.v(self.ram_bank)
 
         @M22clk2
         def _():
-            if (self.fim() or self.fin()) and not self.sc:
-                self.scratch.setRegPairL()
-            elif (self.jun() or self.jms()) and not self.sc:
-                self.cpu.addr.setPL()
-            elif (self.jcn() or self.isz()) and not self.sc:
-                if self.cond:
-                    self.cpu.addr.setPL()
-            else:
+            if self.sc:
                 self.opa = self.data.v
 
-        @X12clk1
-        def _():
-            if self.opr == 0b1110:
-                self.cm_ram.v(0) 
-
-
-        self.registerX()
-
-
-    def jcn(self):
-        return self.opr == 0b0001
 
     # C1 = 0 Do not invert jump condition
     # C1 = 1 Invert jump condition
@@ -83,9 +44,9 @@ class inst:
     # C3 = 1 Jump if the carry/link content is 1
     # C4 = 1 Jump if test signal (pin 10 on 4004) is zero.
     def setJCNCond(self):
-        z = self.cpu.alu.accZero()
-        c = self.cpu.alu.carryOne()
-        t = self.cpu.testZero()
+        z = self.alu.accZero()
+        c = self.alu.carryOne()
+        t = self.ioc.testZero()
 
         invert = (self.opa & 0b1000) >> 3
         (zero, cy, test) = (self.opa & 0b0100, self.opa & 0b0010, self.opa & 0b0001)
@@ -97,24 +58,6 @@ class inst:
         elif test and (t ^ invert):
             self.cond = 1
 
-    def setRAMBank(self):
-        if self.cpu.alu.acc_out & 0b0111 == 0:
-            self.ram_bank = 1
-        elif self.cpu.alu.acc_out & 0b0111 == 1:
-            self.ram_bank = 2
-        elif self.cpu.alu.acc_out & 0b0111 == 2:
-            self.ram_bank = 4
-        elif self.cpu.alu.acc_out & 0b0111 == 3:
-            self.ram_bank = 3
-        elif self.cpu.alu.acc_out & 0b0111 == 4:
-            self.ram_bank = 8
-        elif self.cpu.alu.acc_out & 0b0111 == 5:
-            self.ram_bank = 10
-        elif self.cpu.alu.acc_out & 0b0111 == 6:
-            self.ram_bank = 12
-        elif self.cpu.alu.acc_out & 0b0111 == 7:
-            self.ram_bank = 14
-
 
     def opa_odd(self):
         return self.opa & 1
@@ -122,6 +65,9 @@ class inst:
     def opa_even(self):
         return not (self.opa & 1)
 
+    def jcn(self):
+        return self.opr == 0b0001
+    
     def fim(self):
         return self.opr == 0b0010 and not self.opa & 0b0001
 
@@ -130,6 +76,9 @@ class inst:
 
     def fin(self):
         return self.opr == 0b0011 and not self.opa & 0b0001
+
+    def jin(self):
+        return self.opr == 0b0011 and self.opa & 0b0001
 
     def jun(self):
         return self.opr == 0b0100
@@ -152,6 +101,9 @@ class inst:
     def ld(self):
         return self.opr == 0b1010
 
+    def bbl(self):
+        return self.opr == 0b1100
+
     def ope(self):
         return self.opr == 0b1111
 
@@ -164,49 +116,7 @@ class inst:
     def kbp(self):
         return self.opr == 0b1111 and self.opa == 0b1100   
 
-    def registerX(self):
-        def dispatch(x, n):
-            f = self.x.dispatch[self.opr][self.opa][x][n]
-            if f is not None:
-                f()
-
-        @A12clk1
-        def _():
-            dispatch(0, 0)
-
-        @X12clk1
-        def _():
-            dispatch(5, 0)
-
-        @X12clk2
-        def _():
-            dispatch(5, 2)
-
-        @X21
-        def _():
-            dispatch(5, 3)
-
-        @X22clk1
-        def _():
-            dispatch(6, 0)
-
-        @X22clk2
-        def _():
-            dispatch(6, 2)
-
-        @X31
-        def _():
-            dispatch(6, 3)
-
-        @X32clk1
-        def _():
-            dispatch(7, 0)
-
-        @X32clk2
-        def _():
-            dispatch(7, 2)
-            
-
-    def dump(self):
-        print("OPR/OPA:{:04b}/{:04b}  SC:{}  CM-RAM:{:04b}".format(self.opr, self.opa, self.sc, self.ram_bank), end = '')
-
+    # Inhibit program counter commit
+    # inh = (jin_fin & sc) | ((jun_jms | (jcn_isz & cond)) & ~sc)
+    def inh(self):
+        return ((self.jin() or self.fin()) and self.sc) or (((self.jun() or self.jms()) or ((self.jcn() or self.isz()) and self.cond)) and not self.sc)

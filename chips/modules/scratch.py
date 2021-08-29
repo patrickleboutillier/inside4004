@@ -8,9 +8,10 @@ from hdl import *
 
 
 class scratch:
-    def __init__(self, timing, data):
+    def __init__(self, inst, timing, data):
         self.data = data            # The data bus
-        self.inst = None            # Must be set after initialisation
+        self.inst = inst
+        self.inst.scratch = self
         self.index_reg = [0] * 16   # The actual registers
         self.row_num = 0            # The working row number
         self.row_even = 0           # The even register in the working row
@@ -19,12 +20,24 @@ class scratch:
 
         self.timing = timing
 
+        @M12
+        @M22
+        @A12clk1
+        @A22clk1
+        @A32clk1
+        @X12clk1
+        @X22clk1
+        @X32clk1    # Sample data from the bus at these times.
+        def _():
+            self.data_in = self.data.v
+
         @A32clk2
         @X12clk2    # Set working row from the register array. There is a 0 override for FIN during X12.
         def _():
             if self.inst.sc:
                 row_num = self.row_num
                 if self.timing.x1():
+                    # WARNING: a bit of FIN logic here...
                     if self.inst.fin():
                         row_num = 0  
                 self.row_even = self.index_reg[row_num * 2]
@@ -37,21 +50,10 @@ class scratch:
                 self.index_reg[self.row_num * 2] = self.row_even
                 self.index_reg[(self.row_num * 2) + 1] = self.row_odd
 
-        @M22clk2    # Read OPA from te data bus and set the working row.
+        @M22clk2    # Read OPA from the data bus and set the working row.
         def _():
             if self.inst.sc:
                 self.row_num = self.data.v >> 1
-
-        @M12
-        @M22
-        @A12clk1
-        @A22clk1
-        @A32clk1
-        @X12clk1
-        @X22clk1
-        @X32clk1    # Sample data from the bus at these times.
-        def _():
-            self.data_in = self.data.v
 
 
     # Enable the working register (according to whether OPA is even or odd) to the bus.

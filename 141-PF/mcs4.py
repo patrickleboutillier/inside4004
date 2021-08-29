@@ -86,7 +86,7 @@ def callback(nb):
     else:
         printer.cycle()
 
-    if (CPU.addr.stack[CPU.addr.sp] == 0x003) and (RAM[0].status[0][3] == 0): # Before keyboard scanning in main loop, and a button is not currently held down)
+    if CPU.addr.isPC(0x003) and RAM[0].status[0][3] == 0: # Before keyboard scanning in main loop, and a button is not currently held down)
         keyboard.clearAdvance() # In case we "pressed" the paper advance button
         kb_toggle = not kb_toggle
         if not kb_toggle:

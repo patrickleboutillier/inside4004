@@ -1,5 +1,6 @@
 import chips.modules.timing as timing
-import chips.modules.addr as addr, chips.modules.inst as inst, chips.modules.scratch as scratch, chips.modules.alu as alu
+import chips.modules.addr as addr, chips.modules.inst as inst, chips.modules.scratch as scratch
+import chips.modules.alu as alu, chips.modules.control as control, chips.modules.io as io
 from hdl import *
 
 
@@ -8,37 +9,14 @@ class i4004:
         self.timing = timing.timing(clk1, clk2, None)
         self.sync = self.timing.sync
         self.data = data
-        self.scratch = scratch.scratch(self.timing, data)
-        self.alu = alu.alu(self.timing, data)
-        self.addr = addr.addr(self, self.scratch, self.timing, self.data, cm_rom)
-        self.inst = inst.inst(self, self.scratch, self.timing, self.data, cm_rom, cm_ram)
-        self.scratch.inst = self.inst
-        self.alu.inst = self.inst
-
         self.test = test
+        self.inst = inst.inst(self.data)
+        self.alu = alu.alu(self.inst, data)
+        self.scratch = scratch.scratch(self.inst, self.timing, data)
+        self.addr = addr.addr(self.inst, self.timing, self.data)
+        self.io = io.io(self.inst, test, cm_rom, cm_ram)
+        self.control = control.control(self.inst)
 
-
-    def testZero(self):
-        return 1 if self.test.v == 0 else 0
-
-
-    def DCL(self):
-        if self.alu.acc & 0b0111 == 0:
-            self.inst.ram_bank = 1
-        elif self.alu.acc & 0b0111 == 1:
-            self.inst.ram_bank = 2
-        elif self.alu.acc & 0b0111 == 2:
-            self.inst.ram_bank = 4
-        elif self.alu.acc & 0b0111 == 3:
-            self.inst.ram_bank = 3
-        elif self.alu.acc & 0b0111 == 4:
-            self.inst.ram_bank = 8
-        elif self.alu.acc & 0b0111 == 5:
-            self.inst.ram_bank = 10
-        elif self.alu.acc & 0b0111 == 6:
-            self.inst.ram_bank = 12
-        elif self.alu.acc & 0b0111 == 7:
-            self.inst.ram_bank = 14
 
 
     def dump(self, cycle):

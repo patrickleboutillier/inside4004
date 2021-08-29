@@ -1,2 +1,4 @@
-- Analyze addr block:
-  - Analyze CLK2(JMS&DC&M22+BBL(M22+X12+X22)), ADDR-PTR.1, ADDR-PTR.0, N0409, N0420
+- Finish the address incrementer with carry_in, carry_out
+- Do IO stuff (cm_rom, cm_ram)
+- check ~COM in simulator
+- Add 'h' (help) to calculator
