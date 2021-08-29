@@ -95,7 +95,7 @@ class addr:
     def setPL(self):
         self.pl = self.data.v
 
-    # Increment the program counter
+    # TODO: Do it properly... Increment the program counter
     def incPC(self):
         pc = self.ph << 8 | self.pm << 4 | self.pl
         pc = pc + 1
@@ -104,8 +104,8 @@ class addr:
         self.pl = pc & 0xF
 
     # Increment the stack pointer
-    def incSP(self):
-        self.sp = (self.sp + 1) & 0b11
+    def decSP(self):
+        self.sp = (self.sp - 1) & 0b11
 
 
     def dump(self):

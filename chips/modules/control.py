@@ -15,7 +15,7 @@ def register(f, x, n):
      for i in opa:
         active_control.dispatch[opr][i][x][n] = f 
 
-def A12clk1(f):
+def A12(f):
     register(f, 0, 0)
     return f
 
@@ -84,7 +84,7 @@ class control:
             if f is not None:
                 f()
 
-        @timing.A12clk1
+        @timing.A12
         def _():
             dispatch(0, 0)
 
@@ -260,8 +260,9 @@ class control:
         @M22clk2 
         def _():
             if not inst.sc:
+                # Order not important here since sp in not copied to row_num until x32
                 inst.cpu.addr.setPL()
-                inst.cpu.addr.incSP()
+                inst.cpu.addr.decSP()
         @X21
         def _():
             if not inst.sc:
@@ -369,7 +370,7 @@ class control:
         @X12clk2
         @X22clk2
         def _():
-            inst.cpu.addr.incSP()
+            inst.cpu.addr.decSP()
         @X21
         def _():
             inst.data.v = inst.opa
@@ -399,13 +400,13 @@ class control:
         def _():
             inst.cpu.alu.setADA()
             inst.cpu.alu.setADC(invert=True)
-        @A12clk1
+        @A12
         def _():
             inst.cpu.alu.runAdder(invertADB=True, saveAcc=True, saveCy=True)
 
         # RDM, RDR, RD0/1/2/3
         opr, opa = 0b1110, [0b1001, 0b1010, 0b1100, 0b1101, 0b1110, 0b1111]
-        @A12clk1
+        @A12
         def _():
             inst.cpu.alu.runAdder(saveAcc=True)
 
@@ -415,7 +416,7 @@ class control:
         def _():
             inst.cpu.alu.setADA()
             inst.cpu.alu.setADC()
-        @A12clk1
+        @A12
         def _():
             inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
 

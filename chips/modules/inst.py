@@ -23,7 +23,7 @@ class inst:
 
         @A12clk1
         def _():
-            # WARNING
+            # WARNING: Instruction logic here
             if self.sc and (self.fin() or self.fim() or self.jun() or self.jms() or self.jcn() or self.isz()):
                 self.sc = 0
                 if self.jcn():
