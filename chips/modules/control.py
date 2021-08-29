@@ -157,6 +157,14 @@ class control:
 
         # JCN
         opr, opa = 0b0001, any
+        @M12clk2 
+        def _():
+            if not inst.sc:
+                inst.cpu.addr.setPM()
+        @M22clk2 
+        def _():
+            if not inst.sc:
+                inst.cpu.addr.setPL()
 
         # FIM
         opr, opa = 0b0010, even
@@ -224,17 +232,44 @@ class control:
         def _():
             inst.cpu.addr.setPL()
 
-        # JUN, JMS
-        opa = any
-        for opr in [0b0100, 0b0101]:
-            @X21
-            def _():
-                if not inst.sc:
-                    inst.data.v = inst.opa
-            @X22clk2
-            def _():
-                if not inst.sc:
-                    inst.cpu.addr.setPH()
+        # JUN
+        opr, opa = 0b0100, any
+        @M12clk2 
+        def _():
+            if not inst.sc:
+                inst.cpu.addr.setPM()
+        @M22clk2 
+        def _():
+            if not inst.sc:
+                inst.cpu.addr.setPL()
+        @X21
+        def _():
+            if not inst.sc:
+                inst.data.v = inst.opa
+        @X22clk2
+        def _():
+            if not inst.sc:
+                inst.cpu.addr.setPH()
+
+        # JMS
+        opr, opa = 0b0101, any 
+        @M12clk2 
+        def _():
+            if not inst.sc:
+                inst.cpu.addr.setPM()
+        @M22clk2 
+        def _():
+            if not inst.sc:
+                inst.cpu.addr.setPL()
+                inst.cpu.addr.incSP()
+        @X21
+        def _():
+            if not inst.sc:
+                inst.data.v = inst.opa
+        @X22clk2
+        def _():
+            if not inst.sc:
+                inst.cpu.addr.setPH()
 
         # INC
         opr, opa = 0b0110, any
@@ -254,6 +289,14 @@ class control:
 
         # ISZ
         opr, opa = 0b0111, any
+        @M12clk2 
+        def _():
+            if not inst.sc:
+                inst.cpu.addr.setPM()
+        @M22clk2 
+        def _():
+            if not inst.sc:
+                inst.cpu.addr.setPL()
         @X21
         def _():
             if inst.sc:
@@ -344,27 +387,11 @@ class control:
             inst.cpu.alu.runAdder(saveAcc=True)
 
 
-        # RDM, RDR, RD0/1/2/3
-        opr, opa = 0b1110, [0b1001, 0b1010, 0b1100, 0b1101, 0b1110, 0b1111]
-        @A12clk1
-        def _():
-            inst.cpu.alu.runAdder(saveAcc=True)
-
         # WRM, WMP, WRR, WR0/1/2/3
         opr, opa = 0b1110, [0b0000, 0b0001, 0b0010, 0b0100, 0b0101, 0b0110, 0b0111]
         @X22clk1
         def _():
             inst.data.v = inst.cpu.alu.acc
-
-        # ADM
-        opr, opa = 0b1110, [0b1011]
-        @X22clk2
-        def _():
-            inst.cpu.alu.setADA()
-            inst.cpu.alu.setADC()
-        @A12clk1
-        def _():
-            inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
 
         # SBM
         opr, opa = 0b1110, [0b1000]
@@ -375,6 +402,22 @@ class control:
         @A12clk1
         def _():
             inst.cpu.alu.runAdder(invertADB=True, saveAcc=True, saveCy=True)
+
+        # RDM, RDR, RD0/1/2/3
+        opr, opa = 0b1110, [0b1001, 0b1010, 0b1100, 0b1101, 0b1110, 0b1111]
+        @A12clk1
+        def _():
+            inst.cpu.alu.runAdder(saveAcc=True)
+
+        # ADM
+        opr, opa = 0b1110, [0b1011]
+        @X22clk2
+        def _():
+            inst.cpu.alu.setADA()
+            inst.cpu.alu.setADC()
+        @A12clk1
+        def _():
+            inst.cpu.alu.runAdder(saveAcc=True, saveCy=True)
 
 
         # CLB

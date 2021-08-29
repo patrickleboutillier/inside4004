@@ -57,27 +57,6 @@ class addr:
         def _():
             self.cm_rom.v = 0
 
-        @M22clk2    # TODO: Move to instructions
-        def _():
-            if self.inst.jms() and not self.inst.sc:
-                self.incSP()
-
-        @M12clk2    # TODO: Move to instructions
-        def _():
-            if (self.inst.jun() or self.inst.jms()) and not self.inst.sc:
-                self.setPM()
-            elif (self.inst.jcn() or self.inst.isz()) and not self.inst.sc:
-                if self.inst.cond:
-                    self.setPM()
-
-        @M22clk2    # TODO: Move to instructions
-        def _():
-            if (self.inst.jun() or self.inst.jms()) and not self.inst.sc:
-                self.setPL()
-            elif (self.inst.jcn() or self.inst.isz()) and not self.inst.sc:
-                if self.inst.cond:
-                    self.setPL()
-
         @X12clk2
         @X32clk2       # Update the program counter with the contents of the stack.
         def _():
