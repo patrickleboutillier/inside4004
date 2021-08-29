@@ -29,14 +29,14 @@ class timing(sensor):
 
 
     def always(self, signal):
-        self.phase = (self.phase + 1) % 4
+        self.phase = (self.phase + 1) & 0b11
 
         if self.phx._v == 0b10:
             # A new step starts when clk1 goes high
             self.slave = self.master
         elif self.phx._v == 0b01:
             if self.gen_sync:
-                self.master = (self.master + 1) % 8
+                self.master = (self.master + 1) & 0b111
             else:
                 if self.sync.v:
                     self.master = 0
