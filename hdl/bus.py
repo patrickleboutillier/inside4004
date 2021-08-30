@@ -18,7 +18,7 @@ class pbus:
     def __init__(self, n=4, v=0):
         self._n = n
         self._v = v
-        self._sensors = {}
+        self._signals = []
         self._wires = {}
 
     def len(self):
@@ -28,10 +28,9 @@ class pbus:
         if v != self._v:
             changed = v ^ self._v
             self._v = v
-            for (sensor, fss) in self._sensors.items():
-                for (filter, signal) in fss:
-                    if filter is None or filter & changed:    # The sensor is impacted by the change
-                        sensor.always(signal)
+            for (sensor, filter, signal) in self._signals:
+                if filter is None or filter & changed:    # The sensor is impacted by the change
+                    sensor.always(signal)
 
     def pwire(self, bit):
         if bit not in self._wires:
@@ -39,12 +38,10 @@ class pbus:
         return self._wires[bit]
 
     def connect(self, sensor, signal):
-        if not sensor in self._sensors:
-            self._sensors[sensor] = [] 
         filter = None
         if type(signal) is hdl.pwire:
             filter = 1 << signal._bit
-        self._sensors[sensor].append((filter, signal))
+        self._signals.append((sensor, filter, signal))
 
 
 class bus:

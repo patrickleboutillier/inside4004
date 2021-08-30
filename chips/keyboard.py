@@ -24,11 +24,38 @@ _lookup = [
     ["9",   "6",  "3",      "."],
     ["8",   "5",  "2",      None],
     ["7",   "4",  "1",      "0"],
-    ["S",   "EX", "CE",     "CA"]
+    ["S",   "EX", "CE",     "CL"]
 ]
 for c in _lookup:
     c.reverse()
 
+
+help = '''
+Keyboard (enter a sequence of keys and press enter):
+
+                  a     d--------  r--
+                              
+                  S     7  8  9    -  #         CM   
+                  EX    4  5  6    +  /    %    RM
+                  CE    1  2  3       *    M+   M-
+                  CL    0     .     =      M=+  M=-
+
+a:  Paper feed button   d:  Decimal point selector   r:   Round off switch
+S:  Minus sign                                       CM:  Clear memory
+EX: Exchange                                         RM:  Recall memory
+CE: Clear entry         M+:  Memory +                M-:  Memory -
+CL: Clear               M=+: Memory equals +         M=-: Memory equals -
+
+Status line:
+
+    ### DP[0] RND[F] ( )( )( ):
+           |      |   |  |  |
+           |      |   |  |  ----> Memory light          
+           |      |   |  -------> Negative light
+           |      |   ----------> Overflow light
+           |      --------------> Rounding mode (F:float, R:round, T:truncate)
+           ---------------------> Decimal points (0-8) 
+'''
 
 class keyboard(sensor):
     def __init__(self, input, lights):
@@ -59,7 +86,7 @@ class keyboard(sensor):
         head = None
         if len(self.key_buffer) == 0:
             return head
-        for k in ['q', 'd', 'r', 'a']:
+        for k in ['q', 'd', 'r', 'a', 'h']:
             if self.key_buffer.startswith(k):
                 head = k
         if head is None:
@@ -92,6 +119,8 @@ class keyboard(sensor):
                 self.incRND()
             elif k == 'a':
                 self.advance.v = 1
+            elif k == 'h':
+                print(help)
             else:
                 for c in range(8):
                     for r in range(4):
@@ -99,7 +128,7 @@ class keyboard(sensor):
                         if s is not None and k == s:
                             self.buffer[c][r] = 1
                             return
-                print("!!! ERROR: Unknown key '{}'!".format(k), file=sys.stderr)
+                print("!!! ERROR: Unknown key '{}'! Use 'h' for help.".format(k), file=sys.stderr)
 
     def incDP(self):
         n = int("".join(map(str, self.dp_sw)), 2)
