@@ -13,21 +13,20 @@ from hdl import *
 
 class clock():
     def __init__(self):
-        self.phx = pbus(2)
-        self.clk1 = self.phx.pwire(1)
-        self.clk2 = self.phx.pwire(0)
         self.n = 0
-        self.map = [0b10, 0b00, 0b01, 0b00]
+        self.timings = []
 
-        
     def tick(self, nb=1):
         for _ in range(nb):
-            if self.n == 0:
-                self.phx.v(0b10)
-            elif self.n == 1:
-                self.phx.v(0b00)
-            elif self.n == 2:
-                self.phx.v(0b01)
-            else:   # n == 3
-                self.phx.v(0b00)
-            self.n = (self.n + 1) % 4
+            for t in self.timings:
+                if self.n == 0:
+                    t.tick0()
+                elif self.n == 1:
+                    t.tick1()
+                elif self.n == 2:
+                    t.tick2()
+                else:   # n == 3
+                    t.tick3()
+                for f in t.dispatch[t.slave][self.n]:
+                    f()                   
+            self.n = (self.n + 1) & 0b11

@@ -6,7 +6,7 @@ from hdl import *
 
 
 class i4001():
-    def __init__(self, chipnum, io_cfg, clk1, clk2, sync, data, cm):
+    def __init__(self, chipnum, io_cfg, clk, sync, data, cm):
         self.chipnum = chipnum                          # The chip number or identifier (0-15), normally burnt right into the chip.
         self.data = data                                # The data bus
         self.cm = cm                                    # The command line
@@ -21,7 +21,7 @@ class i4001():
         self.rdr = 0                                    # 1 if the current instruction is RDR
         self.wrr = 0                                    # 1 if the current instruction is wwr
 
-        self.timing = timing(clk1, clk2, sync)            # The timing module and associated callback functions
+        self.timing = timing(clk, sync)            # The timing module and associated callback functions
 
         @A12clk2
         def _():

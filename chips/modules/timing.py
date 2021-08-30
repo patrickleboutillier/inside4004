@@ -4,16 +4,12 @@ from hdl import *
 active_timing = None
 
 
-class timing(sensor):
-    def __init__(self, clk1, clk2, sync):
+class timing:
+    def __init__(self, clk, sync):
         global active_timing
         active_timing = self
         
-        self.clk1 = clk1
-        self.clk2 = clk2
-        self.phx = clk1._bus
-        self.phase = -1
-        sensor.__init__(self, self.phx)
+        clk.timings.append(self)
         self.slave = 0
         self.master = 0 
         if sync is None:
@@ -28,29 +24,36 @@ class timing(sensor):
             self.dispatch.append([[], [], [], []])
 
 
-    def always(self, signal):
-        self.phase = (self.phase + 1) & 0b11
+    def tick0(self):
+        # A new step starts when clk1 goes high
+        self.slave = self.master
+        #for f in self.dispatch[self.slave][0]:
+        #    f()
 
-        if self.phx._v == 0b10:
-            # A new step starts when clk1 goes high
-            self.slave = self.master
-        elif self.phx._v == 0b01:
-            if self.gen_sync:
-                self.master = (self.master + 1) & 0b111
+    def tick1(self):
+        pass
+        #for f in self.dispatch[self.slave][1]:
+        #    f()
+
+    def tick2(self):
+        if self.gen_sync:
+            self.master = (self.master + 1) & 0b111
+        else:
+            if self.sync.v:
+                self.master = 0
             else:
-                if self.sync.v:
-                    self.master = 0
-                else:
-                    self.master += 1
-        elif self.phase == 3:
-            if self.gen_sync:
-                if self.slave == 6:
-                    self.sync.v = 1
-                elif self.slave == 7:
-                    self.sync.v = 0
+                self.master += 1
+        #for f in self.dispatch[self.slave][2]:
+        #    f()
 
-        for f in self.dispatch[self.slave][self.phase]:
-            f()
+    def tick3(self):
+        if self.gen_sync:
+            if self.slave == 6:
+                self.sync.v = 1
+            elif self.slave == 7:
+                self.sync.v = 0
+        #for f in self.dispatch[self.slave][3]:
+        #    f()
 
     def now(self):
         return (self.slave, self.phase)
