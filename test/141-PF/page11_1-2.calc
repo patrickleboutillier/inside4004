@@ -1,0 +1,2 @@
+export KEY_BUFFER='ddr,1.23+,4.56+,dddddddd,=,q'
+export EXPECTED='>>>  |            5.8 ^  *  |'
