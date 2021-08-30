@@ -1,6 +1,1 @@
-- Finish the address incrementer with carry_in, carry_out
-- Do IO stuff (cm_rom, cm_ram)
-- check ~COM in simulator
-- Add 'h' (help) to calculator
-- Fix keyboard buffer to be able to enter numbers in one shot
-- Fix stepping in 141-FP
+- Update timing table with M11, M12, X11 

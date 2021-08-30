@@ -1,0 +1,2 @@
+export KEY_BUFFER='ddrr,12.3*,4.56,=q'
+export EXPECTED='>>>  |          56.08    *  |'

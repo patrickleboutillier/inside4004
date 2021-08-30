@@ -113,6 +113,10 @@ def A32clk2(f):
     active_timing.dispatch[2][2].append(f)
     return f
 
+def M11(f):
+    active_timing.dispatch[2][3].append(f)
+    return f
+
 def M12(f):
     for i in [0, 2, 3]:
         active_timing.dispatch[3][i].append(f)
@@ -126,6 +130,10 @@ def M12clk2(f):
     active_timing.dispatch[3][2].append(f)
     return f
 
+def M21(f):
+    active_timing.dispatch[3][3].append(f)
+    return f
+
 def M22(f):
     for i in [0, 2, 3]:
         active_timing.dispatch[4][i].append(f)
@@ -137,6 +145,10 @@ def M22clk1(f):
 
 def M22clk2(f):
     active_timing.dispatch[4][2].append(f)
+    return f
+
+def X11(f):
+    active_timing.dispatch[4][3].append(f)
     return f
 
 def X12(f):
