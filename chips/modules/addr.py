@@ -13,6 +13,8 @@ class addr:
         self.inst = inst
         self.inst.addr = self
         self.incr_in = 0            # The input to the address incrementer
+        self.cy = 0                 # The carry (in) for the address incrementer
+        self_cy_out = 0             # The carry (out) for the address incrementer
         self.ph = 0                 # The high nibble of the program counter 
         self.pl = 0                 # The middle nibble of the program counter
         self.pm = 0                 # The low nibble of the program counter
@@ -45,10 +47,28 @@ class addr:
         def _():
             self.data.v = self.ph
 
-        @A32clk2    # Increment the program counter
+        @A12clk2    # Increment pl
         def _():
-            self.incPC()
+            sum = self.pl + 1
+            self.cy_out = sum >> 4
+            self.pl = sum & 0xF
 
+        @A22clk1
+        @A32clk1
+        def _():
+            self.cy = self.cy_out
+
+        @A22clk2    # Increment pm
+        def _():
+            sum = self.pm + self.cy
+            self.cy_out = sum >> 4
+            self.pm = sum & 0xF
+
+        @A32clk2    # Increment ph
+        def _():
+            sum = self.ph + self.cy
+            self.cy_out = sum >> 4
+            self.ph = sum & 0xF
 
         @X12clk2
         @X32clk2       # Update the program counter with the contents of the stack.
@@ -83,13 +103,13 @@ class addr:
         return False
 
     def setPH(self):
-        self.ph = self.data.v
+        self.ph = self.incr_in
 
     def setPM(self):
-        self.pm = self.data.v
+        self.pm = self.incr_in
 
     def setPL(self):
-        self.pl = self.data.v
+        self.pl = self.incr_in
 
     # TODO: Do it properly... Increment the program counter
     def incPC(self):
