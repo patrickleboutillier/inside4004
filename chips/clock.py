@@ -16,8 +16,8 @@ class clock():
         self.n = 0
         self.timings = []
 
-    def tick(self, nb=1):
-        for _ in range(nb):
+    def tick(self):
+        for _ in range(4):
             for t in self.timings:
                 if self.n == 0:
                     t.tick0()

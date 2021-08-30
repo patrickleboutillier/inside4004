@@ -27,13 +27,9 @@ class timing:
     def tick0(self):
         # A new step starts when clk1 goes high
         self.slave = self.master
-        #for f in self.dispatch[self.slave][0]:
-        #    f()
 
     def tick1(self):
         pass
-        #for f in self.dispatch[self.slave][1]:
-        #    f()
 
     def tick2(self):
         if self.gen_sync:
@@ -43,8 +39,6 @@ class timing:
                 self.master = 0
             else:
                 self.master += 1
-        #for f in self.dispatch[self.slave][2]:
-        #    f()
 
     def tick3(self):
         if self.gen_sync:
@@ -52,8 +46,6 @@ class timing:
                 self.sync.v = 1
             elif self.slave == 7:
                 self.sync.v = 0
-        #for f in self.dispatch[self.slave][3]:
-        #    f()
 
     def now(self):
         return (self.slave, self.phase)

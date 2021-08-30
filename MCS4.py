@@ -59,8 +59,8 @@ class MCS4:
             if callback is not None:
                 callback(nb)
             for i in range(8):
-                self.clock.tick(4)
-                if i == 4 and dump:
+                self.clock.tick()
+                if dump and i == 4:
                     self.dump(nb)
             nb += 1
 
