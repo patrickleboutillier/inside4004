@@ -16,7 +16,7 @@ class i4003(sensor):
         self.reg = 0                    # The internal register that stores the current value
 
 
-    def always(self, signal):
+    def always(self):
         if self.clock.v:
             # clock went from 0 to 1, we shift
             o = self.reg >> 9

@@ -3,13 +3,13 @@ from hdl import *
 
 class lights:
     def __init__(self, memory, overflow, negative):
-        self._memory = memory
-        self._overflow = overflow
-        self._negative = negative
+        self.memory = memory
+        self.overflow = overflow
+        self.negative = negative
         
 
     def display(self):
         return "({})({})({})".format(
-            "O" if self._overflow.v else " ",
-            "-" if self._negative.v else " ",
-            "M" if self._memory.v else " ")
+            "O" if self.overflow.v else " ",
+            "-" if self.negative.v else " ",
+            "M" if self.memory.v else " ")

@@ -42,7 +42,6 @@ kb = os.environ.get('KEY_BUFFER')
 if kb is not None:
     keyboard.appendKeyBuffer(kb)
 
-
 # Create printer 4003s
 # Order important here to void race conditions
 psr2 = i4003.i4003(name="P2", clock=PROM[0].io.pwire(2), data_in=PROM[0].io.pwire(1), enable=pwire(1))
@@ -53,10 +52,10 @@ MCS4.addSR(psr2)
 # Printer
 printer = printer.printer(fire=RAM[0].output.pwire(1), advance=RAM[0].output.pwire(3), color=RAM[0].output.pwire(0))
 for i in range(10):
-    pbuf(psr2.parallel_out.pwire(i), printer.input().pwire(i))
-    pbuf(psr1.parallel_out.pwire(i), printer.input().pwire(10+i))
-pbuf(printer.sector(), test)
-pbuf(printer.index(), PROM[2].io.pwire(0))
+    pbuf(psr2.parallel_out.pwire(i), printer.input.pwire(i))
+    pbuf(psr1.parallel_out.pwire(i), printer.input.pwire(10+i))
+pbuf(printer.sector, test)
+pbuf(printer.index, PROM[2].io.pwire(0))
 
 
 # Load the program
@@ -80,9 +79,9 @@ def callback(nb):
         elif CPU.addr.isPCin(wait_for_end_sector_pulse) and not CPU.io.testZero():
             printer.endSectorPulse()
         else:
-            printer.cycle()
+            printer.doCycle()
     else:
-        printer.cycle()
+        printer.doCycle()
 
     if CPU.addr.isPCin([0x003]) and RAM[0].status[0][3] == 0:   # Before keyboard scanning in main loop, and a button is not currently held down)
         keyboard.clearAdvance()                             # In case we "pressed" the paper advance button

@@ -1,2 +1,2 @@
-export KEY_BUFFER='q'
-export EXPECTED=''
+export KEY_BUFFER='dd,152417543.0625,SQ,q'
+export EXPECTED='>>>  |12345.750000000 SQ    |'

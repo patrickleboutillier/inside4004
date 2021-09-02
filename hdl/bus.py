@@ -28,9 +28,9 @@ class pbus:
         if v != self._v:
             changed = v ^ self._v
             self._v = v
-            for (sensor, filter, signal) in self._signals:
+            for (sensor, filter) in self._signals:
                 if filter is None or filter & changed:    # The sensor is impacted by the change
-                    sensor.always(signal)
+                    sensor.always()
 
     def pwire(self, bit):
         if bit not in self._wires:
@@ -41,7 +41,7 @@ class pbus:
         filter = None
         if type(signal) is hdl.pwire:
             filter = 1 << signal._bit
-        self._signals.append((sensor, filter, signal))
+        self._signals.append((sensor, filter))
 
 
 class bus:

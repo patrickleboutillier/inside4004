@@ -1,2 +1,2 @@
-export KEY_BUFFER='q'
-export EXPECTED=''
+export KEY_BUFFER='ddr,123.45M+,/,36.9=,RM,/,28.4=,RM,/,31.55=,q'
+export EXPECTED='>>>  |           3.91    *  |'

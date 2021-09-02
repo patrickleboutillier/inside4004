@@ -1,2 +1,2 @@
-export KEY_BUFFER='q'
-export EXPECTED=''
+export KEY_BUFFER='dd,r,40/,6=,q'
+export EXPECTED='>>>  |           6.67 ^  *  |'

@@ -8,5 +8,5 @@ class pbuf(sensor):
         self.o = o
 
 
-    def always(self, signal):
+    def always(self):
         self.o.v = self.i.v
