@@ -1,2 +1,2 @@
-export KEY_BUFFER='q'
-export EXPECTED=''
+export KEY_BUFFER='ddddddr,2M+,*,=,+,3M+,*,=,+,4M+,*,=,+,5M+,*,=,+,6M+,*,=,+,*,5=,+,CM,*,=,-,/,5=,=,SQ,q'
+export EXPECTED='>>>  |       1.414214 SQ    |'

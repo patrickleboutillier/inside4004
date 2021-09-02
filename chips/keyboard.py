@@ -24,7 +24,7 @@ _lookup = [
     ["9",   "6",  "3",      "."],
     ["8",   "5",  "2",      None],
     ["7",   "4",  "1",      "0"],
-    ["S",   "EX", "CE",     "CL"]
+    ["S-",  "EX", "CE",     "CL"]
 ]
 for c in _lookup:
     c.reverse()
@@ -71,7 +71,7 @@ class keyboard(sensor):
         self.key_buffer = ""
 
 
-    def always(self, signal):
+    def always(self):
         for i in range(10):
             if self.input.pwire(i).v == 0:
                 for j in range(4):

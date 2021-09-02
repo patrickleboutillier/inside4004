@@ -5,7 +5,7 @@ from hdl import *
 # This class implements the behaviour of the 4001 ROM chip.
 
 
-class i4001():
+class i4001:
     def __init__(self, chipnum, io_cfg, clk1, clk2, sync, data, cm):
         self.chipnum = chipnum                          # The chip number or identifier (0-15), normally burnt right into the chip.
         self.data = data                                # The data bus

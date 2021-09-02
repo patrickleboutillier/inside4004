@@ -28,7 +28,7 @@ class timing(sensor):
             self.dispatch.append([[], [], [], []])
 
 
-    def always(self, signal):
+    def always(self):
         self.phase = (self.phase + 1) & 0b11
 
         if self.phx._v == 0b10:

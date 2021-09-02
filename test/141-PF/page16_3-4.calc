@@ -1,2 +1,2 @@
-export KEY_BUFFER='q'
-export EXPECTED=''
+export KEY_BUFFER='123/,6/,.789=,q'
+export EXPECTED='>>>  | 25.98225602027    *  |'

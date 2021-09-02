@@ -1,120 +1,111 @@
 from hdl import *
 
 
-_specialChars = [
+specialChars = [
     ["<>",  "+ ",  "- ",  "X ",  "/ ",  "M+",  "M-",  "^ ",  "= ",  "SQ",  "% ",  "C ",  "R "],
     ["#  ", "*  ", "I  ", "II ", "III", "M+ ", "M- ", "T  ", "K  ", "E  ", "Ex ", "C  ", "M  "]
 ]
 
 # Units are CPU cycles
-_sector_pulse =  int((5 * 1000) / 22)
-_sector_period = int((28 * 1000) / 22)
+sector_pulse =  int((5 * 1000) / 22)
+sector_period = int((28 * 1000) / 22)
 
 
 class printer(sensor):
     def __init__(self, fire, advance, color):
         sensor.__init__(self, fire, advance, color)
-        self._input = pbus(n=20)
-        self._sector = pwire()
-        self._index = pwire()
-        self._fire = fire
-        self._advance = advance
-        self._color = color
+        self.input = pbus(n=20)
+        self.sector = pwire()
+        self.index = pwire()
+        self.fire = fire
+        self.advance = advance
+        self.color = color
 
         self.initLine()
-        self._cur_sector = 0 
-        self._cycle = 0
-        self._cur_color = ' '
+        self.cur_sector = 0 
+        self.cycle = 0
+        self.cur_color = ' '
 
 
-    def input(self):
-        return self._input
-
-    def sector(self):
-        return self._sector
-
-    def index(self):
-        return self._index
-
-    def always(self, signal):
-        if self._fire.v:
+    def always(self):
+        if self.fire.v:
             self.fireHammers()
-        if self._advance.v:
+        if self.advance.v:
             self.advanceLine()
-            self._cur_color = ' '   # Reset line color
-        if self._color.v:
-            self._cur_color = '-'   # Set color to "red", meaning negative value.
+            self._curcolor = ' '   # Reset line color
+        if self.color.v:
+            self.cur_color = '-'   # Set color to "red", meaning negative value.
 
     # Called by the MCS-4 before each cycle.
-    def cycle(self):
-        if self._cycle == 0:
+    def doCycle(self):
+        if self.cycle == 0:
             self.startSectorPulse()
             return
-        elif self._cycle == _sector_pulse:
+        elif self.cycle == sector_pulse:
             self.endSectorPulse()
-            return
-        elif self._cycle == _sector_period:
+            return 
+        elif self.cycle == sector_period:
             self.endSectorPeriod()
             return
         else:
-            self._cycle += 1
+            self.cycle += 1
 
     def startSectorPulse(self):
-        self._cycle = 0
-        self._sector.v = 1
-        if self._cur_sector == 0:
-            self._index.v = 1
-        self._cycle += 1
+        self.cycle = 0
+        self.sector.v = 1
+        if self.cur_sector == 0:
+            self.index.v = 1
+        self.cycle += 1
 
     def endSectorPulse(self):
-        self._cycle = _sector_pulse
-        self._sector.v = 0
-        self._cycle += 1
+        self.cycle = sector_pulse
+        self.sector.v = 0
+        self.cycle += 1
 
     def endSectorPeriod(self):
-        self._cycle = _sector_period
-        if self._cur_sector == 0:
-            self._index.v = 0
+        self.cycle = sector_period
+        if self.cur_sector == 0:
+            self.index.v = 0
         self.nextSector()
-        self._cycle = 0
+        self.cycle = 0
 
     def nextSector(self):
-        self._cur_sector += 1
-        self._cur_sector = self._cur_sector % 13
-        return self._cur_sector
+        self.cur_sector += 1
+        self.cur_sector = self.cur_sector % 13
+        return self.cur_sector
 
     def fireHammers(self):
-        # print("{:020b}".format(self._input.v))
+        # print("{:020b}".format(self.input.v))
         for i in range(20):
-            if self._input.pwire(i).v:
+            if self.input.pwire(i).v:
                 self.punchChar(i)
 
     def initLine(self):
-        self._line = [' '] * 22
+        self.line = [' '] * 22
 
     def peekLine(self):
-        return "".join(self._line)
+        return "".join(self.line)
 
     def advanceLine(self):
         # print previous line
         line = self.peekLine()
-        print(">>> {}|{}|".format(self._cur_color, line))
+        print(">>> {}|{}|".format(self.cur_color, line))
         self.initLine()
 
     def punchChar(self, bit):
-        (s, pos) = self.getChar(self._cur_sector, bit)
+        (s, pos) = self.getChar(self.cur_sector, bit)
         if s is not None:
-            self._line[pos:(pos+len(s))] = list(s)
+            self.line[pos:(pos+len(s))] = list(s)
 
     def getChar(self, sector, bit):
         if bit == 0:
-            return (_specialChars[bit][self._cur_sector], 16)
+            return (specialChars[bit][self.cur_sector], 16)
         elif bit == 1:
-            return (_specialChars[bit][self._cur_sector], 19)
+            return (specialChars[bit][self.cur_sector], 19)
         elif bit <= 17 and bit >= 3:
             if sector <= 9:
-                return (str(self._cur_sector), bit-3)
-            elif self._cur_sector == 10 or self._cur_sector == 11:
+                return (str(self.cur_sector), bit-3)
+            elif self.cur_sector == 10 or self.cur_sector == 11:
                 return('.', bit-3)
             else:
                 return('-', bit-3)
