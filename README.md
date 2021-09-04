@@ -1,4 +1,4 @@
-# inside4004
+# Inside the Intel 4004
 
 An RTL-level simulator for the Intel MCS-4 system, including the 4004 microprocessor, written in Python.
 
