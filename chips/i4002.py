@@ -6,7 +6,7 @@ from hdl import *
 
 
 class i4002:
-    def __init__(self, bank, chip, clk1, clk2, sync, data, cm):
+    def __init__(self, bank, chip, clk, sync, data, cm):
         self.bank = bank                            # The bank that this RAM belongs to. For dump purposes only.
         self.chip = chip                            # The chip number or identifier (0-3). Bit 1 is the model number (-1 or -2) and bit 0 is the P0 signal
         self.data = data                            # The data bus
@@ -21,7 +21,7 @@ class i4002:
         self.ram = [[0] * 16, [0] * 16, [0] * 16, [0] * 16] # The actual RAM cells
         self.status = [[0] * 4, [0] * 4, [0] * 4, [0] * 4]  # The actual status cells                    
    
-        self.timing = timing(clk1, clk2, sync)        # The timing module and associated callback functions
+        self.timing = timing(clk, sync)        # The timing module and associated callback functions
  
         @M22clk2
         def _():

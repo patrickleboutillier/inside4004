@@ -1,2 +1,2 @@
-export KEY_BUFFER='KEY_BUFFER='ddddddr,CL,CM,12*,M=+,8*,M=+,CM,SQ,q''
+export KEY_BUFFER='ddddddr,CL,CM,12*,M=+,8*,M=+,CM,SQ,q'
 export EXPECTED='>>>  |      14.422205 SQ    |'

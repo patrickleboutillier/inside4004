@@ -24,7 +24,7 @@ class MCS4:
         self.cm_rom = pwire()
         self.cm_ram = pbus()
         self.test = pwire()
-        self.CPU = i4004.i4004(self.clock.clk1, self.clock.clk2, self.data, self.cm_rom, self.cm_ram, self.test)
+        self.CPU = i4004.i4004(self.clock, self.data, self.cm_rom, self.cm_ram, self.test)
 
         self.PROM = []
         self.RAM = [None, [], [], None, [], None, None, None, []]
@@ -59,7 +59,7 @@ class MCS4:
             if callback is not None:
                 callback(nb)
             for i in range(8):
-                self.clock.tick(4)
+                self.clock.tick()
                 if i == 4 and dump:
                     self.dump(nb)
             nb += 1
