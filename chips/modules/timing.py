@@ -24,30 +24,6 @@ class timing:
             self.dispatch.append([[], [], [], []])
 
 
-    def tick0(self):
-        # A new step starts when clk1 goes high
-        self.slave = self.master
-
-    def tick1(self):
-        if self.gen_sync:
-            self.master = (self.master + 1) & 0b111
-        else:
-            if self.sync.v:
-                self.master = 0
-            else:
-                self.master += 1
-
-    def tick2(self):
-        pass
-
-    def tick3(self):
-        if self.gen_sync:
-            if self.slave == 6:
-                self.sync.v = 1
-            elif self.slave == 7:
-                self.sync.v = 0
-
-
     def now(self):
         return (self.slave, self.phase)
 

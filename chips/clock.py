@@ -23,14 +23,23 @@ class clock:
             for f in t.dispatch[t.slave][0]:
                 f() 
         for t in self.timings:
-            t.tick1()
+            if t.gen_sync:
+                t.master = (t.master + 1) & 0b111
+            else:
+                if t.sync.v:
+                    t.master = 0
+                else:
+                    t.master += 1
             for f in t.dispatch[t.slave][1]:
                 f()      
         for t in self.timings:
-            t.tick2()
             for f in t.dispatch[t.slave][2]:
                 f()      
         for t in self.timings:
-            t.tick3()
+            if t.gen_sync:
+                if t.slave == 6:
+                    t.sync.v = 1
+                elif t.slave == 7:
+                    t.sync.v = 0
             for f in t.dispatch[t.slave][3]:
                 f()                        
