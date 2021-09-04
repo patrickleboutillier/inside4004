@@ -38,3 +38,6 @@ An RTL-level simulator for the Intel MCS-4 system, including the 4004 microproce
     >>>  |              4    *  |
     >>>  |                      |
     ### DP[0] RND[F] ( )( )( ): q
+    
+# Paper
+A paper decribing the design of the 4004 was produced as an artefact for this project. See the [doc](./doc/) folder for more details. 
