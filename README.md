@@ -1,8 +1,8 @@
 # inside4004
 
-An RTL-level simulator for the Intel MCS-4 system, including the 4004 microprocesor, written in Python.
+An RTL-level simulator for the Intel MCS-4 system, including the 4004 microprocessor, written in Python.
 
-    $ ./141-PF.sh 
+    $ python3 141-PF/mcs4.py 141-PF/ROM.bin
     ### DP[0] RND[F] ( )( )( ): h
 
     Keyboard (enter a sequence of keys and press enter):
