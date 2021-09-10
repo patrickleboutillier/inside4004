@@ -120,3 +120,7 @@ class inst:
     # inh = (jin_fin & sc) | ((jun_jms | (jcn_isz & cond)) & ~sc)
     def inh(self):
         return ((self.jin() or self.fin()) and self.sc) or (((self.jun() or self.jms()) or ((self.jcn() or self.isz()) and self.cond)) and not self.sc)
+
+
+    def dump(self):
+        print("OPR/OPA:{:04b}/{:04b}  SC:{}".format(self.opr, self.opa, self.sc), end = '')
