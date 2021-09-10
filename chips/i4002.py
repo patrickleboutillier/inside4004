@@ -82,6 +82,11 @@ class i4002:
                 elif self.opa == 0b0111:
                     self.status[self.reg][3] = self.data.v
 
+        @X31
+        def _():    # Disconnect from bus
+            if self.ram_inst:
+                self.data.v = None
+
         @X32clk2
         def _():
             # If we are processing an SRC instruction, grab the selected RAM character
