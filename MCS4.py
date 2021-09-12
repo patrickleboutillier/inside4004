@@ -2,6 +2,7 @@ import sys
 import chips.i4001 as i4001, chips.i4002 as i4002, chips.i4004 as i4004
 import chips.clock as clock
 from hdl import *
+import hdl.uart as uart
 
 
 import argparse
@@ -11,20 +12,22 @@ parser.add_argument("-d", "--debug", help="output debug information",
                     action="store_true")      
 parser.add_argument("-o", "--optimize", help="optimize for speed",
                     action="store_true")             
+parser.add_argument("-kb", "--key_buffer", help="initialize key buffer")
 
 
 class MCS4:
     def __init__(self):
         global parser
-        self.ram_chip = 0                   # This represents the currently active RAM chip
 
         self.clock = clock.clock()
  
-        self.data = bus()
-        self.cm_rom = pwire()
-        self.cm_ram = pbus()
-        self.test = pwire()
-        self.CPU = i4004.i4004(self.clock.clk1, self.clock.clk2, self.data, self.cm_rom, self.cm_ram, self.test)
+        self.data = bus(4, 0, 0b00)
+        self.cm_rom = wire(0, 0b0101)
+        self.cm_ram = wire(0, 0b0110)
+        self.test = wire(0)
+        self.reset = wire(1, 0b0001)
+        self.data.v = 0
+        self.CPU = i4004.i4004(self.clock.clk1, self.clock.clk2, self.data, self.cm_rom, self.cm_ram, self.test, self.reset)
 
         self.PROM = []
         self.RAM = [None, [], [], None, [], None, None, None, []]
@@ -55,6 +58,8 @@ class MCS4:
     def run(self, callback=None):
         dump = self.args.debug
         nb = 0
+        uart.ready()
+        self.reset.v = 0
         while (True):
             if callback is not None:
                 callback(nb)

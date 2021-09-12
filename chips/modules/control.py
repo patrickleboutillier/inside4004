@@ -189,12 +189,12 @@ class control:
         def _():
             scratch.enableRegPairH()
             ioc.cm_rom.v = 1
-            ioc.cm_ram.v(ioc.ram_bank)
+            ioc.cm_ram.v = ioc.ram_bank & 1
         @X31
         def _():
             scratch.enableRegPairL()
             ioc.cm_rom.v = 0
-            ioc.cm_ram.v(0)
+            ioc.cm_ram.v = 0
 
         # FIN
         opr, opa = 0b0011, even
@@ -396,7 +396,7 @@ class control:
 
         # WRM, WMP, WRR, WR0/1/2/3
         opr, opa = 0b1110, [0b0000, 0b0001, 0b0010, 0b0100, 0b0101, 0b0110, 0b0111]
-        @X22clk1
+        @X21
         def _():
             inst.data.v = alu.acc
 

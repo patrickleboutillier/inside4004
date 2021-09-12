@@ -1,4 +1,5 @@
 import hdl
+import hdl.uart as uart
 
 
 class pwire():
@@ -18,5 +19,19 @@ class pwire():
 
 
 class wire():
-    def __init__(self, v=0):
-        self.v = v
+    def __init__(self, v, id=None):
+        self.id = id
+        self._v = v
+
+    @property
+    def v(self):
+        return self._v
+
+    @v.setter
+    def v(self, v):
+        self._v = v
+        if self.id is not None and uart.port is not None:
+            if v:
+                uart.wireOn(self.id)
+            else:
+                uart.wireOff(self.id)

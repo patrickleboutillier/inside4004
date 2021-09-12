@@ -2,9 +2,7 @@ from chips.modules.timing import *
 from hdl import *
 
 
-# This class implements the instruction processing part of the CPU. It contains the DC (double cycle) flip-flop, the condition register.
-# as well as the OPA and OPR register, which are populated via the data bus.
-# It is also responsible for everything that happens during M1 and M2 in the CPU.
+# This class implements the IO part of the CPU. 
 
 
 class io:
@@ -17,17 +15,21 @@ class io:
         self.ram_bank = 1
 
         @A31        # Turn on cm-rom and cm-ram for the 4001 and 4002 chips that are listening.
-        @M21
         def _():
             self.cm_rom.v = 1
+            self.cm_ram.v = self.ram_bank & 1
+
+        @M21
+        def _():
             if self.inst.io():
-                self.cm_ram.v(self.ram_bank)
+                self.cm_rom.v = 1
+                self.cm_ram.v = self.ram_bank & 1
 
         @M11        # Turn on cm-rom and cm-ram for the 4001 and 4002 chips that are listening.
         @X11
         def _():
             self.cm_rom.v = 0
-            self.cm_ram.v(0)
+            self.cm_ram.v = 0 
 
 
     def testZero(self):

@@ -23,40 +23,40 @@ class i4001:
 
         self.timing = timing(clk1, clk2, sync)            # The timing module and associated callback functions
 
-        @A12clk1
-        def _():
+        #@A12clk1
+        #def _():
             # Record addrl
-            self.addrl = self.data.v
+        #    self.addrl = self.data.v
 
-        @A22clk1
-        def _():
+        #@A22clk1
+        #def _():
             # Record addrh
-            self.addrh = self.data.v
+        #    self.addrh = self.data.v
 
-        @A32clk1
-        def _():
+        #@A32clk1
+        #def _():
             # If cm is on, we are the selected ROM chip for instructions if self.chipnum == self.data.v
-            if self.cm.v:
-                self.rom_select = 1 if self.chipnum == self.data.v else 0
+            #if self.cm.v:
+            #    self.rom_select = 1 if self.chipnum == self.data.v else 0
 
-        @M12clk1
-        def _():
+        #@M12clk1
+        #def _():
             # If we are the selected chip for instructions, send out opr
-            if self.rom_select:
-                opr = self.rom[self.addrh << 4 | self.addrl] >> 4
-                self.data.v = opr
+        #    if self.rom_select:
+        #        opr = self.rom[self.addrh << 4 | self.addrl] >> 4
+        #        self.data.v = opr
 
         @M12clk2
         def _():
             # opr is on the bus, no matter who put it there (us or another ROM chip). Check if an I/O instruction is in progress
             self.io_inst = 1 if self.data.v == 0b1110 else 0
 
-        @M22clk1
-        def _():
+        #@M22clk1
+        #def _():
             # If we are the selected chip for instructions, send out opr
-            if self.rom_select:
-                self.opa = self.rom[self.addrh << 4 | self.addrl] & 0xF
-                self.data.v = self.opa
+        #    if self.rom_select:
+        #        self.opa = self.rom[self.addrh << 4 | self.addrl] & 0xF
+        #        self.data.v = self.opa
 
         @M22clk2
         def _():
@@ -64,9 +64,9 @@ class i4001:
             self.rdr = 1 if self.io_inst and self.data.v == 0b1010 else 0
             self.wrr = 1 if self.io_inst and self.data.v == 0b0010 else 0
 
-        @X11    # Disconnect from bus
-        def _():
-            self.data.v = None
+        #@X11    # Disconnect from bus
+        #def _():
+        #    self.data.v = None
 
         @X22clk1
         def _():

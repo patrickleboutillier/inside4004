@@ -22,7 +22,7 @@ for r in PROM:
     MCS4.addROM(r)
 
 # Create 2 RAMS
-RAM = [i4002.i4002(0, 0, clk1, clk2, sync, data, cm_ram.pwire(0)), i4002.i4002(0, 1, clk1, clk2, sync, data, cm_ram.pwire(0))]
+RAM = [i4002.i4002(0, 0, clk1, clk2, sync, data, cm_ram), i4002.i4002(0, 1, clk1, clk2, sync, data, cm_ram)]
 for r in RAM:
     MCS4.addRAM(0, r)
 
@@ -39,6 +39,9 @@ for i in range(4):
     pbuf(keyboard.output.pwire(i), PROM[1].io.pwire(i))
 pbuf(keyboard.advance, PROM[2].io.pwire(3))
 kb = os.environ.get('KEY_BUFFER')
+if kb is not None:
+    keyboard.appendKeyBuffer(kb)
+kb = MCS4.args.key_buffer
 if kb is not None:
     keyboard.appendKeyBuffer(kb)
 

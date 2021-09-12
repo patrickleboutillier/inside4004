@@ -18,7 +18,7 @@ class timing(sensor):
         self.master = 0 
         if sync is None:
             self.gen_sync = True
-            self.sync = wire()
+            self.sync = wire(0, 0b0100)
         else:
             self.gen_sync = False
             self.sync = sync
@@ -66,6 +66,8 @@ class timing(sensor):
 
 
 # Decorators
+
+
 def A12(f):
     #for i in [0, 2, 3]:
     #    active_timing.dispatch[0][i].append(f)   
