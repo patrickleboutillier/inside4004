@@ -16,8 +16,8 @@ CPU = MCS4.CPU
 sync = CPU.sync
 
 # Create 5 ROMs
-PROM = [i4001.i4001(0, 0, clk1, clk2, sync, data, cm_rom), i4001.i4001(1, 1, clk1, clk2, sync, data, cm_rom), i4001.i4001(2, 0, clk1, clk2, sync, data, cm_rom), 
-    i4001.i4001(3, 0, clk1, clk2, sync, data, cm_rom), i4001.i4001(4, 0, clk1, clk2, sync, data, cm_rom)]
+PROM = [i4001.i4001(0, 0, clk1, clk2, sync, data, cm_rom), i4001.i4001(1, 1, clk1, clk2, sync, data, cm_rom), i4001.i4001(2, 0, clk1, clk2, sync, data, cm_rom)] 
+    # i4001.i4001(3, 0, clk1, clk2, sync, data, cm_rom), i4001.i4001(4, 0, clk1, clk2, sync, data, cm_rom)]
 for r in PROM:
     MCS4.addROM(r)
 
