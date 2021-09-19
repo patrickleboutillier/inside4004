@@ -37,21 +37,22 @@ class i4002:
         @X22clk1
         def _():
             if self.ram_inst:
+                pass
                 # A RAM/I/O instruction is on progress, execute the proper operation according to the value of opa
-                if self.opa == 0b1000:
-                    self.data.v = self.ram[self.reg][self.char]
-                elif self.opa == 0b1001:
-                    self.data.v = self.ram[self.reg][self.char]
-                elif self.opa == 0b1011:
-                    self.data.v = self.ram[self.reg][self.char]
-                elif self.opa == 0b1100:
-                    self.data.v = self.status[self.reg][0]
-                elif self.opa == 0b1101:
-                    self.data.v = self.status[self.reg][1]
-                elif self.opa == 0b1110:
-                    self.data.v = self.status[self.reg][2]
-                elif self.opa == 0b1111:
-                    self.data.v = self.status[self.reg][3]
+                #if self.opa == 0b1000:
+                #    self.data.v = self.ram[self.reg][self.char]
+                #elif self.opa == 0b1001:
+                #    self.data.v = self.ram[self.reg][self.char]
+                #elif self.opa == 0b1011:
+                #    self.data.v = self.ram[self.reg][self.char]
+                #elif self.opa == 0b1100:
+                #    self.data.v = self.status[self.reg][0]
+                #elif self.opa == 0b1101:
+                #    self.data.v = self.status[self.reg][1]
+                #elif self.opa == 0b1110:
+                #    self.data.v = self.status[self.reg][2]
+                #elif self.opa == 0b1111:
+                #    self.data.v = self.status[self.reg][3]
 
         @X22clk2
         def _():
@@ -85,7 +86,8 @@ class i4002:
         @X31
         def _():    # Disconnect from bus
             if self.ram_inst:
-                self.data.v = None
+                pass
+                # self.data.v = None
 
         @X32clk2
         def _():

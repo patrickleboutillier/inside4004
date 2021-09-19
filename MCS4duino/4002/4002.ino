@@ -21,7 +21,7 @@ byte chr = 0 ;
 bool src = 0 ;
 bool ram_inst = 0 ;
 byte chip_select = 0 ;
-byte RAM[4][16][4] ;
+byte RAM[4][4][16] ;
 byte STATUS[4][4][4] ;
 
 
@@ -42,6 +42,7 @@ void reset(){
 
 void setup(){
   Serial.begin(115200) ;
+  Serial.println("4002") ;
   pinMode(RESET, INPUT) ;
   pinMode(CM, INPUT) ;
   pinMode(CLK1, INPUT) ;
@@ -63,10 +64,12 @@ void setup(){
     if (digitalRead(CM)){
       // If we are the selected chip for RAM/I/O and cm is on, the CPU is telling us that we are processing a RAM/I/O instruction
       // NOTE: We could have just checked that opr == 0b1110 during M1...
+      Serial.print("opa ") ;
+      Serial.println(opa) ;
       ram_inst = 1 ;
     }
     else {
-      ram_inst = 1 ;
+      ram_inst = 0 ;
     }
   }) ;
 
@@ -98,14 +101,24 @@ void setup(){
           data = STATUS[chip_select][reg][3] ;
           break ;
       }
-
-      //if (data != -1){
-      //  pinMode(DATA_3, OUTPUT) ;
-      //  pinMode(DATA_2, OUTPUT) ;
-      //  pinMode(DATA_1, OUTPUT) ;
-      //  pinMode(DATA_0, OUTPUT) ;         
-      //  write_data(data) ;
-      //}
+          
+      if (data != -1){
+        Serial.print("IO write ") ;
+        Serial.print(chip_select) ;
+        Serial.print(" ") ;
+        Serial.print(opa) ;
+        Serial.print(" ") ;
+        Serial.print(reg) ;
+        Serial.print(" ") ;
+        Serial.print(chr) ;
+        Serial.print(" ") ;
+        Serial.println(data) ;  
+        pinMode(DATA_3, OUTPUT) ;
+        pinMode(DATA_2, OUTPUT) ;
+        pinMode(DATA_1, OUTPUT) ;
+        pinMode(DATA_0, OUTPUT) ;         
+        write_data(data) ;
+      }
     }
   }) ;
 
@@ -115,40 +128,64 @@ void setup(){
       // An SRC instruction is in progress
       byte data = read_data() ;
       chip_select = data >> 2 ;
-      src = 1 ;
       // Grab the selected RAM register
       reg = data & 0b0011 ;
+      src = 1 ;
+      Serial.print("SRC ") ;
+      Serial.print(data >> 2) ;
+      Serial.print(" ") ;
+      Serial.println(reg) ;
     }
     else {
       src = 0 ;
     }                
     if (ram_inst){
-      // A RAM/I/O instruction is on progress, execute the proper operation according to the value of opa
+      // A RAM/I/O instruction is in progress, execute the proper operation according to the value of opa
+      byte data = read_data() ;
+      bool wrote = 0 ;
+      
       switch (opa){
         case 0b0000:
-          RAM[chip_select][reg][chr] = read_data() ;
+          RAM[chip_select][reg][chr] = data ;
+          wrote = 1 ;
           break ;
-        case 0b0001: {
-          byte data = read_data() ;
+        case 0b0001:
           if (chip_select == 0){
             digitalWrite(PRN_ADV, (data >> 3) & 1) ;
             digitalWrite(PRN_FIRE, (data >> 1) & 1) ;
             digitalWrite(PRN_COLOR, data & 1) ;
           }
+          wrote = 1 ;
           break ;
-        }
         case 0b0100:
-          STATUS[chip_select][reg][0] = read_data() ;
+          STATUS[chip_select][reg][0] = data ;
+          wrote = 1 ;
           break ;
         case 0b0101:
-          STATUS[chip_select][reg][1] = read_data() ;
+          STATUS[chip_select][reg][1] = data ;
+          wrote = 1 ;
           break ;
         case 0b0110:
-          STATUS[chip_select][reg][2] = read_data() ;
+          STATUS[chip_select][reg][2] = data ;
+          wrote = 1 ;
           break ;
         case 0b0111:
-          STATUS[chip_select][reg][3] = read_data() ;
+          STATUS[chip_select][reg][3] = data ;
+          wrote = 1 ;
           break ;
+      }
+
+      if (wrote){
+        Serial.print("IO read ") ;
+        Serial.print(chip_select) ;
+        Serial.print(" ") ;
+        Serial.print(opa) ;
+        Serial.print(" ") ;
+        Serial.print(reg) ;
+        Serial.print(" ") ;
+        Serial.print(chr) ;
+        Serial.print(" ") ;
+        Serial.println(data) ;
       }
     }
   }) ;
@@ -169,6 +206,8 @@ void setup(){
     // If we are processing an SRC instruction, grab the selected RAM character
     if (src){
       chr = read_data() ;
+      Serial.print("SRC char ") ;
+      Serial.println(chr) ;
     }
   }) ;
 }
@@ -179,7 +218,7 @@ void loop(){
     return reset() ;
   }
 
-  //TIMING.loop() ;
+  TIMING.loop() ;
 }
 
 
