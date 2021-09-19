@@ -396,7 +396,7 @@ class control:
 
         # WRM, WMP, WRR, WR0/1/2/3
         opr, opa = 0b1110, [0b0000, 0b0001, 0b0010, 0b0100, 0b0101, 0b0110, 0b0111]
-        @X22clk1
+        @X21
         def _():
             inst.data.v = alu.acc
 

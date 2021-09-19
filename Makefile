@@ -24,7 +24,7 @@ asm:
 calc:
 	@for t in test/141-PF/*.calc ; do echo -n "$$t: " ; \
 		. $$t ; \
-		GOT=$$(./141-PF.sh -o | grep -e '[*M]  |' -e '|\.\.\.' -e 'SQ    |' | tail -n1) ; \
+		GOT=$$(./141-PF.sh -o -kb "$$KEY_BUFFER" | grep -e '[*M]  |' -e '|\.\.\.' -e 'SQ    |' | tail -n1) ; \
 		if [ "$$GOT" == "$$EXPECTED" ] ; then \
 			echo OK ; \
 		else \
