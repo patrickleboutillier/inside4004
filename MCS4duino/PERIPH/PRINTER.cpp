@@ -3,13 +3,13 @@
 
 const char *specialChars_0[] = {"<>",  "+ ",  "- ",  "X ",  "/ ",  "M+",  "M-",  "^ ",  "= ",  "SQ",  "% ",  "C ",  "R "} ;
 const char *specialChars_1[] = {"#  ", "*  ", "I  ", "II ", "III", "M+ ", "M- ", "T  ", "K  ", "E  ", "Ex ", "C  ", "M  "} ;
-const char *digits[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"} ;
+const char *digits[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"} ;
 const char *dot = "." ;
-const char *dash = "." ;
+const char *dash = "-" ;
 
 // Units are CPU cycles
-int sector_pulse =  (5 * 1000) / 22 ;
-int sector_period = (28 * 1000) / 22 ;
+long sector_pulse =  (5 * 1000) / 22 ;
+long sector_period = (28 * 1000) / 22 ;
 
 
 PRINTER::PRINTER(i4003 *input, int pin_fire, int pin_advance, int pin_color, int pin_sector, int pin_index, int pin_sync){
@@ -31,6 +31,30 @@ PRINTER::PRINTER(i4003 *input, int pin_fire, int pin_advance, int pin_color, int
 
 
 void PRINTER::loop(){
+  // TODO: For now we use the sync signal as a cycle indicator.
+  // Once the 4004 is in the Nano, we will know the real clock period and will be able to 
+  // have the printer manage it's own timing independently, based on setting sector_pulse and sector_period.
+  if (digitalRead(_pin_sync)){
+    if (! _cur_sync){
+      if (_cur_cycle == 0){
+          startSectorPulse() ;
+      }
+      else if (_cur_cycle == sector_pulse){
+          endSectorPulse() ;
+      }
+      else if (_cur_cycle == sector_period){
+          endSectorPeriod() ;
+      }
+      else {
+          _cur_cycle += 1 ;
+      }
+      _cur_sync = 1 ;
+    }
+  }
+  else {
+    _cur_sync = 0 ; 
+  }
+  
   if (digitalRead(_pin_fire)){
       if (! _cur_fire){
         fireHammers() ;
@@ -55,32 +79,6 @@ void PRINTER::loop(){
   if (digitalRead(_pin_color)){
     _cur_color = '-' ;    // Set color to "red", meaning negative value.
   }  
-
-  // TODO: For now we use the sync signal as a cycle indicator.
-  // Once the 4004 is in the Nano, we will know the real clock period and will be able to 
-  // have the printer manage it's own timing independently, based on setting sector_pulse and sector_period.
-  if (digitalRead(_pin_sync)){
-    if (! _cur_sync){
-      if (_cur_cycle == 0){
-          startSectorPulse() ;
-          return ;
-      }
-      else if (_cur_cycle == sector_pulse){
-          endSectorPulse() ;
-          return ;
-      }
-      else if (_cur_cycle == sector_period){
-          endSectorPeriod() ;
-          return ;
-      }
-      else {
-          _cur_cycle += 1 ;
-      }
-    }
-  }
-  else {
-    _cur_sync = 0 ; 
-  }
 }
 
 
@@ -115,19 +113,11 @@ unsigned long sector_dur = 0 ;
 void PRINTER::nextSector(){
   _cur_sector += 1 ;
   _cur_sector = _cur_sector % 13 ;
-  //Serial.print("sector: ") ;
-  //Serial.print(_cur_sector) ;
-  //Serial.print(", duration: ") ;
-  //unsigned long now = millis() ;
-  //Serial.print(now - sector_dur) ;
-  //Serial.println("ms") ;
-  //sector_dur = now ;
 }
 
 
 
 void PRINTER::fireHammers(){
-  Serial.println("FIRE") ;
   for (int i = 0 ; i < 20 ; i++){
     if (_input->getBit(i)){
       punchChar(i) ;
@@ -175,8 +165,6 @@ void PRINTER::punchChar(byte b){
     }
   }
   
-  Serial.print("str: ") ;
-  Serial.println(str) ;
   if (str != NULL){ 
     strncpy(_line + pos, str, strlen(str)) ;
   }

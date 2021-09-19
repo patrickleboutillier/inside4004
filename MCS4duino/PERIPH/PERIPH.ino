@@ -13,12 +13,12 @@
 #define KBD_ROW_0     3
 #define SYNC          2
 
-#define ADVANCE       A3
-#define FIRE          A4
-#define COLOR         A5
+#define PRN_ADV       A3
+#define PRN_FIRE      A4
+#define PRN_COLOR     A5
 
 i4003 PSHIFT(PRN_SHFT_CLK, SHFT_DATA, 0xFFFFF) ;
-PRINTER PRINTER(&PSHIFT, FIRE, ADVANCE, COLOR, PRN_SECTOR, PRN_INDEX, SYNC) ;
+PRINTER PRINTER(&PSHIFT, PRN_FIRE, PRN_ADV, PRN_COLOR, PRN_SECTOR, PRN_INDEX, SYNC) ;
 
 
 void setup(){
@@ -30,9 +30,9 @@ void setup(){
   pinMode(PRN_ADV_BTN, OUTPUT) ;
   digitalWrite(PRN_ADV_BTN, 0) ;
   pinMode(SYNC, INPUT) ;
-  pinMode(ADVANCE, INPUT) ;
-  pinMode(FIRE, INPUT) ;
-  pinMode(COLOR, INPUT) ;
+  pinMode(PRN_ADV, INPUT) ;
+  pinMode(PRN_FIRE, INPUT) ;
+  pinMode(PRN_COLOR, INPUT) ;
   pinMode(KBD_ROW_3, OUTPUT) ;
   digitalWrite(KBD_ROW_3, 0) ;
   pinMode(KBD_ROW_2, OUTPUT) ;

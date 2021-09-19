@@ -24,6 +24,12 @@ void i4003::loop(){
 }
 
 
+long i4003::getReg(){
+  return _reg ;
+}
+
+
 bool i4003::getBit(int b){
-  return _reg & (1 << b) ;
+  long t = 1L << b ;
+  return _reg & t ;
 }
