@@ -6,7 +6,7 @@ from hdl import *
 
 
 class i4001:
-    def __init__(self, chipnum, io_cfg, clk1, clk2, sync, data, cm):
+    def __init__(self, chipnum, io_cfg, clk, sync, data, cm):
         self.chipnum = chipnum                          # The chip number or identifier (0-15), normally burnt right into the chip.
         self.data = data                                # The data bus
         self.cm = cm                                    # The command line
@@ -21,19 +21,19 @@ class i4001:
         self.rdr = 0                                    # 1 if the current instruction is RDR
         self.wrr = 0                                    # 1 if the current instruction is wwr
 
-        self.timing = timing(clk1, clk2, sync)            # The timing module and associated callback functions
+        self.timing = timing(clk, sync)            # The timing module and associated callback functions
 
-        @A12clk2
+        @A12clk1
         def _():
             # Record addrl
             self.addrl = self.data.v
 
-        @A22clk2
+        @A22clk1
         def _():
             # Record addrh
             self.addrh = self.data.v
 
-        @A32clk2
+        @A32clk1
         def _():
             # If cm is on, we are the selected ROM chip for instructions if self.chipnum == self.data.v
             if self.cm.v:
@@ -64,13 +64,11 @@ class i4001:
             self.rdr = 1 if self.io_inst and self.data.v == 0b1010 else 0
             self.wrr = 1 if self.io_inst and self.data.v == 0b0010 else 0
 
-        @X22clk1
+        @X11    # Disconnect from bus
         def _():
-            # Send data for RDR
-            if self.io_select and self.rdr:
-                self.data.v = self.io._v
+            self.data.v = None
 
-        @X22clk2
+        @X22clk1
         def _():
             if self.cm.v:
                 # A SRC instruction is in progress
@@ -82,15 +80,24 @@ class i4001:
                     self.io_select = 0
             else:
                 self.src = 0
-                if self.io_select and self.wrr:
-                    # Grab data for WRR
-                    self.io.v(self.data.v)
+                if self.io_select:
+                    if self.wrr:
+                        # Grab data for WRR
+                        self.io.v(self.data.v)
+                    elif self.rdr:
+                        # Send data for RDR
+                        self.data.v = self.io._v
 
-        @X32clk2
+        @X31
         def _():
-            if self.src:
-                # Data @ X3 is ignored
-                pass
+            if self.io_select and self.rdr:
+                self.data.v = None
+
+        # @X32clk1
+        # def _():
+        #     if self.src:
+        #         # Data @ X3 is ignored
+        #         pass
 
 
     # This method is used to "program" the ROM from a filehandle.

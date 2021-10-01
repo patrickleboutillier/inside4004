@@ -47,6 +47,10 @@ class addr:
         def _():
             self.data.v = self.ph
 
+        @M11    # Disconnect from bus
+        def _():
+            self.data.v = None
+
         @A12clk2    # Increment pl
         def _():
             sum = self.pl + 1

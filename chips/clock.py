@@ -11,23 +11,35 @@ from hdl import *
 #       |--   cycle   --|--   cycle   --|--   cycle   --|--   cycle   --|
 
 
-class clock():
+class clock:
     def __init__(self):
-        self.phx = pbus(2)
-        self.clk1 = self.phx.pwire(1)
-        self.clk2 = self.phx.pwire(0)
-        self.n = 0
-        self.map = [0b10, 0b00, 0b01, 0b00]
+        self.timings = []
 
         
-    def tick(self, nb=1):
-        for _ in range(nb):
-            if self.n == 0:
-                self.phx.v(0b10)
-            elif self.n == 1:
-                self.phx.v(0b00)
-            elif self.n == 2:
-                self.phx.v(0b01)
-            else:   # n == 3
-                self.phx.v(0b00)
-            self.n = (self.n + 1) % 4
+    def tick(self):
+        for t in self.timings:
+            # A new step starts when clk1 goes high
+            t.slave = t.master
+            for f in t.dispatch[t.slave][0]:
+                f() 
+        for t in self.timings:
+            if t.gen_sync:
+                t.master = (t.master + 1) & 0b111
+            else:
+                if t.sync.v:
+                    t.master = 0
+                else:
+                    t.master += 1
+            for f in t.dispatch[t.slave][1]:
+                f()      
+        for t in self.timings:
+            for f in t.dispatch[t.slave][2]:
+                f()      
+        for t in self.timings:
+            if t.gen_sync:
+                if t.slave == 6:
+                    t.sync.v = 1
+                elif t.slave == 7:
+                    t.sync.v = 0
+            for f in t.dispatch[t.slave][3]:
+                f()                        

@@ -5,8 +5,8 @@ from hdl import *
 
 
 class i4004:
-    def __init__(self, clk1, clk2, data, cm_rom, cm_ram, test):
-        self.timing = timing.timing(clk1, clk2, None)
+    def __init__(self, clk, data, cm_rom, cm_ram, test):
+        self.timing = timing.timing(clk, None)
         self.sync = self.timing.sync
         self.data = data
         self.test = test

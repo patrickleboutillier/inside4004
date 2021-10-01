@@ -1,2 +1,2 @@
-export KEY_BUFFER='q'
-export EXPECTED=''
+export KEY_BUFFER='123456789*,100000=,q'
+export EXPECTED='>>>  | 12345678900000    *  |'

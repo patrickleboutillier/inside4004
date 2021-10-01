@@ -8,9 +8,6 @@ test: hdl chips asm calc
 hdl:
 	$(PYTHON) -m unittest discover -s test/hdl
 
-chips:
-	$(PYTHON) -m unittest discover -s test/chips
-
 asm:
 	@for t in test/asm/[0-9]*.py ; do echo -n "$$t: " ; \
 		$(PYTHON) $$t > /tmp/rom ; \
