@@ -8,8 +8,8 @@ const char *dot = "." ;
 const char *dash = "-" ;
 
 // Units are CPU cycles
-long sector_pulse =  (5 * 1000) / 22 ;
-long sector_period = (28 * 1000) / 22 ;
+const long sector_pulse =  (5 * 1000) / 22 ;
+const long sector_period = (28 * 1000) / 22 ;
 
 
 PRINTER::PRINTER(i4003 *input, int pin_fire, int pin_advance, int pin_color, int pin_sector, int pin_index, int pin_sync){
@@ -19,14 +19,18 @@ PRINTER::PRINTER(i4003 *input, int pin_fire, int pin_advance, int pin_color, int
   _pin_color = pin_color ;
   _pin_sector = pin_sector ;
   _pin_sync = pin_sync ;
+  reset() ;
+}
+
+
+void PRINTER::reset(){
   strcpy(_line, "                      ") ;
-  
   _cur_sector = 0 ; 
   _cur_cycle = 0 ;
   _cur_fire = 0 ;
   _cur_advance = 0 ;
   _cur_color = ' ' ;
-  _cur_sync = 0 ;
+  _cur_sync = 0 ;  
 }
 
 
@@ -83,7 +87,6 @@ void PRINTER::loop(){
 
 
 void PRINTER::startSectorPulse(){
-  _cur_cycle = 0 ;
   digitalWrite(_pin_sector, 1) ;
   if (_cur_sector == 0){
       digitalWrite(_pin_index, 1) ;
@@ -93,36 +96,32 @@ void PRINTER::startSectorPulse(){
 
 
 void PRINTER::endSectorPulse(){
-  _cur_cycle = sector_pulse ;
   digitalWrite(_pin_sector, 0) ;
   _cur_cycle += 1 ;
 }
 
 
 void PRINTER::endSectorPeriod(){
-  _cur_cycle = sector_period ;
   if (_cur_sector == 0){
       digitalWrite(_pin_index, 0) ;
   }
-  nextSector() ;
+  _cur_sector = (_cur_sector + 1) % 13 ;
+  //Serial.print("SECTOR ") ;
+  //Serial.println(_cur_sector) ;
   _cur_cycle = 0 ;
 }
 
 
-unsigned long sector_dur = 0 ;
-void PRINTER::nextSector(){
-  _cur_sector += 1 ;
-  _cur_sector = _cur_sector % 13 ;
-}
-
-
-
 void PRINTER::fireHammers(){
+  //Serial.print("FIRE HAMMERS ") ;
+  //Serial.println(_input->getReg() | 0b100000000000000000000, BIN) ;
   for (int i = 0 ; i < 20 ; i++){
     if (_input->getBit(i)){
       punchChar(i) ;
     }
   }
+  //Serial.print("  ") ;
+  //Serial.println(_line) ;
 }
 
 

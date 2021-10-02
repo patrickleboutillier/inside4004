@@ -7,6 +7,7 @@
 class i4003 {
   public:
     i4003(int pin_clock, int pin_data_in, long mask) ;
+    void reset() ;
     void loop() ;
     long getReg() ;
     bool getBit(int b) ;

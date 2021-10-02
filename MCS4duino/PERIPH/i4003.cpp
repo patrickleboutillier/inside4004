@@ -5,6 +5,11 @@ i4003::i4003(int pin_clock, int pin_data_in, long mask){
   _pin_clock = pin_clock ;
   _pin_data_in = pin_data_in ;
   _mask = mask ;
+  reset() ;
+}
+
+
+void i4003::reset(){
   _reg = 0 ;
   _cur_clock = 0 ;
 }

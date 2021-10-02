@@ -3,7 +3,7 @@ import serial
 COM = "COM4"
 port = None
 try:
-    port = serial.Serial(COM, baudrate=115200)    
+    port = serial.Serial(COM, baudrate=500000)    
 except:
   print("Can't open serial connection to {}".format(COM))
 

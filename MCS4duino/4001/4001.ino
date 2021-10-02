@@ -46,6 +46,7 @@ void reset(){
 
 void setup(){
   Serial.begin(115200) ;
+  Serial.println("4001") ;
   pinMode(RESET, INPUT) ;
   pinMode(CM, INPUT) ;
   pinMode(CLK1, INPUT) ;
@@ -69,13 +70,11 @@ void setup(){
   
   TIMING.A12clk1([]{ 
     addrl = read_data() ;
-    // Serial.println(addrl) ;
   }) ;
 
 
   TIMING.A22clk1([]{
     addrh = read_data() ;
-    // Serial.println(addrh) ;
   }) ;
 
   
@@ -83,7 +82,6 @@ void setup(){
     // If cm is on, we are the selected ROM chip for instructions if chipnum == data
     if (digitalRead(CM)){
       chip_select = read_data() ;
-      // Serial.println(chip_select) ;
     }
   }) ;  
 
@@ -96,8 +94,6 @@ void setup(){
     // If we are the selected chip for instructions, send out opr
     int addr = (chip_select * 256) + (addrh << 4 | addrl) ;
     byte opr = pgm_read_byte(ROM + addr) >> 4 ;
-    //Serial.print("opr:") ;
-    //Serial.println(opr) ;
     write_data(opr) ;
   }) ;
 
@@ -112,20 +108,19 @@ void setup(){
     // If we are the selected chip for instructions, send out opa
     int addr = (chip_select * 256) + (addrh << 4 | addrl) ;
     byte opa = pgm_read_byte(ROM + addr) & 0xF ;
-    //Serial.print("opa:") ;
-    //Serial.println(opa) ;
     write_data(opa) ;
   }) ;
 
 
   TIMING.M22clk2([]{
-    // opr is on the bus, no matter who put it there (us or another ROM chip). Check if an I/O instruction is in progress
-    rdr = (io_inst && (read_data() == 0b1010) ? 1 : 0) ;
-    wrr = (io_inst && (read_data() == 0b0010) ? 1 : 0) ;
+    // opa is on the bus, no matter who put it there (us or another ROM chip). 
+    byte data = read_data() ;
+    rdr = (io_inst && (data == 0b1010) ? 1 : 0) ;
+    wrr = (io_inst && (data == 0b0010) ? 1 : 0) ;
   }) ;
 
    
-  TIMING.X11([](){
+  TIMING.X12clk1([](){
     // Disconnect from bus
     pinMode(DATA_3, INPUT) ;
     pinMode(DATA_2, INPUT) ;
@@ -154,7 +149,7 @@ void setup(){
   }) ;
 
                         
-  TIMING.X31([]{
+  TIMING.X32clk1([]{
     if (rdr){
       // Disconnect from bus
       pinMode(DATA_3, INPUT) ;

@@ -7,11 +7,11 @@
 class PRINTER {
   public:
     PRINTER(i4003 *input, int pin_fire, int pin_advance, int pin_color, int pin_sector, int pin_index, int pin_sync) ;
+    void reset() ;
     void loop() ;
     void startSectorPulse() ;
     void endSectorPulse() ;
     void endSectorPeriod() ;
-    void nextSector() ;
     void fireHammers() ;
     void advanceLine() ;
     void punchChar(byte b) ;

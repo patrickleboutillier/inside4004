@@ -33,6 +33,17 @@ void reset(){
   src = 0 ;
   ram_inst = 0 ;
   chip_select = 0 ;
+
+  for (int i = 0 ; i < 4  ; i++){
+    for (int j = 0 ; j < 4 ; j++){
+      for (int k = 0 ; k < 16 ; k++){
+        RAM[i][j][k] = 0 ; 
+      }
+      for (int k = 0 ; k < 4 ; k++){
+        STATUS[i][j][k] = 0 ; 
+      }
+    }
+  }
   
   digitalWrite(PRN_ADV, 0) ;
   digitalWrite(PRN_FIRE, 0) ;
@@ -75,55 +86,6 @@ void setup(){
 
 
   TIMING.X22clk1([]{
-    if (ram_inst){
-      int data = -1 ;
-      // A RAM/I/O instruction is on progress, execute the proper operation according to the value of opa
-      switch (opa){
-        case 0b1000: 
-          data = RAM[chip_select][reg][chr] ;
-          break ;
-        case 0b1001:
-          data = RAM[chip_select][reg][chr] ;
-          break ;
-        case 0b1011:
-          data = RAM[chip_select][reg][chr] ;
-          break ;
-        case 0b1100:
-          data = STATUS[chip_select][reg][0] ;
-          break ;
-        case 0b1101:
-          data = STATUS[chip_select][reg][1] ;
-          break ;
-        case 0b1110:
-          data = STATUS[chip_select][reg][2] ;
-          break ;
-        case 0b1111:
-          data = STATUS[chip_select][reg][3] ;
-          break ;
-      }
-          
-      if (data != -1){
-        Serial.print("IO write ") ;
-        Serial.print(chip_select) ;
-        Serial.print(" ") ;
-        Serial.print(opa) ;
-        Serial.print(" ") ;
-        Serial.print(reg) ;
-        Serial.print(" ") ;
-        Serial.print(chr) ;
-        Serial.print(" ") ;
-        Serial.println(data) ;  
-        pinMode(DATA_3, OUTPUT) ;
-        pinMode(DATA_2, OUTPUT) ;
-        pinMode(DATA_1, OUTPUT) ;
-        pinMode(DATA_0, OUTPUT) ;         
-        write_data(data) ;
-      }
-    }
-  }) ;
-
-
-  TIMING.X22clk2([]{
     if (digitalRead(CM)){
       // An SRC instruction is in progress
       byte data = read_data() ;
@@ -131,59 +93,110 @@ void setup(){
       // Grab the selected RAM register
       reg = data & 0b0011 ;
       src = 1 ;
-      Serial.print("SRC ") ;
-      Serial.print(data >> 2) ;
-      Serial.print(" ") ;
-      Serial.println(reg) ;
     }
     else {
       src = 0 ;
     }                
+    
     if (ram_inst){
       // A RAM/I/O instruction is in progress, execute the proper operation according to the value of opa
-      byte data = read_data() ;
-      bool wrote = 0 ;
+      byte data = 0 ; 
+      bool w = 0 ;
+      bool r = 0 ;
       
       switch (opa){
         case 0b0000:
+          data = read_data() ;
           RAM[chip_select][reg][chr] = data ;
-          wrote = 1 ;
+          w = 1 ;
           break ;
         case 0b0001:
+          data = read_data() ;
           if (chip_select == 0){
             digitalWrite(PRN_ADV, (data >> 3) & 1) ;
             digitalWrite(PRN_FIRE, (data >> 1) & 1) ;
             digitalWrite(PRN_COLOR, data & 1) ;
           }
-          wrote = 1 ;
+          w = 1 ;
           break ;
         case 0b0100:
+          data = read_data() ;
           STATUS[chip_select][reg][0] = data ;
-          wrote = 1 ;
+          w = 1 ;
           break ;
         case 0b0101:
+          data = read_data() ;
           STATUS[chip_select][reg][1] = data ;
-          wrote = 1 ;
+          w = 1 ;
           break ;
         case 0b0110:
+          data = read_data() ;
           STATUS[chip_select][reg][2] = data ;
-          wrote = 1 ;
+          w = 1 ;
           break ;
         case 0b0111:
+          data = read_data() ;
           STATUS[chip_select][reg][3] = data ;
-          wrote = 1 ;
+          w = 1 ;
+          break ;
+          
+        case 0b1000: 
+          data = RAM[chip_select][reg][chr] ;
+          r = 1 ;
+          break ;
+        case 0b1001:
+          data = RAM[chip_select][reg][chr] ;
+          r = 1 ;
+          break ;
+        case 0b1011:
+          data = RAM[chip_select][reg][chr] ;
+          r = 1 ;
+          break ;
+        case 0b1100:
+          data = STATUS[chip_select][reg][0] ;
+          r = 1 ;
+          break ;
+        case 0b1101:
+          data = STATUS[chip_select][reg][1] ;
+          r = 1 ;
+          break ;
+        case 0b1110:
+          data = STATUS[chip_select][reg][2] ;
+          r = 1 ;
+          break ;
+        case 0b1111:
+          data = STATUS[chip_select][reg][3] ;
+          r = 1 ;
           break ;
       }
 
-      if (wrote){
-        Serial.print("IO read ") ;
+      if (w){
+        Serial.print("STORED ") ;
         Serial.print(chip_select) ;
-        Serial.print(" ") ;
-        Serial.print(opa) ;
         Serial.print(" ") ;
         Serial.print(reg) ;
         Serial.print(" ") ;
         Serial.print(chr) ;
+        Serial.print(" ") ;
+        Serial.print(opa) ;
+        Serial.print(" ") ;
+        Serial.println(data) ;
+      }
+      if (r){
+        pinMode(DATA_3, OUTPUT) ;
+        pinMode(DATA_2, OUTPUT) ;
+        pinMode(DATA_1, OUTPUT) ;
+        pinMode(DATA_0, OUTPUT) ;         
+        write_data(data) ;      
+        
+        Serial.print("RETRIEVED ") ;
+        Serial.print(chip_select) ;
+        Serial.print(" ") ;
+        Serial.print(reg) ;
+        Serial.print(" ") ;
+        Serial.print(chr) ;
+        Serial.print(" ") ;
+        Serial.print(opa) ;
         Serial.print(" ") ;
         Serial.println(data) ;
       }
@@ -191,7 +204,7 @@ void setup(){
   }) ;
 
 
-  TIMING.X31([]{
+  TIMING.X32clk1([]{
     // Disconnect from bus
     if (ram_inst){
       pinMode(DATA_3, INPUT) ;
@@ -206,8 +219,6 @@ void setup(){
     // If we are processing an SRC instruction, grab the selected RAM character
     if (src){
       chr = read_data() ;
-      Serial.print("SRC char ") ;
-      Serial.println(chr) ;
     }
   }) ;
 }
@@ -234,94 +245,3 @@ void write_data(byte data){
   digitalWrite(DATA_1, (data >> 1) & 1) ;
   digitalWrite(DATA_0, data & 1) ;
 }
-
-
-/*
-class i4002:
-    def __init__(self, bank, chip, clk1, clk2, sync, data, cm):
-        bank = bank                            # The bank that this RAM belongs to. For dump purposes only.
-        chip = chip                            # The chip number or identifier (0-3). Bit 1 is the model number (-1 or -2) and bit 0 is the P0 signal
-        data = data                            # The data bus
-        cm = cm                                # The command line
-        output = pbus()                         # The output bus
-        src = 0                                # 1 if we are currently processing a SRC instruction
-        ram_select = 0                         # 1 if this chip is selected (by SRC during X2) for RAM/I/O instructions
-        ram_inst = 0                           # 1 if we are currently processing an RAM/I/O instruction
-        opa = 0                                # opa, saves during M2
-        reg = 0                                # The selected (by SRC) RAM register
-        char = 0                               # The selected (by SRC) RAM character
-        ram = [[0] * 16, [0] * 16, [0] * 16, [0] * 16] # The actual RAM cells
-        status = [[0] * 4, [0] * 4, [0] * 4, [0] * 4]  # The actual status cells                    
-   
-        timing = timing(clk1, clk2, sync)        # The timing module and associated callback functions
- 
-        @M22clk2
-        def _():
-            # Grab opa
-            opa = data.v
-            if ram_select and cm.v:
-                # If we are the selected chip for RAM/I/O and cm is on, the CPU is telling us that we are processing a RAM/I/O instruction
-                # NOTE: We could have just checked that opr == 0b1110 during M1...
-                ram_inst = 1
-            else:
-                ram_inst = 0
-
-        @X22clk1
-        def _():
-            if ram_inst:
-                # A RAM/I/O instruction is on progress, execute the proper operation according to the value of opa
-                if opa == 0b1000:
-                    write_data(ram[reg][char]
-                elif opa == 0b1001:
-                    write_data(ram[reg][char]
-                elif opa == 0b1011:
-                    write_data(ram[reg][char]
-                elif opa == 0b1100:
-                    write_data(status[reg][0]
-                elif opa == 0b1101:
-                    write_data(status[reg][1]
-                elif opa == 0b1110:
-                    write_data(status[reg][2]
-                elif opa == 0b1111:
-                    write_data(status[reg][3]
-
-        @X22clk2
-        def _():
-            if cm.v:
-                # An SRC instruction is in progress
-                if chip == (data.v >> 2):
-                    # We are the selected RAM chip for RAM/I/O if chip == (data.v >> 2)
-                    src = 1
-                    ram_select = 1
-                    # Grab the selected RAM register
-                    reg = data.v & 0b0011
-                else:
-                    ram_select = 0
-            else:
-                src = 0                
-            if ram_inst:
-                # A RAM/I/O instruction is on progress, execute the proper operation according to the value of opa
-                if opa == 0b0000:
-                    ram[reg][char] = data.v
-                elif opa == 0b0001:
-                    output.v(data.v)
-                elif opa == 0b0100:
-                    status[reg][0] = data.v
-                elif opa == 0b0101:
-                    status[reg][1] = data.v
-                elif opa == 0b0110:
-                    status[reg][2] = data.v
-                elif opa == 0b0111:
-                    status[reg][3] = data.v
-
-        @X31
-        def _():    # Disconnect from bus
-            if ram_inst:
-                write_data(None
-
-        @X32clk2
-        def _():
-            # If we are processing an SRC instruction, grab the selected RAM character
-            if src:
-                char = data.v
- */

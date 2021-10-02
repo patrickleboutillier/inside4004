@@ -20,12 +20,13 @@ class clock():
         self.sclk1 = wire(0, 0b0010)
         self.sclk2 = wire(0, 0b0011)
         self.n = 0
+        self.qperiod = 0.00015
 
-        
+
     def tick(self, nb=1):
         for _ in range(nb):
-            # time.sleep(0.00001)
-            # input("CLK{}".format(self.n))
+            start = time.perf_counter()
+
             if self.n == 0:
                 self.sclk1.v = 1
                 self.phx.v(0b10)
@@ -39,3 +40,7 @@ class clock():
                 self.sclk2.v = 0
                 self.phx.v(0b00)
             self.n = (self.n + 1) % 4
+
+            dur = time.perf_counter() - start
+            if dur < self.qperiod:
+                time.sleep(self.qperiod - dur) 

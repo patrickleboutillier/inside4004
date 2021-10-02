@@ -10,10 +10,6 @@
 #define CM_RAM    A4
 #define DATA_32   0b00000011    // PORTB
 #define DATA_10   0b01100000    // PORTD
-#define DATA_3    9
-#define DATA_2    8
-#define DATA_1    6
-#define DATA_0    5
 
 #define CMD_RESET   0b0001
 #define CMD_CLK1    0b0010
@@ -42,7 +38,7 @@ void reset(){
 
 
 void setup(){
-  Serial.begin(115200) ;
+  Serial.begin(500000) ;
   pinMode(RESET_1, OUTPUT) ;
   pinMode(RESET_2, OUTPUT) ;
   DDRB = DDRB | CLK1_1 | CLK2_1 ;
@@ -119,10 +115,6 @@ void loop(){
         DDRD = DDRD | DATA_10 ;
         PORTB = (PORTB & ~DATA_32) | (((opa >> 3) & 1) << 1) | ((opa >> 2) & 1) ;  
         PORTD = (PORTD & ~DATA_10) | (((opa >> 1) & 1) << 6) | ((opa & 1) << 5) ;  
-        //digitalWrite(DATA_3, (opa >> 3) & 1) ;
-        //digitalWrite(DATA_2, (opa >> 2) & 1) ;
-        //digitalWrite(DATA_1, (opa >> 1) & 1) ;
-        //digitalWrite(DATA_0, opa & 1) ;
         break ;
     }
   }
