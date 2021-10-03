@@ -61,8 +61,9 @@ class i4001:
         @M22clk2
         def _():
             # opa is on the bus, no matter who put it there (us or another ROM chip). Check if a RDR or WRR I/O instruction is in progress
-            self.rdr = 1 if self.io_inst and self.data.v == 0b1010 else 0
-            self.wrr = 1 if self.io_inst and self.data.v == 0b0010 else 0
+            data = self.data.v
+            self.rdr = 1 if self.io_inst and data == 0b1010 else 0
+            self.wrr = 1 if self.io_inst and data == 0b0010 else 0
 
         #@X11    # Disconnect from bus
         #def _():
@@ -74,12 +75,12 @@ class i4001:
                 # A SRC instruction is in progress
                 if self.chipnum == self.data.v:
                     # If cm is on, we are the selected ROM chip for I/O if self.chipnum == self.data.v
-                    self.src = 1
+                    # self.src = 1
                     self.io_select = 1
                 else:
                     self.io_select = 0
             else:
-                self.src = 0
+                # self.src = 0
                 if self.io_select:
                     if self.wrr:
                         # Grab data for WRR
