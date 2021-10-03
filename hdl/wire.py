@@ -19,13 +19,17 @@ class pwire():
 
 
 class wire():
-    def __init__(self, v, id=None):
+    def __init__(self, v, id=None, read=False):
         self.id = id
         self._v = v
+        self.read = read
 
     @property
     def v(self):
-        return self._v
+        if self.id is not None and uart.port is not None and self.read:
+            return uart.wireRead(self.id)
+        else:
+            return self._v
 
     @v.setter
     def v(self, v):

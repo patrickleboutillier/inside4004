@@ -18,6 +18,7 @@ PRINTER::PRINTER(i4003 *input, int pin_fire, int pin_advance, int pin_color, int
   _pin_advance = pin_advance ;
   _pin_color = pin_color ;
   _pin_sector = pin_sector ;
+  _pin_index = pin_index ;
   _pin_sync = pin_sync ;
   reset() ;
 }
@@ -106,22 +107,22 @@ void PRINTER::endSectorPeriod(){
       digitalWrite(_pin_index, 0) ;
   }
   _cur_sector = (_cur_sector + 1) % 13 ;
-  //Serial.print("SECTOR ") ;
-  //Serial.println(_cur_sector) ;
+  Serial.print("SECTOR ") ;
+  Serial.println(_cur_sector) ;
   _cur_cycle = 0 ;
 }
 
 
 void PRINTER::fireHammers(){
-  //Serial.print("FIRE HAMMERS ") ;
-  //Serial.println(_input->getReg() | 0b100000000000000000000, BIN) ;
+  Serial.print("FIRE HAMMERS ") ;
+  Serial.println(_input->getReg() | 0b100000000000000000000, BIN) ;
   for (int i = 0 ; i < 20 ; i++){
     if (_input->getBit(i)){
       punchChar(i) ;
     }
   }
-  //Serial.print("  ") ;
-  //Serial.println(_line) ;
+  Serial.print("  ") ;
+  Serial.println(_line) ;
 }
 
 

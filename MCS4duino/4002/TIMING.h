@@ -13,9 +13,12 @@ class TIMING {
     byte _master ;
     byte _phase ;
     bool _reset ;
+
     void (*_dispatch[8][4][8])() ;
     
   public:
+    unsigned long _tickid ;
+    
     TIMING(int pin_clk1, int pin_clk2, int pin_sync){  
       _pin_clk1 = pin_clk1 ;
       _pin_clk2 = pin_clk2 ;
@@ -38,6 +41,7 @@ class TIMING {
       _master = 0 ;
       _phase = 0 ;
       _reset = 1 ;
+      _tickid = 0 ;
     }
     
     
@@ -52,6 +56,7 @@ class TIMING {
           _reset = 0 ;
         }
         phase = 0 ;
+        _tickid++ ;
       }
       else if ((!clk1)&&(clk2)){
         if (digitalRead(_pin_sync)){
@@ -61,6 +66,7 @@ class TIMING {
           _master = (_slave + 1) & 0x7 ;
         }
         phase = 2 ;
+        _tickid++ ;
       }
       else if ((!clk1)&&(!clk2)){
         if (_slave == _master){
@@ -69,6 +75,7 @@ class TIMING {
         else {
           phase = 3 ;
         }
+        _tickid++ ;
       }
     
       if (_reset){

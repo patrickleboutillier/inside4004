@@ -137,13 +137,31 @@ void setup(){
       src = 0 ;
       if (wrr){
         // Grab data for WRR
-        digitalWrite(KBD_SHFT_CLK, digitalRead(DATA_0)) ;
-        digitalWrite(SHFT_DATA, digitalRead(DATA_1)) ;
-        digitalWrite(PRN_SHFT_CLK, digitalRead(DATA_2)) ;
+        if (chip_select == 0){
+          digitalWrite(KBD_SHFT_CLK, digitalRead(DATA_0)) ;
+          digitalWrite(SHFT_DATA, digitalRead(DATA_1)) ;
+          digitalWrite(PRN_SHFT_CLK, digitalRead(DATA_2)) ;
+        }
       }
       else if (rdr){
         // Send data for RDR
-        // self.data.v = self.io._v
+        if (chip_select == 1){
+          /* byte data = (digitalRead(KBD_ROW_3) << 3) | (digitalRead(KBD_ROW_2) << 2) | 
+            (digitalRead(KBD_ROW_1) << 1) | digitalRead(KBD_ROW_0) ;
+          pinMode(DATA_3, OUTPUT) ;
+          pinMode(DATA_2, OUTPUT) ;
+          pinMode(DATA_1, OUTPUT) ;
+          pinMode(DATA_0, OUTPUT) ; 
+          write_data(data) ; */
+        }
+        else if (chip_select == 2){ 
+          /* byte data = (digitalRead(PRN_ADV_BTN) << 3) | digitalRead(PRN_INDEX) ;
+          pinMode(DATA_3, OUTPUT) ;
+          pinMode(DATA_2, OUTPUT) ;
+          pinMode(DATA_1, OUTPUT) ;
+          pinMode(DATA_0, OUTPUT) ; 
+          write_data(data) ; */
+        }
       }
     }
   }) ;

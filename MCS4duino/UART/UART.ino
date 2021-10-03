@@ -8,6 +8,7 @@
 #define SYNC_2    2
 #define CM_ROM    A0
 #define CM_RAM    A4
+#define TEST      7
 #define DATA_32   0b00000011    // PORTB
 #define DATA_10   0b01100000    // PORTD
 
@@ -17,6 +18,7 @@
 #define CMD_SYNC    0b0100
 #define CMD_CM_ROM  0b0101
 #define CMD_CM_RAM  0b0110
+#define CMD_TEST    0b0111
 #define CMD_DATA_R  0b1000
 #define CMD_DATA_W  0b1001
 
@@ -47,6 +49,7 @@ void setup(){
   pinMode(SYNC_2, OUTPUT) ;
   pinMode(CM_ROM, OUTPUT) ;
   pinMode(CM_RAM, OUTPUT) ;
+  pinMode(TEST, INPUT) ;
   reset() ;
   delay(1000) ;
   Serial.write(byte(1)) ;
@@ -97,6 +100,9 @@ void loop(){
         break ;
       case CMD_CM_RAM:
         digitalWrite(CM_RAM, opa) ;
+        break ;
+      case CMD_TEST:
+        Serial.write(digitalRead(TEST)) ;
         break ;
       case CMD_DATA_R:
         if (opa){ // Z

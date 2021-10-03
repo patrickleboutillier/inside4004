@@ -20,7 +20,8 @@ class clock():
         self.sclk1 = wire(0, 0b0010)
         self.sclk2 = wire(0, 0b0011)
         self.n = 0
-        self.qperiod = 0.00015
+        self.qperiod = 0.00005
+        print("qperiod", self.qperiod)
 
 
     def tick(self, nb=1):

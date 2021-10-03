@@ -57,7 +57,7 @@ printer = printer.printer(fire=RAM[0].output.pwire(1), advance=RAM[0].output.pwi
 for i in range(10):
     pbuf(psr2.parallel_out.pwire(i), printer.input.pwire(i))
     pbuf(psr1.parallel_out.pwire(i), printer.input.pwire(10+i))
-pbuf(printer.sector, test)
+# pbuf(printer.sector, test)
 pbuf(printer.index, PROM[2].io.pwire(0))
 
 
@@ -67,27 +67,15 @@ MCS4.program()
 
 # TODO: Use argparse to handle these options
 step = False
-wait_for_start_sector_pulse = [0x001, 0x22c, 0x23f, 0x24b]
-wait_for_end_sector_pulse = [0x0fd, 0x26e]
 kb_toggle = False
 
 
 def callback(nb):
     global step, kb_toggle, MCS4
-    # Save some time by not waiting for nothing...
-    if MCS4.args.optimize:
-        if CPU.addr.isPCin(wait_for_start_sector_pulse) and CPU.io.testZero():
-            printer.endSectorPeriod()
-            printer.startSectorPulse()
-        elif CPU.addr.isPCin(wait_for_end_sector_pulse) and not CPU.io.testZero():
-            printer.endSectorPulse()
-        else:
-            printer.doCycle()
-    else:
-        printer.doCycle()
+    printer.doCycle()
 
     if CPU.addr.isPCin([0x003]) and RAM[0].status[0][3] == 0:   # Before keyboard scanning in main loop, and a button is not currently held down)
-        keyboard.clearAdvance()                             # In case we "pressed" the paper advance button
+        keyboard.clearAdvance()                                 # In case we "pressed" the paper advance button
         kb_toggle = not kb_toggle
         if not kb_toggle:
             keyboard.readKey()

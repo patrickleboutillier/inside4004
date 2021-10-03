@@ -21,6 +21,11 @@ def wireOn(id):
 def wireOff(id):
     port.write(toByte((id & 0b111) << 4))
 
+def wireRead(id):
+    port.write(toByte((id & 0b111) << 4))
+    data = int.from_bytes(port.read(), byteorder='big')
+    return data & 0x1
+
 def busRead(id):
     port.write(toByte(1 << 7 | (id & 0b11) << 5))
     data = int.from_bytes(port.read(), byteorder='big')
