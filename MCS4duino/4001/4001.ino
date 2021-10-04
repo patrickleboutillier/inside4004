@@ -25,7 +25,8 @@ TIMING TIMING(CLK1, CLK2, SYNC) ;
 
 byte addrh = 0 ;  // The high nibble of the ROM address
 byte addrl = 0 ;  // The low nibble of the ROM address
-byte chip_select = 0 ;
+byte rom_select = 0 ;
+int io_select = -1 ;
 bool io_inst = 0 ;
 bool src = 0 ;
 bool rdr = 0 ;
@@ -41,7 +42,8 @@ void reset(){
   TIMING.reset() ;
   addrh = 0 ;
   addrl = 0 ;
-  chip_select = 0 ;
+  rom_select = 0 ;
+  io_select = -1 ;
   io_inst = 0 ;
   src = 0 ; 
   rdr = 0 ;
@@ -82,7 +84,7 @@ void setup(){
   TIMING.A32clk1([]{
     // If cm is on, we are the selected ROM chip for instructions if chipnum == data
     if (digitalRead(CM)){
-      chip_select = read_data() ;
+      rom_select = read_data() ;
     }
   }) ;  
 
@@ -93,7 +95,7 @@ void setup(){
     pinMode(DATA_1, OUTPUT) ;
     pinMode(DATA_0, OUTPUT) ;  
     // If we are the selected chip for instructions, send out opr
-    int addr = (chip_select * 256) + (addrh << 4 | addrl) ;
+    int addr = (rom_select * 256) + (addrh << 4 | addrl) ;
     byte opr = pgm_read_byte(ROM + addr) >> 4 ;
     write_data(opr) ;
   }) ;
@@ -107,7 +109,7 @@ void setup(){
           
   TIMING.M22clk1([]{
     // If we are the selected chip for instructions, send out opa
-    int addr = (chip_select * 256) + (addrh << 4 | addrl) ;
+    int addr = (rom_select * 256) + (addrh << 4 | addrl) ;
     byte opa = pgm_read_byte(ROM + addr) & 0xF ;
     write_data(opa) ;
   }) ;
@@ -132,13 +134,14 @@ void setup(){
 
   TIMING.X22clk1([]{
     if (digitalRead(CM)){
+      io_select = read_data() ;
       src = 1 ;
     }
     else {
       src = 0 ;
       if (wrr){
         // Grab data for WRR
-        if (chip_select == 0){
+        if (io_select == 0){
           digitalWrite(KBD_SHFT_CLK, digitalRead(DATA_0)) ;
           digitalWrite(SHFT_DATA, digitalRead(DATA_1)) ;
           digitalWrite(PRN_SHFT_CLK, digitalRead(DATA_2)) ;
@@ -146,7 +149,7 @@ void setup(){
       }
       else if (rdr){
         // Send data for RDR
-        if (chip_select == 1){
+        if (io_select == 1){
           /* byte data = (digitalRead(KBD_ROW_3) << 3) | (digitalRead(KBD_ROW_2) << 2) | 
             (digitalRead(KBD_ROW_1) << 1) | digitalRead(KBD_ROW_0) ;
           pinMode(DATA_3, OUTPUT) ;
@@ -155,13 +158,17 @@ void setup(){
           pinMode(DATA_0, OUTPUT) ; 
           write_data(data) ; */
         }
-        else if (chip_select == 2){ 
-          /* byte data = (digitalRead(PRN_ADV_BTN) << 3) | digitalRead(PRN_INDEX) ;
+        else if (io_select == 2){ 
+          byte data = (digitalRead(PRN_ADV_BTN) << 3) | digitalRead(PRN_INDEX) ;
           pinMode(DATA_3, OUTPUT) ;
           pinMode(DATA_2, OUTPUT) ;
           pinMode(DATA_1, OUTPUT) ;
           pinMode(DATA_0, OUTPUT) ; 
-          write_data(data) ; */
+          write_data(data) ; 
+          /* Serial.print("RDR ") ;
+          Serial.print(TIMING._cycle) ;
+          Serial.print(" ") ;
+          Serial.println(data) ; */
         }
       }
     }

@@ -11,10 +11,12 @@ class TIMING {
     int _pin_sync ;
     byte _slave ;
     byte _master ;
-    byte _phase ;
+    int _phase ;
     bool _reset ;
     void (*_dispatch[8][4][8])() ;
-    
+  public:
+      unsigned long _cycle ;
+        
   public:
     TIMING(int pin_clk1, int pin_clk2, int pin_sync){  
       _pin_clk1 = pin_clk1 ;
@@ -36,22 +38,27 @@ class TIMING {
     void reset(){
       _slave = 0 ;
       _master = 0 ;
-      _phase = 0 ;
+      _phase = -1 ;
       _reset = 1 ;
+      _cycle = 0 ;
     }
     
     
     void loop(){
       bool clk1 = digitalRead(_pin_clk1) ;
       bool clk2 = digitalRead(_pin_clk2) ;
-      byte phase ;
       
       if ((clk1)&&(!clk2)){
         _slave = _master ;
         if ((_slave == 0)&&(_reset)){   // 0 == state A1!
           _reset = 0 ;
+          _phase = -1 ;
+          _cycle = 0 ;
         }
-        phase = 0 ;
+        if (_phase != 0){
+          _cycle++ ;
+        }
+        _phase = 0 ;
       }
       else if ((!clk1)&&(clk2)){
         if (digitalRead(_pin_sync)){
@@ -60,14 +67,14 @@ class TIMING {
         else {
           _master = (_slave + 1) & 0x7 ;
         }
-        phase = 2 ;
+        _phase = 2 ;
       }
       else if ((!clk1)&&(!clk2)){
         if (_slave == _master){
-          phase = 1 ;
+          _phase = 1 ;
         }
         else {
-          phase = 3 ;
+          _phase = 3 ;
         }
       }
     
@@ -77,8 +84,8 @@ class TIMING {
  
       // Do dispatch
       int i = 0 ;
-      while (_dispatch[_slave][phase][i] != NULL){
-        _dispatch[_slave][phase][i]() ;
+      while (_dispatch[_slave][_phase][i] != NULL){
+        _dispatch[_slave][_phase][i]() ;
         i++ ;
       }
     }

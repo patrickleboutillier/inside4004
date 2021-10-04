@@ -16,6 +16,7 @@ class timing(sensor):
         sensor.__init__(self, self.phx)
         self.slave = 0
         self.master = 0 
+        self.cycle = -1 
         if sync is None:
             self.gen_sync = True
             self.sync = wire(0, 0b0100)
@@ -30,7 +31,8 @@ class timing(sensor):
 
     def always(self):
         self.phase = (self.phase + 1) & 0b11
-
+        if self.phase == 0:
+            self.cycle += 1
         if self.phx._v == 0b10:
             # A new step starts when clk1 goes high
             self.slave = self.master
