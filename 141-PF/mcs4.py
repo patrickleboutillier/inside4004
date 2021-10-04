@@ -37,7 +37,7 @@ MCS4.addSR(kbdsr)
 keyboard = keyboard.keyboard(kbdsr.parallel_out, lights)
 for i in range(4):
     pbuf(keyboard.output.pwire(i), PROM[1].io.pwire(i))
-pbuf(keyboard.advance, PROM[2].io.pwire(3))
+# pbuf(keyboard.advance, PROM[2].io.pwire(3))
 kb = os.environ.get('KEY_BUFFER')
 if kb is not None:
     keyboard.appendKeyBuffer(kb)
