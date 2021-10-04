@@ -26,6 +26,11 @@ byte STATUS[4][4][4] ;
 
 
 void reset(){
+  pinMode(DATA_3, INPUT) ;
+  pinMode(DATA_2, INPUT) ;
+  pinMode(DATA_1, INPUT) ;
+  pinMode(DATA_0, INPUT) ;   
+  
   TIMING.reset() ;
   opa = 0 ;
   reg = 0 ;
@@ -59,10 +64,6 @@ void setup(){
   pinMode(CLK1, INPUT) ;
   pinMode(CLK2, INPUT) ;
   pinMode(SYNC, INPUT) ;
-  pinMode(DATA_3, INPUT) ;
-  pinMode(DATA_2, INPUT) ;
-  pinMode(DATA_1, INPUT) ;
-  pinMode(DATA_0, INPUT) ; 
   pinMode(PRN_ADV, OUTPUT) ; 
   pinMode(PRN_FIRE, OUTPUT) ;   
   pinMode(PRN_COLOR, OUTPUT) ; 
@@ -75,8 +76,8 @@ void setup(){
     if (digitalRead(CM)){
       // If we are the selected chip for RAM/I/O and cm is on, the CPU is telling us that we are processing a RAM/I/O instruction
       // NOTE: We could have just checked that opr == 0b1110 during M1...
-      Serial.print("opa ") ;
-      Serial.println(opa) ;
+      // Serial.print("opa ") ;
+      // Serial.println(opa) ;
       ram_inst = 1 ;
     }
     else {
@@ -170,7 +171,7 @@ void setup(){
           break ;
       }
 
-      if (w){
+      /* if (w){
         Serial.print("STORED ") ;
         Serial.print(chip_select) ;
         Serial.print(" ") ;
@@ -181,7 +182,7 @@ void setup(){
         Serial.print(opa) ;
         Serial.print(" ") ;
         Serial.println(data) ;
-      }
+      } */
       if (r){
         pinMode(DATA_3, OUTPUT) ;
         pinMode(DATA_2, OUTPUT) ;
@@ -189,7 +190,7 @@ void setup(){
         pinMode(DATA_0, OUTPUT) ;         
         write_data(data) ;      
         
-        Serial.print("RETRIEVED ") ;
+        /* Serial.print("RETRIEVED ") ;
         Serial.print(chip_select) ;
         Serial.print(" ") ;
         Serial.print(reg) ;
@@ -198,7 +199,7 @@ void setup(){
         Serial.print(" ") ;
         Serial.print(opa) ;
         Serial.print(" ") ;
-        Serial.println(data) ;
+        Serial.println(data) ; */
       }
     }
   }) ;

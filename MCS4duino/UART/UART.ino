@@ -24,6 +24,9 @@
 
 
 void reset(){
+  DDRB = DDRB | CLK1_1 | CLK2_1 ;
+  DDRD = DDRD | CLK1_2 | CLK2_2 ;
+  
   digitalWrite(RESET_1, HIGH) ;
   digitalWrite(RESET_2, HIGH) ;
   PORTB = PORTB & ~(CLK1_1 | CLK2_1) ;
@@ -43,8 +46,6 @@ void setup(){
   Serial.begin(500000) ;
   pinMode(RESET_1, OUTPUT) ;
   pinMode(RESET_2, OUTPUT) ;
-  DDRB = DDRB | CLK1_1 | CLK2_1 ;
-  DDRD = DDRD | CLK1_2 | CLK2_2 ;
   pinMode(SYNC_1, OUTPUT) ;
   pinMode(SYNC_2, OUTPUT) ;
   pinMode(CM_ROM, OUTPUT) ;

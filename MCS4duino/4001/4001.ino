@@ -33,6 +33,11 @@ bool wrr = 0 ;
 
 
 void reset(){
+  pinMode(DATA_3, INPUT) ;
+  pinMode(DATA_2, INPUT) ;
+  pinMode(DATA_1, INPUT) ;
+  pinMode(DATA_0, INPUT) ;   
+  
   TIMING.reset() ;
   addrh = 0 ;
   addrl = 0 ;
@@ -52,10 +57,6 @@ void setup(){
   pinMode(CLK1, INPUT) ;
   pinMode(CLK2, INPUT) ;
   pinMode(SYNC, INPUT) ;
-  pinMode(DATA_3, INPUT) ;
-  pinMode(DATA_2, INPUT) ;
-  pinMode(DATA_1, INPUT) ;
-  pinMode(DATA_0, INPUT) ; 
   pinMode(KBD_SHFT_CLK, OUTPUT) ;
   pinMode(SHFT_DATA, OUTPUT) ;
   pinMode(PRN_SHFT_CLK, OUTPUT) ;
