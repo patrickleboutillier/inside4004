@@ -23,9 +23,9 @@ for r in PROM:
     MCS4.addROM(r)
 
 # Create 2 RAMS
-RAM = [i4002.i4002(0, 0, clk1, clk2, sync, data, cm_ram)] #, i4002.i4002(0, 1, clk1, clk2, sync, data, cm_ram)]
-for r in RAM:
-    MCS4.addRAM(0, r)
+# RAM = [i4002.i4002(0, 0, clk1, clk2, sync, data, cm_ram)] #, i4002.i4002(0, 1, clk1, clk2, sync, data, cm_ram)]
+# for r in RAM:
+    # MCS4.addRAM(0, r)
 
 # Lights
 # lights = lights.lights(memory=RAM[1].output.pwire(0), overflow=RAM[1].output.pwire(1), negative=RAM[1].output.pwire(2))
@@ -75,8 +75,8 @@ def callback(nb):
     global step, kb_toggle, MCS4
     # printer.doCycle()
 
-    if CPU.addr.isPCin([0x003]) and RAM[0].status[0][3] == 0:   # Before keyboard scanning in main loop, and a button is not currently held down)
-        keyboard.clearAdvance()                                 # In case we "pressed" the paper advance button
+    if CPU.addr.isPCin([0x003]):                    # Before keyboard scanning in main loop, and a button is not currently held down)
+        # keyboard.clearAdvance()                     # In case we "pressed" the paper advance button
         kb_toggle = not kb_toggle
         if not kb_toggle:
             keyboard.readKey()
