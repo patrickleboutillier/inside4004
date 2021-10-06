@@ -8,6 +8,7 @@
 #define SYNC_2    2
 #define CM_ROM    A0
 #define CM_RAM    A4
+#define SEND_KEY  A2
 #define TEST      7
 #define DATA_32   0b00000011    // PORTB
 #define DATA_10   0b01100000    // PORTD
@@ -17,6 +18,7 @@
 #define CMD_CLK2    0b0011
 #define CMD_SYNC    0b0100
 #define CMD_CM      0b0101
+#define CMD_SEND_KEY 0b0110
 #define CMD_TEST    0b0111
 #define CMD_DATA_R  0b1000
 #define CMD_DATA_W  0b1001
@@ -34,6 +36,7 @@ void reset(){
   digitalWrite(SYNC_2, LOW) ;
   digitalWrite(CM_ROM, LOW) ;
   digitalWrite(CM_RAM, LOW) ;
+  digitalWrite(SEND_KEY, LOW) ;
   DDRB = DDRB & ~DATA_32 ;
   PORTB = PORTB & ~DATA_32 ;
   DDRD = DDRD & ~DATA_10 ;
@@ -49,6 +52,7 @@ void setup(){
   pinMode(SYNC_2, OUTPUT) ;
   pinMode(CM_ROM, OUTPUT) ;
   pinMode(CM_RAM, OUTPUT) ;
+  pinMode(SEND_KEY, OUTPUT) ;
   pinMode(TEST, INPUT) ;
   reset() ;
   delay(1000) ;
@@ -98,6 +102,9 @@ void loop(){
       case CMD_CM:
         digitalWrite(CM_ROM, opa) ;
         digitalWrite(CM_RAM, opa) ;
+        break ;
+      case CMD_SEND_KEY:
+        digitalWrite(SEND_KEY, opa) ;
         break ;
       case CMD_TEST:
         Serial.write(digitalRead(TEST)) ;

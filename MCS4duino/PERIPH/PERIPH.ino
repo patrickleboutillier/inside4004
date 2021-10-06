@@ -18,16 +18,20 @@
 #define PRN_ADV       A3
 #define PRN_FIRE      A4
 #define PRN_COLOR     A5
+#define KBD_SEND_KEY  A1
 
 i4003 PSHIFT(PRN_SHFT_CLK, SHFT_DATA, 0xFFFFF) ;
 i4003 KSHIFT(KBD_SHFT_CLK, SHFT_DATA, 0x3FF) ;
 PRINTER PRINTER(&PSHIFT, PRN_FIRE, PRN_ADV, PRN_COLOR, PRN_SECTOR, PRN_INDEX, SYNC) ;
-KEYBOARD KEYBOARD(&KSHIFT, KBD_ROW_3, KBD_ROW_2, KBD_ROW_1, KBD_ROW_0) ;
+KEYBOARD KEYBOARD(&KSHIFT, KBD_ROW_3, KBD_ROW_2, KBD_ROW_1, KBD_ROW_0, KBD_SEND_KEY) ;
 
 
 void setup(){
   Serial.begin(115200) ;
   Serial.println("Welcome to Busicom 141-PF!") ;
+  Serial.print("key buffer: ") ;
+  Serial.println(KEYBOARD.getKeyBuffer()) ;
+  
   pinMode(RESET, INPUT) ;
   pinMode(KBD_SHFT_CLK, INPUT) ;
   pinMode(SHFT_DATA, INPUT) ;
@@ -41,6 +45,7 @@ void setup(){
   pinMode(KBD_ROW_2, OUTPUT) ;
   pinMode(KBD_ROW_1, OUTPUT) ;
   pinMode(KBD_ROW_0, OUTPUT) ;
+  pinMode(KBD_SEND_KEY, INPUT) ;
   pinMode(PRN_INDEX, OUTPUT) ;
   pinMode(PRN_SECTOR, OUTPUT) ;
   reset() ;
@@ -48,8 +53,10 @@ void setup(){
 
 
 void reset(){
-  PRINTER.reset() ;
   PSHIFT.reset() ;
+  PRINTER.reset() ;
+  KSHIFT.reset() ;
+  KEYBOARD.reset() ;
   digitalWrite(PRN_ADV_BTN, 0) ;
   digitalWrite(KBD_ROW_3, 0) ;
   digitalWrite(KBD_ROW_2, 0) ;
@@ -66,5 +73,7 @@ void loop(){
   }
 
   PSHIFT.loop() ;
+  KSHIFT.loop() ;
   PRINTER.loop() ;
+  KEYBOARD.loop() ;
 }

@@ -15,6 +15,7 @@ test = MCS4.test
 CPU = MCS4.CPU
 sync = CPU.sync
 
+
 # Create 5 ROMs
 PROM = [i4001.i4001(0, 0, clk1, clk2, sync, data, cm_rom), i4001.i4001(1, 1, clk1, clk2, sync, data, cm_rom)]
     # i4001.i4001(2, 0, clk1, clk2, sync, data, cm_rom)] 
@@ -70,15 +71,20 @@ MCS4.program()
 step = False
 kb_toggle = False
 
+send_key = wire(0, 0b0110)
+
 
 def callback(nb):
     global step, kb_toggle, MCS4
     # printer.doCycle()
 
-    if CPU.addr.isPCin([0x003]):                    # Before keyboard scanning in main loop, and a button is not currently held down)
+    send_key.v = 0 
+    if CPU.addr.isPCin([0x003]):                      # Before keyboard scanning in main loop, and a button is not currently held down)
         # keyboard.clearAdvance()                     # In case we "pressed" the paper advance button
         kb_toggle = not kb_toggle
         if not kb_toggle:
+            print(nb, "readKey")
+            send_key.v = 1
             keyboard.readKey()
 
     if step:

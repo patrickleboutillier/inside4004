@@ -142,8 +142,8 @@ void setup(){
       if (wrr){
         // Grab data for WRR
         if (io_select == 0){
-          digitalWrite(KBD_SHFT_CLK, digitalRead(DATA_0)) ;
           digitalWrite(SHFT_DATA, digitalRead(DATA_1)) ;
+          digitalWrite(KBD_SHFT_CLK, digitalRead(DATA_0)) ;
           digitalWrite(PRN_SHFT_CLK, digitalRead(DATA_2)) ;
         }
       }

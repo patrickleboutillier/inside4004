@@ -18,7 +18,6 @@ void i4003::reset(){
 void i4003::loop(){
   if (digitalRead(_pin_clock)){
     if (! _cur_clock){
-      int o = _reg >> 9 ;
       _reg = ((_reg << 1) | digitalRead(_pin_data_in)) & _mask ;
       _cur_clock = 1 ;  
     }
