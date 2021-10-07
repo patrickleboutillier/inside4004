@@ -150,13 +150,13 @@ void setup(){
       else if (rdr){
         // Send data for RDR
         if (io_select == 1){
-          /* byte data = (digitalRead(KBD_ROW_3) << 3) | (digitalRead(KBD_ROW_2) << 2) | 
+          byte data = (digitalRead(KBD_ROW_3) << 3) | (digitalRead(KBD_ROW_2) << 2) | 
             (digitalRead(KBD_ROW_1) << 1) | digitalRead(KBD_ROW_0) ;
           pinMode(DATA_3, OUTPUT) ;
           pinMode(DATA_2, OUTPUT) ;
           pinMode(DATA_1, OUTPUT) ;
           pinMode(DATA_0, OUTPUT) ; 
-          write_data(data) ; */
+          write_data(data) ;
         }
         else if (io_select == 2){ 
           byte data = (digitalRead(PRN_ADV_BTN) << 3) | digitalRead(PRN_INDEX) ;
@@ -165,10 +165,6 @@ void setup(){
           pinMode(DATA_1, OUTPUT) ;
           pinMode(DATA_0, OUTPUT) ; 
           write_data(data) ; 
-          /* Serial.print("RDR ") ;
-          Serial.print(TIMING._cycle) ;
-          Serial.print(" ") ;
-          Serial.println(data) ; */
         }
       }
     }

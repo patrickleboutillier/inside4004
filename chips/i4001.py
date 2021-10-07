@@ -87,13 +87,15 @@ class i4001:
                         self.io.v(self.data.v)
                     elif self.rdr:
                         # Send data for RDR
-                        if self.chipnum != 2:
-                            self.data.v = self.io._v
+                        pass
+                        # if self.chipnum != 2:
+                            # self.data.v = self.io._v
 
         @X32clk1
         def _():
             if self.io_select and self.rdr:
-                self.data.v = None
+                pass
+                # self.data.v = None
 
         # @X32clk1
         # def _():

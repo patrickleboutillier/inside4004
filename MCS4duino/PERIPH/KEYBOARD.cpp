@@ -61,15 +61,15 @@ void KEYBOARD::loop(){
   // Check if the keyboard is being scanned
   if (_input->getReg() != _reg){
     _reg = _input->getReg() ;
-    Serial.print("reg ") ;
-    Serial.println(_reg | 0b10000000000, BIN) ;
+    //Serial.print("reg ") ;
+    //Serial.println(_reg | 0b10000000000, BIN) ;
     for (int i = 0 ; i < 10 ; i++){
       if (_input->getBit(i) == 0){
-        Serial.print("scanning ") ;
-        Serial.print(i) ;
-        Serial.print(": ") ;
+        //Serial.print("scanning ") ;
+        //Serial.print(i) ;
+        //Serial.print(": ") ;
         byte data = (_buffer[i][3] << 3) | (_buffer[i][2] << 2) | (_buffer[i][1] << 1) | _buffer[i][0] ;
-        Serial.println(data) ;
+        //Serial.println(data) ;
         digitalWrite(_pin_kbd_row_3, _buffer[i][0]) ;
         digitalWrite(_pin_kbd_row_2, _buffer[i][1]) ;
         digitalWrite(_pin_kbd_row_1, _buffer[i][2]) ; 
@@ -145,8 +145,8 @@ const char *KEYBOARD::getKeyBufferHead(){
 
 
 void KEYBOARD::sendKey(){
-  Serial.print("sendKey: ") ;
   if (strlen(_key_buffer) > 0){
+    Serial.print("sendKey: ") ;
     const char *k = getKeyBufferHead() ;
     Serial.println(k) ;
     Serial.print("key_buffer: ") ;

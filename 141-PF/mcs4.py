@@ -17,11 +17,11 @@ sync = CPU.sync
 
 
 # Create 5 ROMs
-PROM = [i4001.i4001(0, 0, clk1, clk2, sync, data, cm_rom), i4001.i4001(1, 1, clk1, clk2, sync, data, cm_rom)]
+# PROM = [i4001.i4001(0, 0, clk1, clk2, sync, data, cm_rom), i4001.i4001(1, 1, clk1, clk2, sync, data, cm_rom)]
     # i4001.i4001(2, 0, clk1, clk2, sync, data, cm_rom)] 
     # i4001.i4001(3, 0, clk1, clk2, sync, data, cm_rom), i4001.i4001(4, 0, clk1, clk2, sync, data, cm_rom)]
-for r in PROM:
-    MCS4.addROM(r)
+# for r in PROM:
+    # MCS4.addROM(r)
 
 # Create 2 RAMS
 # RAM = [i4002.i4002(0, 0, clk1, clk2, sync, data, cm_ram)] #, i4002.i4002(0, 1, clk1, clk2, sync, data, cm_ram)]
@@ -32,20 +32,20 @@ for r in PROM:
 # lights = lights.lights(memory=RAM[1].output.pwire(0), overflow=RAM[1].output.pwire(1), negative=RAM[1].output.pwire(2))
 
 # Create keyboard 4003
-kbdsr = i4003.i4003(name="KB", clock=PROM[0].io.pwire(0), data_in=PROM[0].io.pwire(1), enable=pwire(1))
-MCS4.addSR(kbdsr)
+# kbdsr = i4003.i4003(name="KB", clock=PROM[0].io.pwire(0), data_in=PROM[0].io.pwire(1), enable=pwire(1))
+# MCS4.addSR(kbdsr)
 
 # Keyboard
-keyboard = keyboard.keyboard(kbdsr.parallel_out, lights)
-for i in range(4):
-    pbuf(keyboard.output.pwire(i), PROM[1].io.pwire(i))
+# keyboard = keyboard.keyboard(kbdsr.parallel_out, lights)
+# for i in range(4):
+    # pbuf(keyboard.output.pwire(i), PROM[1].io.pwire(i))
 # pbuf(keyboard.advance, PROM[2].io.pwire(3))
-kb = os.environ.get('KEY_BUFFER')
-if kb is not None:
-    keyboard.appendKeyBuffer(kb)
-kb = MCS4.args.key_buffer
-if kb is not None:
-    keyboard.appendKeyBuffer(kb)
+# kb = os.environ.get('KEY_BUFFER')
+# if kb is not None:
+    # keyboard.appendKeyBuffer(kb)
+# kb = MCS4.args.key_buffer
+# if kb is not None:
+    # keyboard.appendKeyBuffer(kb)
 
 # Create printer 4003s
 # Order important here to void race conditions
@@ -64,7 +64,7 @@ if kb is not None:
 
 
 # Load the program
-MCS4.program()
+# MCS4.program()
 
 
 # TODO: Use argparse to handle these options
@@ -83,9 +83,10 @@ def callback(nb):
         # keyboard.clearAdvance()                     # In case we "pressed" the paper advance button
         kb_toggle = not kb_toggle
         if not kb_toggle:
-            print(nb, "readKey")
+            # print(nb, "readKey")
+            # keyboard.readKey()
             send_key.v = 1
-            keyboard.readKey()
+
 
     if step:
         MCS4.dump(nb)
