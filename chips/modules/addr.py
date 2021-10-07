@@ -116,12 +116,12 @@ class addr:
         self.pl = self.incr_in
 
     # TODO: Do it properly... Increment the program counter
-    def incPC(self):
-        pc = self.ph << 8 | self.pm << 4 | self.pl
-        pc = pc + 1
-        self.ph = pc >> 8 & 0xF
-        self.pm = pc >> 4 & 0xF
-        self.pl = pc & 0xF
+    # def incPC(self):
+    #     pc = self.ph << 8 | self.pm << 4 | self.pl
+    #     pc = pc + 1
+    #     self.ph = pc >> 8 & 0xF
+    #     self.pm = pc >> 4 & 0xF
+    #     self.pl = pc & 0xF
 
     # Increment the stack pointer
     def decSP(self):

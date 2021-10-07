@@ -76,8 +76,6 @@ void setup(){
     if (digitalRead(CM)){
       // If we are the selected chip for RAM/I/O and cm is on, the CPU is telling us that we are processing a RAM/I/O instruction
       // NOTE: We could have just checked that opr == 0b1110 during M1...
-      // Serial.print("opa ") ;
-      // Serial.println(opa) ;
       ram_inst = 1 ;
     }
     else {
@@ -101,15 +99,11 @@ void setup(){
     
     if (ram_inst){
       // A RAM/I/O instruction is in progress, execute the proper operation according to the value of opa
-      byte data = 0 ; 
-      bool w = 0 ;
-      bool r = 0 ;
+      int data = -1 ; 
       
       switch (opa){
         case 0b0000:
-          data = read_data() ;
-          RAM[chip_select][reg][chr] = data ;
-          w = 1 ;
+          RAM[chip_select][reg][chr] = read_data() ;
           break ;
         case 0b0001:
           data = read_data() ;
@@ -118,88 +112,49 @@ void setup(){
             digitalWrite(PRN_FIRE, (data >> 1) & 1) ;
             digitalWrite(PRN_COLOR, data & 1) ;
           }
-          w = 1 ;
           break ;
         case 0b0100:
-          data = read_data() ;
-          STATUS[chip_select][reg][0] = data ;
-          w = 1 ;
+          STATUS[chip_select][reg][0] = read_data() ;
           break ;
         case 0b0101:
-          data = read_data() ;
-          STATUS[chip_select][reg][1] = data ;
-          w = 1 ;
+          STATUS[chip_select][reg][1] = read_data() ;
           break ;
         case 0b0110:
-          data = read_data() ;
-          STATUS[chip_select][reg][2] = data ;
-          w = 1 ;
+          STATUS[chip_select][reg][2] = read_data() ;
           break ;
         case 0b0111:
-          data = read_data() ;
-          STATUS[chip_select][reg][3] = data ;
-          w = 1 ;
+          STATUS[chip_select][reg][3] = read_data() ;
           break ;
           
         case 0b1000: 
           data = RAM[chip_select][reg][chr] ;
-          r = 1 ;
           break ;
         case 0b1001:
           data = RAM[chip_select][reg][chr] ;
-          r = 1 ;
           break ;
         case 0b1011:
           data = RAM[chip_select][reg][chr] ;
-          r = 1 ;
           break ;
         case 0b1100:
           data = STATUS[chip_select][reg][0] ;
-          r = 1 ;
           break ;
         case 0b1101:
           data = STATUS[chip_select][reg][1] ;
-          r = 1 ;
           break ;
         case 0b1110:
           data = STATUS[chip_select][reg][2] ;
-          r = 1 ;
           break ;
         case 0b1111:
           data = STATUS[chip_select][reg][3] ;
-          r = 1 ;
           break ;
       }
 
-      /* if (w){
-        Serial.print("STORED ") ;
-        Serial.print(chip_select) ;
-        Serial.print(" ") ;
-        Serial.print(reg) ;
-        Serial.print(" ") ;
-        Serial.print(chr) ;
-        Serial.print(" ") ;
-        Serial.print(opa) ;
-        Serial.print(" ") ;
-        Serial.println(data) ;
-      } */
-      if (r){
+      if (data != -1){
         pinMode(DATA_3, OUTPUT) ;
         pinMode(DATA_2, OUTPUT) ;
         pinMode(DATA_1, OUTPUT) ;
         pinMode(DATA_0, OUTPUT) ;         
         write_data(data) ;      
-        
-        /* Serial.print("RETRIEVED ") ;
-        Serial.print(chip_select) ;
-        Serial.print(" ") ;
-        Serial.print(reg) ;
-        Serial.print(" ") ;
-        Serial.print(chr) ;
-        Serial.print(" ") ;
-        Serial.print(opa) ;
-        Serial.print(" ") ;
-        Serial.println(data) ; */
       }
     }
   }) ;
