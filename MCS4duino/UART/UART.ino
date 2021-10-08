@@ -22,7 +22,6 @@
 #define CMD_TEST    0b0111
 #define CMD_DATA_R  0b1000
 #define CMD_DATA_W  0b1001
-#define CMD_RPC     0b1111
 
 
 void reset(){
