@@ -1,11 +1,11 @@
 #include "INST.h"
 
-TIMING *timing ;
-DATA *data ;
-bool sc ;
-bool cond ;
-byte opr ;
-byte opa ;
+static TIMING *timing ;
+static DATA *data ;
+static bool sc ;
+static bool cond ;
+static byte opr ;
+static byte opa ;
 
 
 void INST_reset(){
@@ -20,6 +20,7 @@ void INST_setup(TIMING *t, DATA *d){
   timing = t ;
   data = d ;
   INST_reset() ;
+  INST_timing() ;
 }
 
 
@@ -38,10 +39,7 @@ void INST_timing(){
 
 }
     
-    
 
-
-    
 bool opa_odd(){
     return opa & 1 ;
 }
@@ -124,6 +122,9 @@ bool inh(){
     return ((jin() || fin()) && sc) || (((jun() || jms()) || ((jcn() || isz()) && cond)) && (! sc)) ;
 }
 
+bool get_sc(){
+  return sc ;
+}
 
 /*
 from chips.modules.timing import *

@@ -29,5 +29,6 @@ bool tcs() ;
 bool daa() ;
 bool kbp() ;
 bool inh() ;
+bool get_sc() ;
 
 #endif

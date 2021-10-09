@@ -8,7 +8,6 @@
 
 
 class DATA {
-          
   public:
     DATA(){    
       reset() ;
