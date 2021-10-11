@@ -30,5 +30,7 @@ bool daa() ;
 bool kbp() ;
 bool inh() ;
 bool get_sc() ;
+byte get_opr() ;
+byte get_opa() ;
 
 #endif

@@ -126,6 +126,13 @@ bool get_sc(){
   return sc ;
 }
 
+byte get_opr(){
+  return opr ;
+}
+
+byte get_opa(){
+  return opa ;
+}
 /*
 from chips.modules.timing import *
 from hdl import *
