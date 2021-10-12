@@ -28,7 +28,7 @@ bool ope() ;
 bool tcs() ;
 bool daa() ;
 bool kbp() ;
-bool inh() ;
+//bool inh() ;
 bool get_sc() ;
 byte get_opr() ;
 byte get_opa() ;

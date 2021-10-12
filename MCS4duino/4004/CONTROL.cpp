@@ -1,5 +1,6 @@
 #include "CONTROL.h"
 #include "CONTROL_TABLE.h"
+#include "IO.h"
 #include "PINS.h"
 #include "SCRATCH.h"
 
@@ -60,14 +61,16 @@ void FIM_M22clk2(){
 
 void SRC_X21(){
   // enableRegPairH() ;
-  digitalWrite(CM_ROM, HIGH) ;
-  digitalWrite(CM_RAM, HIGH) ;
+  //Serial.print(timing->_cycle) ;
+  //Serial.println(" SRC CM on") ;
+  CM(HIGH) ;
 } ;
 
 void SRC_X31(){
   // enableRegPairL() ;
-  digitalWrite(CM_ROM, LOW) ;
-  digitalWrite(CM_RAM, LOW) ;
+  //Serial.print(timing->_cycle) ;
+  //Serial.println(" SRC CM off") ;
+  CM(LOW) ;
 } ;
 
 void FIN_M12clk2(){

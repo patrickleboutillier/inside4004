@@ -16,6 +16,7 @@ class TIMING {
     void (*_dispatch[8][4][8])() ;
   public:
       unsigned long _cycle ;
+      int _pass ;
         
   public:
     TIMING(int pin_clk1, int pin_clk2, int pin_sync){  
@@ -41,13 +42,15 @@ class TIMING {
       _phase = -1 ;
       _reset = 1 ;
       _cycle = 0 ;
+      _pass = 0 ;
     }
     
     
     void loop(){
       bool clk1 = digitalRead(_pin_clk1) ;
       bool clk2 = digitalRead(_pin_clk2) ;
-      
+
+      int cur_phase ;
       if ((clk1)&&(!clk2)){
         _slave = _master ;
         if ((_slave == 0)&&(_reset)){   // 0 == state A1!
@@ -58,7 +61,7 @@ class TIMING {
         if (_phase != 0){
           _cycle++ ;
         }
-        _phase = 0 ;
+        cur_phase = 0 ;
       }
       else if ((!clk1)&&(clk2)){
         if (digitalRead(_pin_sync)){
@@ -67,17 +70,25 @@ class TIMING {
         else {
           _master = (_slave + 1) & 0x7 ;
         }
-        _phase = 2 ;
+        cur_phase = 2 ;
       }
       else if ((!clk1)&&(!clk2)){
         if (_slave == _master){
-          _phase = 1 ;
+          cur_phase = 1 ;
         }
         else {
-          _phase = 3 ;
+          cur_phase = 3 ;
         }
       }
-    
+
+      if (cur_phase != _phase){
+        _phase = cur_phase ;
+        _pass = 0 ;
+      }
+      else {
+        _pass++ ;
+      }
+      
       if (_reset){
         return ;
       }

@@ -2,19 +2,20 @@
 #include "INST.h"
 #include "PINS.h"
 
+static bool IO_is_setup = 0 ;
 static TIMING *timing ;
 
 
 void IO_reset(){
-  digitalWrite(CM_ROM, LOW) ;
-  digitalWrite(CM_RAM, LOW) ;
+  CM(LOW) ;
 }
 
 
 void IO_setup(TIMING *t){
+  IO_is_setup = 1 ;
   timing = t ;
   pinMode(CM_ROM, OUTPUT) ;
-  pinMode(CM_RAM, OUTPUT) ; 
+  //pinMode(CM_RAM, OUTPUT) ; 
   IO_reset() ;
   IO_timing() ;
 }
@@ -22,24 +23,29 @@ void IO_setup(TIMING *t){
 
 void IO_timing(){
   timing->A31([]{   // Turn on cm-rom and cm-ram for the 4001 and 4002 chips that are listening.
-    digitalWrite(CM_ROM, HIGH) ;
-    digitalWrite(CM_RAM, HIGH) ;
+    CM(HIGH) ;
   }) ;
   
   timing->M21([]{
     if (io()){
-      digitalWrite(CM_ROM, HIGH) ;
-      digitalWrite(CM_RAM, HIGH) ;
+      CM(HIGH) ;
     }
   }) ;
 
   auto f = []{
-    digitalWrite(CM_ROM, LOW) ;
-    digitalWrite(CM_RAM, LOW) ;  
+    CM(LOW) ;
   } ;
   timing->M11(f) ;    // Turn on cm-rom and cm-ram for the 4001 and 4002 chips that are listening.
   timing->X11(f) ;
 } ;
+
+
+void CM(bool v){
+  if (IO_is_setup){
+    digitalWrite(CM_ROM, v) ;
+    //digitalWrite(CM_RAM, v) ;    
+  }
+}
 
 
 bool testZero(){

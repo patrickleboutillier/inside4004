@@ -14,7 +14,7 @@ class addr:
         self.inst.addr = self
         self.incr_in = 0            # The input to the address incrementer
         self.cy = 0                 # The carry (in) for the address incrementer
-        self_cy_out = 0             # The carry (out) for the address incrementer
+        self.cy_out = 0             # The carry (out) for the address incrementer
         self.ph = 0                 # The high nibble of the program counter 
         self.pl = 0                 # The middle nibble of the program counter
         self.pm = 0                 # The low nibble of the program counter

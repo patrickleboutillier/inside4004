@@ -25,6 +25,27 @@ void INST_setup(TIMING *t, DATA *d){
 
 
 void INST_timing(){
+  timing->A12clk1([]{
+    // WARNING: Instruction logic here
+    if (timing->_pass == 0){
+      if (sc && (fin() || fim() || jun() || jms() || jcn() || isz())){
+        sc = 0 ;
+      }
+      else {
+        sc = 1 ;
+      }
+    }
+
+    if (! sc){
+      //if (jcn()){
+      //    setJCNCond() ;
+      //}
+      //if (isz()){
+      //    cond = ~alu.addZero() & 1
+      //}
+    }
+  }) ;
+  
   timing->M12clk2([]{
     if (sc){
       opr = data->read() ;
@@ -118,9 +139,9 @@ bool kbp(){
 
 // Inhibit program counter commit
 // inh = (jin_fin & sc) | ((jun_jms | (jcn_isz & cond)) & ~sc)
-bool inh(){
-    return ((jin() || fin()) && sc) || (((jun() || jms()) || ((jcn() || isz()) && cond)) && (! sc)) ;
-}
+//bool inh(){
+//    return ((jin() || fin()) && sc) || (((jun() || jms()) || ((jcn() || isz()) && cond)) && (! sc)) ;
+//}
 
 bool get_sc(){
   return sc ;
@@ -133,6 +154,8 @@ byte get_opr(){
 byte get_opa(){
   return opa ;
 }
+
+
 /*
 from chips.modules.timing import *
 from hdl import *

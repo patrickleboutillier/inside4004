@@ -19,9 +19,9 @@ DATA DATA ;
 void reset(){  
   TIMING.reset() ;
   DATA.reset() ;
-  IO_reset() ;
   INST_reset() ;
   CONTROL_reset() ;
+  IO_reset() ;
   SCRATCH_reset() ;
 }
 
@@ -33,11 +33,11 @@ void setup(){
   pinMode(CLK1, INPUT) ;
   pinMode(CLK2, INPUT) ;
   pinMode(SYNC, INPUT) ;
-  
-  IO_setup(&TIMING) ;
+
   INST_setup(&TIMING, &DATA) ;
-  SCRATCH_setup(&TIMING, &DATA) ;
   CONTROL_setup(&TIMING, &DATA) ;
+  IO_setup(&TIMING) ;
+  SCRATCH_setup(&TIMING, &DATA) ;
   reset() ;
 }
 

@@ -12,6 +12,8 @@ import time
 #       |--   cycle   --|--   cycle   --|--   cycle   --|--   cycle   --|
 
 
+cycle = 0
+
 class clock():
     def __init__(self):
         self.phx = pbus(2)
@@ -25,10 +27,12 @@ class clock():
 
 
     def tick(self, nb=1):
+        global cycle
         for _ in range(nb):
             start = time.perf_counter()
 
             if self.n == 0:
+                cycle += 1
                 self.sclk1.v = 1
                 self.phx.v(0b10)
             elif self.n == 1:
@@ -44,4 +48,5 @@ class clock():
 
             dur = time.perf_counter() - start
             if dur < self.qperiod:
+                #print("sleep", self.qperiod - dur)
                 time.sleep(self.qperiod - dur) 
