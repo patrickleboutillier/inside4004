@@ -272,6 +272,10 @@ class TIMING {
     bool x1(){
       return _slave == 5 ;
     }
+    
+    bool x2(){
+      return _slave == 6 ;
+    }
 } ;
 
 #endif

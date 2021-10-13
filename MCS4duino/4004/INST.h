@@ -109,12 +109,12 @@ bool kbp(){
     return (INST_opr == 0b1111) && (INST_opa == 0b1100) ;   
 }
 
-//inline bool inh() __attribute__((always_inline))  ;
+inline bool inh() __attribute__((always_inline))  ;
 // Inhibit program counter commit
 // inh = (jin_fin & INST_sc) | ((jun_jms | (jcn_isz & INST_cond)) & ~INST_sc)
-//bool inh(){
-//    return ((jin() || fin()) && INST_sc) || (((jun() || jms()) || ((jcn() || isz()) && INST_cond)) && (! INST_sc)) ;
-//}
+bool inh(){
+    return ((jin() || fin()) && INST_sc) || (((jun() || jms()) || ((jcn() || isz()) && INST_cond)) && (! INST_sc)) ;
+}
 
 inline bool get_sc() __attribute__((always_inline)) ;
 bool get_sc(){

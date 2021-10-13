@@ -13,15 +13,13 @@ class DATA {
       reset() ;
     }
     
-    
     void reset(){
       DDRB = DDRB & ~DATA_32 ;
       PORTB = PORTB & ~DATA_32 ;
       DDRD = DDRD & ~DATA_10 ;
       PORTD = PORTD & ~DATA_10 ;
     }
-
-
+    
     void write(byte data){
       DDRB = DDRB | DATA_32 ;
       DDRD = DDRD | DATA_10 ;
@@ -29,11 +27,9 @@ class DATA {
       PORTD = (PORTD & ~DATA_10) | (((data >> 1) & 1) << 6) | ((data & 1) << 5) ;      
     }
 
-
     byte read(){
       return ((PINB & DATA_32) << 2) | ((PIND & DATA_10) >> 5) ; 
     }
-
 
     void z(){
       DDRB = DDRB & ~DATA_32 ;
