@@ -15,11 +15,10 @@
 
 TIMING TIMING(CLK1, CLK2, SYNC) ;
 
-byte opa = 0 ;
 byte reg = 0 ;
 byte chr = 0 ;
 bool src = 0 ;
-bool ram_inst = 0 ;
+int opa = -1 ;
 byte chip_select = 0 ;
 byte RAM[4][4][16] ;
 byte STATUS[4][4][4] ;
@@ -32,11 +31,10 @@ void reset(){
   pinMode(DATA_0, INPUT) ;   
   
   TIMING.reset() ;
-  opa = 0 ;
   reg = 0 ;
   chr = 0 ;
   src = 0 ;
-  ram_inst = 0 ;
+  opa = -1 ;
   chip_select = 0 ;
 
   for (int i = 0 ; i < 4  ; i++){
@@ -71,15 +69,13 @@ void setup(){
 
 
   TIMING.M22clk2([]{
-    // Grab opa
-    opa = read_data() ;
     if (digitalRead(CM)){
       // If we are the selected chip for RAM/I/O and cm is on, the CPU is telling us that we are processing a RAM/I/O instruction
-      // NOTE: We could have just checked that opr == 0b1110 during M1...
-      ram_inst = 1 ;
+      // Grab opa
+      opa = read_data() ;
     }
     else {
-      ram_inst = 0 ;
+      opa = -1 ;
     }
   }) ;
 
@@ -97,7 +93,7 @@ void setup(){
       src = 0 ;
     }                
     
-    if (ram_inst){
+    if (opa != -1){
       // A RAM/I/O instruction is in progress, execute the proper operation according to the value of opa
       int data = -1 ; 
       
@@ -162,7 +158,7 @@ void setup(){
 
   TIMING.X32clk1([]{
     // Disconnect from bus
-    if (ram_inst){
+    if (opa != -1){
       pinMode(DATA_3, INPUT) ;
       pinMode(DATA_2, INPUT) ;
       pinMode(DATA_1, INPUT) ;

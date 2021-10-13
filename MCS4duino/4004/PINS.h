@@ -9,9 +9,9 @@
 #define CLK2_2    0b000001000   // PORTD
 #define SYNC_1    10
 #define SYNC_2    2
-#define CM_ROM    A0
-#define CM_RAM    A4
+// #define CM_ROM    A0
+// #define CM_RAM    A4
 #define SEND_KEY  A2
-#define TEST      7
+// #define TEST      7
 
 #endif
