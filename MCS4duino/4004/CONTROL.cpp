@@ -63,14 +63,14 @@ void SRC_X21(){
   // enableRegPairH() ;
   //Serial.print(timing->_cycle) ;
   //Serial.println(" SRC CM on") ;
-  onCM() ;
+  CMon() ;
 } ;
 
 void SRC_X31(){
   // enableRegPairL() ;
   //Serial.print(timing->_cycle) ;
   //Serial.println(" SRC CM off") ;
-  offCM() ;
+  CMoff() ;
 } ;
 
 void FIN_M12clk2(){

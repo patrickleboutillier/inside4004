@@ -188,15 +188,13 @@ class control:
         @X21
         def _():
             scratch.enableRegPairH()
-            #print(clock.cycle, "SRC CM on")
-            ioc.cm_rom.v = 1
-            ioc.cm_ram.v = ioc.ram_bank & 1
+            # ioc.cm_rom.v = 1
+            # ioc.cm_ram.v = ioc.ram_bank & 1
         @X31
         def _():
             scratch.enableRegPairL()
-            #print(clock.cycle, "SRC CM off")
-            ioc.cm_rom.v = 0
-            ioc.cm_ram.v = 0
+            # ioc.cm_rom.v = 0
+            # ioc.cm_ram.v = 0
 
         # FIN
         opr, opa = 0b0011, even

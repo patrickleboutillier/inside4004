@@ -14,22 +14,22 @@ class io:
         self.cm_ram = cm_ram
         self.ram_bank = 1
 
-        @A31        # Turn on cm-rom and cm-ram for the 4001 and 4002 chips that are listening.
-        def _():
-            self.cm_rom.v = 1
-            self.cm_ram.v = self.ram_bank & 1
+        # @A31        # Turn on cm-rom and cm-ram for the 4001 and 4002 chips that are listening.
+        # def _():
+        #     self.cm_rom.v = 1
+        #     self.cm_ram.v = self.ram_bank & 1
 
-        @M21
-        def _():
-            if self.inst.io():
-                self.cm_rom.v = 1
-                self.cm_ram.v = self.ram_bank & 1
+        # @M21
+        # def _():
+        #     if self.inst.io():
+        #         self.cm_rom.v = 1
+        #         self.cm_ram.v = self.ram_bank & 1
 
-        @M11        # Turn on cm-rom and cm-ram for the 4001 and 4002 chips that are listening.
-        @X11
-        def _():
-            self.cm_rom.v = 0
-            self.cm_ram.v = 0 
+        # @M11        # Turn on cm-rom and cm-ram for the 4001 and 4002 chips that are listening.
+        # @X11
+        # def _():
+        #     self.cm_rom.v = 0
+        #     self.cm_ram.v = 0 
 
 
     def testZero(self):
