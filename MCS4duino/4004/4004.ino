@@ -9,11 +9,9 @@
 
 
 #define RESET   A1
-#define CLK1    12
-#define CLK2    11
-#define SYNC    10
+#define READ_RESET PORTC & 0b00000010
 
-TIMING TIMING(CLK1, CLK2, SYNC) ;
+TIMING TIMING ;
 DATA DATA ;
 
 
@@ -46,7 +44,7 @@ void setup(){
 
 
 void loop(){
-  if (digitalRead(RESET)){
+  if (READ_RESET){
     return reset() ;
   }
 

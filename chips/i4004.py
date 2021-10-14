@@ -5,13 +5,14 @@ from hdl import *
 
 
 class i4004:
-    def __init__(self, clk1, clk2, data, cm_rom, cm_ram, test, reset):
+    def __init__(self, clk1, clk2, data, cm_rom, cm_ram, test, reset, cond):
         self.timing = timing.timing(clk1, clk2, None)
         self.sync = self.timing.sync
         self.data = data
         self.test = test
         self.reset = reset
-        self.inst = inst.inst(self.data)
+        self.cond = cond
+        self.inst = inst.inst(self.data, self.cond)
         self.alu = alu.alu(self.inst, data)
         self.scratch = scratch.scratch(self.inst, self.timing, data)
         self.addr = addr.addr(self.inst, self.timing, self.data)

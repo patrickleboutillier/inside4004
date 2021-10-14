@@ -3,12 +3,23 @@
 
 #include "Arduino.h"
 
+#define CLK1    12
+#define CLK2    11
+#define SYNC    10
+#define READ_CLK1 PORTB & 0b00010000
+#define READ_CLK2 PORTB & 0b00001000
+#define READ_SYNC PORTB & 0b00000100
+
+#define SYNC1    10
+#define SYNC2    2
+#define SYNC1_ON  PORTB |=  0b00000100
+#define SYNC1_OFF PORTB &= ~0b00000100
+#define SYNC2_ON  PORTA |=  0b00000100
+#define SYNC2_OFF PORTA &= ~0b00000100
+
 
 class TIMING {
   private:
-    int _pin_clk1 ;
-    int _pin_clk2 ;
-    int _pin_sync ;
     byte _slave ;
     byte _master ;
     int _phase ;
@@ -19,11 +30,7 @@ class TIMING {
       int _pass ;
         
   public:
-    TIMING(int pin_clk1, int pin_clk2, int pin_sync){  
-      _pin_clk1 = pin_clk1 ;
-      _pin_clk2 = pin_clk2 ;
-      _pin_sync = pin_sync ;
-    
+    TIMING(){  
       for (int i = 0 ; i < 8 ; i++){
         for (int j = 0 ; j < 4 ; j++){
           for (int k = 0 ; k < 8 ; k++){
@@ -47,8 +54,8 @@ class TIMING {
     
     
     void loop(){
-      bool clk1 = digitalRead(_pin_clk1) ;
-      bool clk2 = digitalRead(_pin_clk2) ;
+      bool clk1 = digitalRead(CLK1) ;
+      bool clk2 = digitalRead(CLK2) ;
 
       int cur_phase ;
       if ((clk1)&&(!clk2)){
@@ -64,7 +71,7 @@ class TIMING {
         cur_phase = 0 ;
       }
       else if ((!clk1)&&(clk2)){
-        if (digitalRead(_pin_sync)){
+        if (digitalRead(SYNC)){
           _master = 0 ;
         }
         else {

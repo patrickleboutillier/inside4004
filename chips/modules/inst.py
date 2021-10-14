@@ -8,10 +8,11 @@ from hdl import *
 
 
 class inst:
-    def __init__(self, data):
+    def __init__(self, data, condw):
         self.data = data
         self.sc = 1
         self.cond = 0
+        self.condw = condw
         self.opr = 0
         self.opa = 0
 
@@ -22,8 +23,10 @@ class inst:
                 self.sc = 0
                 if self.jcn():
                     self.setJCNCond()
+                    self.condw.v = self.cond
                 if self.isz():
                     self.cond = ~self.alu.addZero() & 1
+                    self.condw.v = self.cond
             else:
                 self.sc = 1
 
