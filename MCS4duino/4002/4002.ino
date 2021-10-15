@@ -166,10 +166,18 @@ void setup(){
 }
 
 
+unsigned long max_dur = 0 ;
 void loop(){
-  if (READ_RESET){
-    return reset() ;
-  }
+  while (1){
+    unsigned long start = micros() ;
+    if (READ_RESET){
+      return reset() ;
+    }
 
-  TIMING.loop() ;
+    TIMING.loop() ;
+    unsigned long dur = micros() - start ;
+    if (dur > max_dur){
+      max_dur = dur ;
+    }
+  }
 }
