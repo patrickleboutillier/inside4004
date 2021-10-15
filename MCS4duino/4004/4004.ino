@@ -44,7 +44,7 @@ void setup(){
 
 
 void loop(){
-  if (READ_RESET){
+  if (digitalRead(RESET)){
     return reset() ;
   }
 

@@ -23,10 +23,10 @@ class inst:
                 self.sc = 0
                 if self.jcn():
                     self.setJCNCond()
-                    self.condw.v = self.cond
+                    # self.condw.v = self.cond
                 if self.isz():
                     self.cond = ~self.alu.addZero() & 1
-                    self.condw.v = self.cond
+                    # self.condw.v = self.cond
             else:
                 self.sc = 1
 

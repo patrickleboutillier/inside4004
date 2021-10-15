@@ -1,19 +1,23 @@
 #include "TIMING.h"
 
-#define RESET  A1
-#define CM     A0
-#define CLK1   12
-#define CLK2   11
-#define SYNC   10
-#define DATA_3 9
-#define DATA_2 8
-#define DATA_1 6
-#define DATA_0 5
-#define PRN_ADV   A3
-#define PRN_FIRE  A4
-#define PRN_COLOR A5
+#define RESET      A1
+#define READ_RESET PINC & 0b00000010
+#define CM         A0
+#define READ_CM    PINC & 0b00000001
+#define DATA_3     9
+#define DATA_2     8
+#define DATA_1     6
+#define DATA_0     5
+#define DATA_32    0b00000011    // PORTB
+#define DATA_10    0b01100000    // PORTD
+#define READ_DATA  ((PINB & DATA_32) << 2) | ((PIND & DATA_10) >> 5)
+#define WRITE_DATA (data) (PORTB = (PORTB & ~DATA_32) | (((data >> 3) & 1) << 1) | ((data >> 2) & 1) ; PORTD = (PORTD & ~DATA_10) | (((data >> 1) & 1) << 6) | ((data & 1) << 5)  
+ 
+#define PRN_ADV    A3
+#define PRN_FIRE   A4
+#define PRN_COLOR  A5
 
-TIMING TIMING(CLK1, CLK2, SYNC) ;
+TIMING TIMING ;
 
 byte reg = 0 ;
 byte chr = 0 ;
@@ -59,17 +63,15 @@ void setup(){
   Serial.println("4002") ;
   pinMode(RESET, INPUT) ;
   pinMode(CM, INPUT) ;
-  pinMode(CLK1, INPUT) ;
-  pinMode(CLK2, INPUT) ;
-  pinMode(SYNC, INPUT) ;
   pinMode(PRN_ADV, OUTPUT) ; 
   pinMode(PRN_FIRE, OUTPUT) ;   
   pinMode(PRN_COLOR, OUTPUT) ; 
+  TIMING.setup() ;
   reset() ;
 
 
   TIMING.M22clk2([]{
-    if (digitalRead(CM)){
+    if (READ_CM){
       // If we are the selected chip for RAM/I/O and cm is on, the CPU is telling us that we are processing a RAM/I/O instruction
       // Grab opa
       opa = read_data() ;
@@ -81,7 +83,7 @@ void setup(){
 
 
   TIMING.X22clk1([]{
-    if (digitalRead(CM)){
+    if (READ_CM){
       // An SRC instruction is in progress
       byte data = read_data() ;
       chip_select = data >> 2 ;
@@ -177,7 +179,7 @@ void setup(){
 
 
 void loop(){
-  if (digitalRead(RESET)){
+  if (READ_RESET){
     return reset() ;
   }
 

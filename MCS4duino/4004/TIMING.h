@@ -3,19 +3,19 @@
 
 #include "Arduino.h"
 
-#define CLK1    12
-#define CLK2    11
-#define SYNC    10
+#define CLK1      12
+#define CLK2      11
+#define SYNC      10
 #define READ_CLK1 PORTB & 0b00010000
 #define READ_CLK2 PORTB & 0b00001000
 #define READ_SYNC PORTB & 0b00000100
 
-#define SYNC1    10
-#define SYNC2    2
-#define SYNC1_ON  PORTB |=  0b00000100
-#define SYNC1_OFF PORTB &= ~0b00000100
-#define SYNC2_ON  PORTA |=  0b00000100
-#define SYNC2_OFF PORTA &= ~0b00000100
+#define SYNC1     10
+#define SYNC2     2
+#define SYNC1_ON  PORTB |=   0b00000100
+#define SYNC1_OFF PORTB &= (~0b00000100)
+#define SYNC2_ON  PORTA |=   0b00000100
+#define SYNC2_OFF PORTA &= (~0b00000100)
 
 
 class TIMING {
