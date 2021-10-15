@@ -1,18 +1,16 @@
 #include "TIMING.h"
 
-#define RESET      A1
-#define READ_RESET PINC & 0b00000010
-#define CM         A0
-#define READ_CM    PINC & 0b00000001
-#define DATA_3     9
-#define DATA_2     8
-#define DATA_1     6
-#define DATA_0     5
-#define DATA_32    0b00000011    // PORTB
-#define DATA_10    0b01100000    // PORTD
-#define READ_DATA  ((PINB & DATA_32) << 2) | ((PIND & DATA_10) >> 5)
-#define WRITE_DATA (data) (PORTB = (PORTB & ~DATA_32) | (((data >> 3) & 1) << 1) | ((data >> 2) & 1) ; PORTD = (PORTD & ~DATA_10) | (((data >> 1) & 1) << 6) | ((data & 1) << 5)  
- 
+#define READ_RESET  PINC &  0b00000010
+#define RESET_INPUT DDRC & ~0b00000010
+#define READ_CM     PINC &  0b00000001
+#define CM_INPUT    DDRC & ~0b00000001
+#define DATA_32     0b00000011 // PORTB
+#define DATA_10     0b01100000 // PORTD
+#define READ_DATA        ((PINB & DATA_32) << 2) | ((PIND & DATA_10) >> 5)
+#define WRITE_DATA(data) PORTB = (PORTB & ~DATA_32) | (((data >> 3) & 1) << 1) | ((data >> 2) & 1) ; PORTD = (PORTD & ~DATA_10) | (((data >> 1) & 1) << 6) | ((data & 1) << 5)  
+#define DATA_INPUT       DDRB = DDRB & ~DATA_32 ; DDRD = DDRD & ~DATA_10
+#define DATA_OUTPUT      DDRB = DDRB | DATA_32 ; DDRD = DDRD | DATA_10
+
 #define PRN_ADV    A3
 #define PRN_FIRE   A4
 #define PRN_COLOR  A5
@@ -29,11 +27,7 @@ byte STATUS[4][4][4] ;
 
 
 void reset(){
-  pinMode(DATA_3, INPUT) ;
-  pinMode(DATA_2, INPUT) ;
-  pinMode(DATA_1, INPUT) ;
-  pinMode(DATA_0, INPUT) ;   
-  
+  DATA_INPUT ;   
   TIMING.reset() ;
   reg = 0 ;
   chr = 0 ;
@@ -61,8 +55,8 @@ void reset(){
 void setup(){
   Serial.begin(115200) ;
   Serial.println("4002") ;
-  pinMode(RESET, INPUT) ;
-  pinMode(CM, INPUT) ;
+  RESET_INPUT ;
+  CM_INPUT ;
   pinMode(PRN_ADV, OUTPUT) ; 
   pinMode(PRN_FIRE, OUTPUT) ;   
   pinMode(PRN_COLOR, OUTPUT) ; 
@@ -74,7 +68,7 @@ void setup(){
     if (READ_CM){
       // If we are the selected chip for RAM/I/O and cm is on, the CPU is telling us that we are processing a RAM/I/O instruction
       // Grab opa
-      opa = read_data() ;
+      opa = READ_DATA ;
     }
     else {
       opa = -1 ;
@@ -85,7 +79,7 @@ void setup(){
   TIMING.X22clk1([]{
     if (READ_CM){
       // An SRC instruction is in progress
-      byte data = read_data() ;
+      byte data = READ_DATA ;
       chip_select = data >> 2 ;
       // Grab the selected RAM register
       reg = data & 0b0011 ;
@@ -101,10 +95,10 @@ void setup(){
       
       switch (opa){
         case 0b0000:
-          RAM[chip_select][reg][chr] = read_data() ;
+          RAM[chip_select][reg][chr] = READ_DATA ;
           break ;
         case 0b0001:
-          data = read_data() ;
+          data = READ_DATA ;
           if (chip_select == 0){
             digitalWrite(PRN_ADV, (data >> 3) & 1) ;
             digitalWrite(PRN_FIRE, (data >> 1) & 1) ;
@@ -112,16 +106,16 @@ void setup(){
           }
           break ;
         case 0b0100:
-          STATUS[chip_select][reg][0] = read_data() ;
+          STATUS[chip_select][reg][0] = READ_DATA ;
           break ;
         case 0b0101:
-          STATUS[chip_select][reg][1] = read_data() ;
+          STATUS[chip_select][reg][1] = READ_DATA ;
           break ;
         case 0b0110:
-          STATUS[chip_select][reg][2] = read_data() ;
+          STATUS[chip_select][reg][2] = READ_DATA ;
           break ;
         case 0b0111:
-          STATUS[chip_select][reg][3] = read_data() ;
+          STATUS[chip_select][reg][3] = READ_DATA ;
           break ;
           
         case 0b1000: 
@@ -148,11 +142,8 @@ void setup(){
       }
 
       if (data != -1){
-        pinMode(DATA_3, OUTPUT) ;
-        pinMode(DATA_2, OUTPUT) ;
-        pinMode(DATA_1, OUTPUT) ;
-        pinMode(DATA_0, OUTPUT) ;         
-        write_data(data) ;      
+        DATA_OUTPUT ;  
+        WRITE_DATA(data) ;
       }
     }
   }) ;
@@ -161,10 +152,7 @@ void setup(){
   TIMING.X32clk1([]{
     // Disconnect from bus
     if (opa != -1){
-      pinMode(DATA_3, INPUT) ;
-      pinMode(DATA_2, INPUT) ;
-      pinMode(DATA_1, INPUT) ;
-      pinMode(DATA_0, INPUT) ; 
+      DATA_INPUT ;
     }
   }) ;
 
@@ -172,7 +160,7 @@ void setup(){
   TIMING.X32clk2([]{
     // If we are processing an SRC instruction, grab the selected RAM character
     if (src){
-      chr = read_data() ;
+      chr = READ_DATA ;
     }
   }) ;
 }
@@ -184,18 +172,4 @@ void loop(){
   }
 
   TIMING.loop() ;
-}
-
-
-byte read_data(){
-  return (digitalRead(DATA_3) << 3) | (digitalRead(DATA_2) << 2) | 
-    (digitalRead(DATA_1) << 1) | digitalRead(DATA_0) ;
-}
-
-
-void write_data(byte data){
-  digitalWrite(DATA_3, (data >> 3) & 1) ;
-  digitalWrite(DATA_2, (data >> 2) & 1) ;
-  digitalWrite(DATA_1, (data >> 1) & 1) ;
-  digitalWrite(DATA_0, data & 1) ;
 }

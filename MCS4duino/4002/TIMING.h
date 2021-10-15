@@ -6,10 +6,12 @@
 #define CLK1       12
 #define CLK2       11
 #define SYNC       10
-#define READ_CLK1  PINB & 0b00010000
-#define READ_CLK2  PINB & 0b00001000
-#define READ_SYNC  PINB & 0b00000100
-
+#define READ_CLK1  PINB &  0b00010000
+#define CLK1_INPUT DDRB & ~0b00010000
+#define READ_CLK2  PINB &  0b00001000
+#define CLK2_INPUT DDRB & ~0b00001000
+#define READ_SYNC  PINB &  0b00000100
+#define SYNC_INPUT DDRB & ~0b00000100
 
 class TIMING {
   private:
