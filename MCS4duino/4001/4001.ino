@@ -1,15 +1,16 @@
 #include "TIMING.h"
 #include "ROM.h"
 
-#define RESET   A5
-#define CM      A4
-#define CLK1    4
-#define CLK2    3
-#define SYNC    2
+#define READ_RESET  PINC &  0b00100000
+#define RESET_INPUT DDRC & ~0b00100000
+#define READ_CM     PINC &  0b00010000
+#define CM_INPUT    DDRC & ~0b00010000
 #define DATA_3  8
 #define DATA_2  7
 #define DATA_1  6
 #define DATA_0  5
+//#define DATA_3      0b00000001 // PORTB
+//#define DATA_210    0b11100000 // PORTD
 #define SHFT_DATA     13
 #define KBD_SHFT_CLK  12
 #define PRN_SHFT_CLK  11
@@ -21,7 +22,7 @@
 #define KBD_ROW_1     A2
 #define KBD_ROW_0     A3
 
-TIMING TIMING(CLK1, CLK2, SYNC) ;
+TIMING TIMING ;
 
 byte addrh = 0 ;  // The high nibble of the ROM address
 byte addrl = 0 ;  // The low nibble of the ROM address
@@ -54,11 +55,8 @@ void reset(){
 void setup(){
   Serial.begin(115200) ;
   Serial.println("4001") ;
-  pinMode(RESET, INPUT) ;
-  pinMode(CM, INPUT) ;
-  pinMode(CLK1, INPUT) ;
-  pinMode(CLK2, INPUT) ;
-  pinMode(SYNC, INPUT) ;
+  RESET_INPUT ;
+  CM_INPUT ;
   pinMode(KBD_SHFT_CLK, OUTPUT) ;
   pinMode(SHFT_DATA, OUTPUT) ;
   pinMode(PRN_SHFT_CLK, OUTPUT) ;
@@ -68,6 +66,7 @@ void setup(){
   pinMode(KBD_ROW_2, INPUT) ;
   pinMode(KBD_ROW_1, INPUT) ;
   pinMode(KBD_ROW_0, INPUT) ;
+  TIMING.setup() ;
   reset() ;
 
   
@@ -83,7 +82,7 @@ void setup(){
   
   TIMING.A32clk1([]{
     // If cm is on, we are the selected ROM chip for instructions if chipnum == data
-    if (digitalRead(CM)){
+    if (READ_CM){
       rom_select = read_data() ;
     }
   }) ;  
@@ -133,7 +132,7 @@ void setup(){
 
 
   TIMING.X22clk1([]{
-    if (digitalRead(CM)){
+    if (READ_CM){
       io_select = read_data() ;
       src = 1 ;
     }
@@ -183,12 +182,23 @@ void setup(){
 }
 
 
+unsigned long max_dur = 0 ;
 void loop(){
-  if (digitalRead(RESET)){
-    return reset() ;
-  }
+  while (1){
+    unsigned long start = micros() ;
+    if (READ_RESET){
+      return reset() ;
+    }
 
-  TIMING.loop() ;
+    TIMING.loop() ;
+    unsigned long dur = micros() - start ;
+    if (dur > max_dur){
+      max_dur = dur ;
+      Serial.print("Max loop duration: ") ;
+      Serial.print(max_dur) ;
+      Serial.println("us") ;
+    }
+  }
 }
 
 
