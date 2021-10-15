@@ -11,9 +11,15 @@
 #define DATA_INPUT       DDRB = DDRB & ~DATA_32 ; DDRD = DDRD & ~DATA_10
 #define DATA_OUTPUT      DDRB = DDRB | DATA_32 ; DDRD = DDRD | DATA_10
 
-#define PRN_ADV    A3
-#define PRN_FIRE   A4
-#define PRN_COLOR  A5
+#define PRN_ADV_OUTPUT   DDRC |=   0b00001000
+#define PRN_ADV_ON       PORTC |=  0b00001000
+#define PRN_ADV_OFF      PORTC &= ~0b00001000
+#define PRN_FIRE_OUTPUT  DDRC |=   0b00010000
+#define PRN_FIRE_ON      PORTC |=  0b00010000
+#define PRN_FIRE_OFF     PORTC &= ~0b00010000
+#define PRN_COLOR_OUTPUT DDRC |=   0b00100000
+#define PRN_COLOR_ON     PORTC |=  0b00100000
+#define PRN_COLOR_OFF    PORTC &= ~0b00100000
 
 TIMING TIMING ;
 
@@ -46,9 +52,9 @@ void reset(){
     }
   }
   
-  digitalWrite(PRN_ADV, 0) ;
-  digitalWrite(PRN_FIRE, 0) ;
-  digitalWrite(PRN_COLOR, 0) ;
+  PRN_ADV_OFF ;
+  PRN_FIRE_OFF ;
+  PRN_COLOR_OFF ;
 }
 
 
@@ -57,9 +63,9 @@ void setup(){
   Serial.println("4002") ;
   RESET_INPUT ;
   CM_INPUT ;
-  pinMode(PRN_ADV, OUTPUT) ; 
-  pinMode(PRN_FIRE, OUTPUT) ;   
-  pinMode(PRN_COLOR, OUTPUT) ; 
+  PRN_ADV_OUTPUT ; 
+  PRN_FIRE_OUTPUT ;   
+  PRN_COLOR_OUTPUT ; 
   TIMING.setup() ;
   reset() ;
 
@@ -100,9 +106,24 @@ void setup(){
         case 0b0001:
           data = READ_DATA ;
           if (chip_select == 0){
-            digitalWrite(PRN_ADV, (data >> 3) & 1) ;
-            digitalWrite(PRN_FIRE, (data >> 1) & 1) ;
-            digitalWrite(PRN_COLOR, data & 1) ;
+            if ((data >> 3) & 1){
+              PRN_ADV_ON ;
+            }
+            else {
+              PRN_ADV_OFF ;
+            }
+            if ((data >> 1) & 1){
+              PRN_FIRE_ON ;
+            }
+            else {
+              PRN_FIRE_OFF ;
+            }
+            if (data & 1){
+              PRN_COLOR_ON ;
+            }
+            else{
+              PRN_COLOR_OFF ;
+            }
           }
           break ;
         case 0b0100:
@@ -178,6 +199,9 @@ void loop(){
     unsigned long dur = micros() - start ;
     if (dur > max_dur){
       max_dur = dur ;
+      Serial.print("Max loop duration: ") ;
+      Serial.print(max_dur) ;
+      Serial.println("us") ;
     }
   }
 }
