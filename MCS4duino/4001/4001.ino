@@ -26,11 +26,8 @@
 #define PRN_INDEX_INPUT     DDRB  &= ~0b00000100
 #define READ_PRN_ADV_BTN    PINB  &   0b00000010
 #define PRN_ADV_BTN_INPUT   DDRB  &= ~0b00000010
-
-#define KBD_ROW_3     A0
-#define KBD_ROW_2     A1
-#define KBD_ROW_1     A2
-#define KBD_ROW_0     A3
+#define READ_KBD_ROW        PINC  &   0b00001111
+#define KBD_ROW_INPUT       DDRC  &= ~0b00001111
 
 TIMING TIMING ;
 
@@ -69,10 +66,7 @@ void setup(){
   PRN_SHFT_CLK_OUTPUT ;
   PRN_INDEX_INPUT ;
   PRN_ADV_BTN_INPUT ;
-  pinMode(KBD_ROW_3, INPUT) ;
-  pinMode(KBD_ROW_2, INPUT) ;
-  pinMode(KBD_ROW_1, INPUT) ;
-  pinMode(KBD_ROW_0, INPUT) ;
+  KBD_ROW_INPUT ;
   TIMING.setup() ;
   reset() ;
 
@@ -166,8 +160,7 @@ void setup(){
       else if (rdr){
         // Send data for RDR
         if (io_select == 1){
-          byte data = (digitalRead(KBD_ROW_3) << 3) | (digitalRead(KBD_ROW_2) << 2) | 
-            (digitalRead(KBD_ROW_1) << 1) | digitalRead(KBD_ROW_0) ;
+          byte data = READ_KBD_ROW ;
           DATA_OUTPUT ;
           WRITE_DATA(data) ;
         }

@@ -9,10 +9,10 @@
 #define PRN_ADV_BTN   9
 #define SHFT_DATA     8
 #define PRN_SECTOR    7
-#define KBD_ROW_3     6
-#define KBD_ROW_2     5
-#define KBD_ROW_1     4
-#define KBD_ROW_0     3
+#define KBD_ROW_3     3
+#define KBD_ROW_2     4
+#define KBD_ROW_1     5
+#define KBD_ROW_0     6
 #define SYNC          2
 
 #define PRN_ADV       A3
