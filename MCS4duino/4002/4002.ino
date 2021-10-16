@@ -1,25 +1,25 @@
 #include "TIMING.h"
 
-#define READ_RESET  PINC &  0b00000010
-#define RESET_INPUT DDRC & ~0b00000010
-#define READ_CM     PINC &  0b00000001
-#define CM_INPUT    DDRC & ~0b00000001
-#define DATA_32     0b00000011 // PORTB
-#define DATA_10     0b01100000 // PORTD
-#define READ_DATA        ((PINB & DATA_32) << 2) | ((PIND & DATA_10) >> 5)
+#define READ_RESET       PINC &   0b00000010
+#define RESET_INPUT      DDRC &= ~0b00000010
+#define READ_CM          PINC &   0b00000001
+#define CM_INPUT         DDRC &= ~0b00000001
+#define DATA_32          0b00000011 // PORTB
+#define DATA_10          0b01100000 // PORTD
+#define READ_DATA        (((PINB & DATA_32) << 2) | ((PIND & DATA_10) >> 5))
 #define WRITE_DATA(data) PORTB = (PORTB & ~DATA_32) | (((data >> 3) & 1) << 1) | ((data >> 2) & 1) ; PORTD = (PORTD & ~DATA_10) | (((data >> 1) & 1) << 6) | ((data & 1) << 5)  
-#define DATA_INPUT       DDRB = DDRB & ~DATA_32 ; DDRD = DDRD & ~DATA_10
-#define DATA_OUTPUT      DDRB = DDRB | DATA_32 ; DDRD = DDRD | DATA_10
+#define DATA_INPUT       DDRB &= ~DATA_32 ; DDRD &= ~DATA_10
+#define DATA_OUTPUT      DDRB |=  DATA_32 ; DDRD |=  DATA_10
 
-#define PRN_ADV_OUTPUT   DDRC |=   0b00001000
 #define PRN_ADV_ON       PORTC |=  0b00001000
 #define PRN_ADV_OFF      PORTC &= ~0b00001000
-#define PRN_FIRE_OUTPUT  DDRC |=   0b00010000
+#define PRN_ADV_OUTPUT   DDRC  |=  0b00001000
 #define PRN_FIRE_ON      PORTC |=  0b00010000
 #define PRN_FIRE_OFF     PORTC &= ~0b00010000
-#define PRN_COLOR_OUTPUT DDRC |=   0b00100000
+#define PRN_FIRE_OUTPUT  DDRC  |=  0b00010000
 #define PRN_COLOR_ON     PORTC |=  0b00100000
 #define PRN_COLOR_OFF    PORTC &= ~0b00100000
+#define PRN_COLOR_OUTPUT DDRC  |=  0b00100000
 
 TIMING TIMING ;
 
