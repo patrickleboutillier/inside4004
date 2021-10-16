@@ -12,8 +12,8 @@ void IO_reset(){
 
 void IO_setup(TIMING *t){
   timing = t ;
-  pinMode(CM_ROM, OUTPUT) ;
-  pinMode(CM_RAM, OUTPUT) ; 
+  CM_ROM_OUTPUT ;
+  CM_RAM_OUTPUT ; 
   IO_reset() ;
   IO_timing() ;
 }

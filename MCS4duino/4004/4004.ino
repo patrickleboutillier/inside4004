@@ -8,8 +8,8 @@
 #include "PINS.h"
 
 
-#define RESET   A1
-#define READ_RESET PORTC & 0b00000010
+#define READ_RESET  PINC &   0b00000010
+#define RESET_INPUT DDRC |= ~0b00000010
 
 TIMING TIMING ;
 DATA DATA ;
@@ -29,24 +29,33 @@ void reset(){
 void setup(){
   Serial.begin(115200) ;
   Serial.println("4004") ;
-  pinMode(RESET, INPUT) ;
-  pinMode(CLK1, INPUT) ;
-  pinMode(CLK2, INPUT) ;
-  pinMode(SYNC, INPUT) ;
+  RESET_INPUT ;
 
   INST_setup(&TIMING, &DATA) ;
   CONTROL_setup(&TIMING, &DATA) ;
   IO_setup(&TIMING) ;
   //ADDR_setup(&TIMING, &DATA) ;
   SCRATCH_setup(&TIMING, &DATA) ;
+  TIMING.setup() ;
   reset() ;
 }
 
 
+unsigned long max_dur = 0 ;
 void loop(){
-  if (digitalRead(RESET)){
-    return reset() ;
-  }
+  while (1){
+    unsigned long start = micros() ;
+    if (READ_RESET){
+      return reset() ;
+    }
 
-  TIMING.loop() ;
+    TIMING.loop() ;
+    unsigned long dur = micros() - start ;
+    if (dur > max_dur){
+      max_dur = dur ;
+      Serial.print("Max loop duration: ") ;
+      Serial.print(max_dur) ;
+      Serial.println("us") ;
+    }
+  }
 }

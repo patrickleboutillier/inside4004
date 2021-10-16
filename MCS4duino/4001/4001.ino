@@ -13,11 +13,19 @@
 #define DATA_INPUT          DDRB &= ~DATA_3 ; DDRD &= ~DATA_210
 #define DATA_OUTPUT         DDRB |=  DATA_3 ; DDRD |=  DATA_210
 
-#define SHFT_DATA     13
-#define KBD_SHFT_CLK  12
-#define PRN_SHFT_CLK  11
-#define PRN_INDEX     10
-#define PRN_ADV_BTN   9
+#define SHFT_DATA_ON        PORTB |=  0b00100000
+#define SHFT_DATA_OFF       PORTB &= ~0b00100000
+#define SHFT_DATA_OUTPUT    DDRB  |=  0b00100000
+#define KBD_SHFT_CLK_ON     PORTB |=  0b00010000
+#define KBD_SHFT_CLK_OFF    PORTB &= ~0b00010000
+#define KBD_SHFT_CLK_OUTPUT DDRB  |=  0b00010000
+#define PRN_SHFT_CLK_ON     PORTB |=  0b00001000
+#define PRN_SHFT_CLK_OFF    PORTB &= ~0b00001000
+#define PRN_SHFT_CLK_OUTPUT DDRB  |=  0b00001000
+#define READ_PRN_INDEX      PINB  &   0b00000100
+#define PRN_INDEX_INPUT     DDRB  &= ~0b00000100
+#define READ_PRN_ADV_BTN    PINB  &   0b00000010
+#define PRN_ADV_BTN_INPUT   DDRB  &= ~0b00000010
 
 #define KBD_ROW_3     A0
 #define KBD_ROW_2     A1
@@ -56,11 +64,11 @@ void setup(){
   Serial.println("4001") ;
   RESET_INPUT ;
   CM_INPUT ;
-  pinMode(KBD_SHFT_CLK, OUTPUT) ;
-  pinMode(SHFT_DATA, OUTPUT) ;
-  pinMode(PRN_SHFT_CLK, OUTPUT) ;
-  pinMode(PRN_INDEX, INPUT) ;
-  pinMode(PRN_ADV_BTN, INPUT) ;
+  KBD_SHFT_CLK_OUTPUT ;
+  SHFT_DATA_OUTPUT ;
+  PRN_SHFT_CLK_OUTPUT ;
+  PRN_INDEX_INPUT ;
+  PRN_ADV_BTN_INPUT ;
   pinMode(KBD_ROW_3, INPUT) ;
   pinMode(KBD_ROW_2, INPUT) ;
   pinMode(KBD_ROW_1, INPUT) ;
@@ -90,7 +98,7 @@ void setup(){
   TIMING.M12clk1([]{
     DATA_OUTPUT ;
     // If we are the selected chip for instructions, send out opr
-    int addr = (rom_select * 256) + (addrh << 4 | addrl) ;
+    int addr = (rom_select << 8) + (addrh << 4 | addrl) ;
     byte opr = pgm_read_byte(ROM + addr) >> 4 ;
     WRITE_DATA(opr) ;
   }) ;
@@ -104,7 +112,7 @@ void setup(){
           
   TIMING.M22clk1([]{
     // If we are the selected chip for instructions, send out opa
-    int addr = (rom_select * 256) + (addrh << 4 | addrl) ;
+    int addr = (rom_select << 8) + (addrh << 4 | addrl) ;
     byte opa = pgm_read_byte(ROM + addr) & 0xF ;
     WRITE_DATA(opa) ;
   }) ;
@@ -135,9 +143,24 @@ void setup(){
         // Grab data for WRR
         if (io_select == 0){
           byte data = READ_DATA ;
-          digitalWrite(SHFT_DATA, (data >> 1) & 1) ;
-          digitalWrite(KBD_SHFT_CLK, data & 1) ;
-          digitalWrite(PRN_SHFT_CLK, (data >> 2) & 1) ;
+          if ((data >> 1) & 1){
+            SHFT_DATA_ON ;
+          } 
+          else {
+            SHFT_DATA_OFF ;
+          }
+          if (data & 1){
+            KBD_SHFT_CLK_ON ;
+          }
+          else {
+            KBD_SHFT_CLK_OFF ;
+          }
+          if ((data >> 2) & 1){
+            PRN_SHFT_CLK_ON ;
+          }
+          else {
+            PRN_SHFT_CLK_OFF ;            
+          }
         }
       }
       else if (rdr){
@@ -149,7 +172,7 @@ void setup(){
           WRITE_DATA(data) ;
         }
         else if (io_select == 2){ 
-          byte data = (digitalRead(PRN_ADV_BTN) << 3) | digitalRead(PRN_INDEX) ;
+          byte data = ((READ_PRN_ADV_BTN) << 2) | ((READ_PRN_INDEX) >> 2) ;
           DATA_OUTPUT ;
           WRITE_DATA(data) ;
         }

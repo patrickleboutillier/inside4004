@@ -4,12 +4,12 @@
 #include "Arduino.h"
 #include "TIMING.h"
 
-#define CM_ROM     A0
-#define CM_RAM     A4
-#define CM_ROM_ON  PORTC = PORTC |   0b00000001
-#define CM_ROM_OFF PORTC = PORTC & (~0b00000001)
-#define CM_RAM_ON  PORTC = PORTC |   0b00010000
-#define CM_RAM_OFF PORTC = PORTC & (~0b00010000)
+#define CM_ROM_ON     PORTC |=  0b00000001
+#define CM_ROM_OFF    PORTC &= ~0b00000001
+#define CM_ROM_OUTPUT DDRC  |=  0b00000001
+#define CM_RAM_ON     PORTC |=  0b00010000
+#define CM_RAM_OFF    PORTC &= ~0b00010000
+#define CM_RAM_OUTPUT DDRC  |=  0b00010000
 
 #define TEST      7
 
