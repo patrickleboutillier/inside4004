@@ -1,16 +1,18 @@
 #include "TIMING.h"
 #include "ROM.h"
 
-#define READ_RESET  PINC &  0b00100000
-#define RESET_INPUT DDRC & ~0b00100000
-#define READ_CM     PINC &  0b00010000
-#define CM_INPUT    DDRC & ~0b00010000
-#define DATA_3  8
-#define DATA_2  7
-#define DATA_1  6
-#define DATA_0  5
-//#define DATA_3      0b00000001 // PORTB
-//#define DATA_210    0b11100000 // PORTD
+#define READ_RESET          PINC &   0b00100000
+#define RESET_INPUT         DDRC &= ~0b00100000
+#define READ_CM             PINC &   0b00010000
+#define CM_INPUT            DDRC &= ~0b00010000
+
+#define DATA_3              0b00000001 // PORTB
+#define DATA_210            0b11100000 // PORTD
+#define READ_DATA           (((PINB & DATA_3) << 3) | ((PIND & DATA_210) >> 5))
+#define WRITE_DATA(data)    PORTB = (PORTB & ~DATA_3) | ((data >> 3) & 1) ; PORTD = (PORTD & ~DATA_210) | ((data & 0b111) << 5) 
+#define DATA_INPUT          DDRB &= ~DATA_3 ; DDRD &= ~DATA_210
+#define DATA_OUTPUT         DDRB |=  DATA_3 ; DDRD |=  DATA_210
+
 #define SHFT_DATA     13
 #define KBD_SHFT_CLK  12
 #define PRN_SHFT_CLK  11
@@ -35,10 +37,7 @@ bool wrr = 0 ;
 
 
 void reset(){
-  pinMode(DATA_3, INPUT) ;
-  pinMode(DATA_2, INPUT) ;
-  pinMode(DATA_1, INPUT) ;
-  pinMode(DATA_0, INPUT) ;   
+  DATA_INPUT ;
   
   TIMING.reset() ;
   addrh = 0 ;
@@ -71,38 +70,35 @@ void setup(){
 
   
   TIMING.A12clk1([]{ 
-    addrl = read_data() ;
+    addrl = READ_DATA ;
   }) ;
 
 
   TIMING.A22clk1([]{
-    addrh = read_data() ;
+    addrh = READ_DATA ;
   }) ;
 
   
   TIMING.A32clk1([]{
     // If cm is on, we are the selected ROM chip for instructions if chipnum == data
     if (READ_CM){
-      rom_select = read_data() ;
+      rom_select = READ_DATA ;
     }
   }) ;  
 
 
   TIMING.M12clk1([]{
-    pinMode(DATA_3, OUTPUT) ;
-    pinMode(DATA_2, OUTPUT) ;
-    pinMode(DATA_1, OUTPUT) ;
-    pinMode(DATA_0, OUTPUT) ;  
+    DATA_OUTPUT ;
     // If we are the selected chip for instructions, send out opr
     int addr = (rom_select * 256) + (addrh << 4 | addrl) ;
     byte opr = pgm_read_byte(ROM + addr) >> 4 ;
-    write_data(opr) ;
+    WRITE_DATA(opr) ;
   }) ;
 
 
   TIMING.M12clk2([]{
     // opr is on the bus, no matter who put it there (us or another ROM chip). Check if an I/O instruction is in progress
-    io_inst = (read_data() == 0b1110 ? 1 : 0) ;
+    io_inst = (READ_DATA == 0b1110 ? 1 : 0) ;
   }) ;
 
           
@@ -110,13 +106,13 @@ void setup(){
     // If we are the selected chip for instructions, send out opa
     int addr = (rom_select * 256) + (addrh << 4 | addrl) ;
     byte opa = pgm_read_byte(ROM + addr) & 0xF ;
-    write_data(opa) ;
+    WRITE_DATA(opa) ;
   }) ;
 
 
   TIMING.M22clk2([]{
     // opa is on the bus, no matter who put it there (us or another ROM chip). 
-    byte data = read_data() ;
+    byte data = READ_DATA ;
     rdr = (io_inst && (data == 0b1010) ? 1 : 0) ;
     wrr = (io_inst && (data == 0b0010) ? 1 : 0) ;
   }) ;
@@ -124,16 +120,13 @@ void setup(){
    
   TIMING.X12clk1([](){
     // Disconnect from bus
-    pinMode(DATA_3, INPUT) ;
-    pinMode(DATA_2, INPUT) ;
-    pinMode(DATA_1, INPUT) ;
-    pinMode(DATA_0, INPUT) ;  
+    DATA_INPUT ; 
   }) ;
 
 
   TIMING.X22clk1([]{
     if (READ_CM){
-      io_select = read_data() ;
+      io_select = READ_DATA ;
       src = 1 ;
     }
     else {
@@ -141,9 +134,10 @@ void setup(){
       if (wrr){
         // Grab data for WRR
         if (io_select == 0){
-          digitalWrite(SHFT_DATA, digitalRead(DATA_1)) ;
-          digitalWrite(KBD_SHFT_CLK, digitalRead(DATA_0)) ;
-          digitalWrite(PRN_SHFT_CLK, digitalRead(DATA_2)) ;
+          byte data = READ_DATA ;
+          digitalWrite(SHFT_DATA, (data >> 1) & 1) ;
+          digitalWrite(KBD_SHFT_CLK, data & 1) ;
+          digitalWrite(PRN_SHFT_CLK, (data >> 2) & 1) ;
         }
       }
       else if (rdr){
@@ -151,19 +145,13 @@ void setup(){
         if (io_select == 1){
           byte data = (digitalRead(KBD_ROW_3) << 3) | (digitalRead(KBD_ROW_2) << 2) | 
             (digitalRead(KBD_ROW_1) << 1) | digitalRead(KBD_ROW_0) ;
-          pinMode(DATA_3, OUTPUT) ;
-          pinMode(DATA_2, OUTPUT) ;
-          pinMode(DATA_1, OUTPUT) ;
-          pinMode(DATA_0, OUTPUT) ; 
-          write_data(data) ;
+          DATA_OUTPUT ;
+          WRITE_DATA(data) ;
         }
         else if (io_select == 2){ 
           byte data = (digitalRead(PRN_ADV_BTN) << 3) | digitalRead(PRN_INDEX) ;
-          pinMode(DATA_3, OUTPUT) ;
-          pinMode(DATA_2, OUTPUT) ;
-          pinMode(DATA_1, OUTPUT) ;
-          pinMode(DATA_0, OUTPUT) ; 
-          write_data(data) ; 
+          DATA_OUTPUT ;
+          WRITE_DATA(data) ;
         }
       }
     }
@@ -173,10 +161,7 @@ void setup(){
   TIMING.X32clk1([]{
     if (rdr){
       // Disconnect from bus
-      pinMode(DATA_3, INPUT) ;
-      pinMode(DATA_2, INPUT) ;
-      pinMode(DATA_1, INPUT) ;
-      pinMode(DATA_0, INPUT) ; 
+      DATA_INPUT ;
     }
   }) ;
 }
@@ -199,18 +184,4 @@ void loop(){
       Serial.println("us") ;
     }
   }
-}
-
-
-byte read_data(){
-  return (digitalRead(DATA_3) << 3) | (digitalRead(DATA_2) << 2) | 
-    (digitalRead(DATA_1) << 1) | digitalRead(DATA_0) ;
-}
-
-
-void write_data(byte data){
-  digitalWrite(DATA_3, (data >> 3) & 1) ;
-  digitalWrite(DATA_2, (data >> 2) & 1) ;
-  digitalWrite(DATA_1, (data >> 1) & 1) ;
-  digitalWrite(DATA_0, data & 1) ;
 }
