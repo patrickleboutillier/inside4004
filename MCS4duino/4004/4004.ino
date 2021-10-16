@@ -5,11 +5,10 @@
 #include "CONTROL.h"
 #include "ADDR.h"
 #include "SCRATCH.h"
-#include "PINS.h"
 
 
 #define READ_RESET  PINC &   0b00000010
-#define RESET_INPUT DDRC |= ~0b00000010
+#define RESET_INPUT DDRC &= ~0b00000010
 
 TIMING TIMING ;
 DATA DATA ;

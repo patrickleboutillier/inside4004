@@ -4,24 +4,20 @@
 #define CLK1_2    0b000010000   // PORTD
 #define CLK2_1    0b000001000   // PORTB
 #define CLK2_2    0b000001000   // PORTD
-#define SYNC_1    10
-#define SYNC_2    2
-#define CM_ROM    A0
-#define CM_RAM    A4
+#define COND      A0
 #define SEND_KEY  A2
 #define TEST      7
 #define DATA_32   0b00000011    // PORTB
 #define DATA_10   0b01100000    // PORTD
 
-#define CMD_RESET   0b0001
-#define CMD_CLK1    0b0010
-#define CMD_CLK2    0b0011
-#define CMD_SYNC    0b0100
-#define CMD_CM      0b0101
+#define CMD_RESET    0b0001
+#define CMD_CLK1     0b0010
+#define CMD_CLK2     0b0011
+#define CMD_COND     0b0101
 #define CMD_SEND_KEY 0b0110
-#define CMD_TEST    0b0111
-#define CMD_DATA_R  0b1000
-#define CMD_DATA_W  0b1001
+#define CMD_TEST     0b0111
+#define CMD_DATA_R   0b1000
+#define CMD_DATA_W   0b1001
 
 
 void reset(){
@@ -32,10 +28,7 @@ void reset(){
   digitalWrite(RESET_2, HIGH) ;
   PORTB = PORTB & ~(CLK1_1 | CLK2_1) ;
   PORTD = PORTD & ~(CLK1_2 | CLK2_2) ;
-  digitalWrite(SYNC_1, LOW) ;
-  digitalWrite(SYNC_2, LOW) ;
-  digitalWrite(CM_ROM, LOW) ;
-  digitalWrite(CM_RAM, LOW) ;
+  digitalWrite(COND, LOW) ;
   digitalWrite(SEND_KEY, LOW) ;
   DDRB = DDRB & ~DATA_32 ;
   PORTB = PORTB & ~DATA_32 ;
@@ -48,10 +41,7 @@ void setup(){
   Serial.begin(2000000) ;
   pinMode(RESET_1, OUTPUT) ;
   pinMode(RESET_2, OUTPUT) ;
-  pinMode(SYNC_1, OUTPUT) ;
-  pinMode(SYNC_2, OUTPUT) ;
-  pinMode(CM_ROM, OUTPUT) ;
-  pinMode(CM_RAM, OUTPUT) ;
+  pinMode(COND, OUTPUT) ;
   pinMode(SEND_KEY, OUTPUT) ;
   pinMode(TEST, INPUT) ;
   reset() ;
@@ -95,13 +85,8 @@ void loop(){
           PORTD = PORTD & ~CLK2_2 ;
         }
         break ;
-      case CMD_SYNC:
-        digitalWrite(SYNC_1, opa) ;
-        digitalWrite(SYNC_2, opa) ;
-        break ;
-      case CMD_CM:
-        digitalWrite(CM_ROM, opa) ;
-        digitalWrite(CM_RAM, opa) ;
+      case CMD_COND:
+        digitalWrite(COND, opa) ;
         break ;
       case CMD_SEND_KEY:
         digitalWrite(SEND_KEY, opa) ;

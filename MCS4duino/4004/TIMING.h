@@ -7,15 +7,13 @@
 #define CLK1_INPUT DDRB &= ~0b00010000
 #define READ_CLK2  PINB &   0b00001000
 #define CLK2_INPUT DDRB &= ~0b00001000
-#define READ_SYNC  PINB &   0b00000100
-#define SYNC_INPUT DDRB &= ~0b00000100
 
-#define SYNC1      10
-#define SYNC2      2
-#define SYNC1_ON   PORTB |=  0b00000100
-#define SYNC1_OFF  PORTB &= ~0b00000100
-#define SYNC2_ON   PORTA |=  0b00000100
-#define SYNC2_OFF  PORTA &= ~0b00000100
+#define SYNC1_ON     PORTB |=  0b00000100
+#define SYNC1_OFF    PORTB &= ~0b00000100
+#define SYNC1_OUTPUT DDRB  |=  0b00000100
+#define SYNC2_ON     PORTD |=  0b00000100
+#define SYNC2_OFF    PORTD &= ~0b00000100
+#define SYNC2_OUTPUT DDRD  |=  0b00000100
 
 
 class TIMING {
@@ -46,7 +44,8 @@ class TIMING {
     void setup(){
       CLK1_INPUT ;
       CLK2_INPUT ;
-      SYNC_INPUT ;     
+      SYNC1_OUTPUT ;
+      SYNC2_OUTPUT ;     
     }
 
     
@@ -78,12 +77,7 @@ class TIMING {
         cur_phase = 0 ;
       }
       else if ((!clk1)&&(clk2)){
-        if (READ_SYNC){
-          _master = 0 ;
-        }
-        else {
-          _master = (_slave + 1) & 0x7 ;
-        }
+         _master = (_slave + 1) & 0x7 ;
         cur_phase = 2 ;
       }
       else if ((!clk1)&&(!clk2)){
@@ -92,6 +86,14 @@ class TIMING {
         }
         else {
           cur_phase = 3 ;
+          if (_slave == 6){
+            SYNC1_ON ;
+            SYNC2_ON ;
+          }
+          else if (_slave == 7){
+            SYNC1_OFF ;
+            SYNC2_OFF ;            
+          }
         }
       }
 

@@ -19,7 +19,7 @@ class timing(sensor):
         self.cycle = -1 
         if sync is None:
             self.gen_sync = True
-            self.sync = wire(0, 0b0100)
+            self.sync = wire(0)
         else:
             self.gen_sync = False
             self.sync = sync

@@ -1,7 +1,6 @@
 #include "CONTROL.h"
 #include "CONTROL_TABLE.h"
 #include "IO.h"
-#include "PINS.h"
 #include "SCRATCH.h"
 
 static TIMING *timing ;
