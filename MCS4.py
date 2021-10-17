@@ -65,7 +65,11 @@ class MCS4:
             if callback is not None:
                 callback(nb)
             for i in range(8):
-                self.clock.tick(4)
+                for j in range(4):
+                    self.clock.tick(1)
+                    # if i == 7 and j == 2:       # Between X32clk2 and A11 
+                    #    self.data.v = None      # Disconnect from data bus in case HW wants to write!
+
                 if i == 4 and dump:
                     self.dump(nb)
             nb += 1

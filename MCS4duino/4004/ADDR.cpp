@@ -56,7 +56,7 @@ void ADDR_timing(){
   timing->X22clk1(f1) ;
   timing->X32clk1(f1) ;    // Sample data from the bus at these times.
 
-  /*
+/*
   timing->A11([]{        // Output pl to the data bus.
     data->write(pl) ;
   }) ;
@@ -72,7 +72,7 @@ void ADDR_timing(){
   timing->M11([]{        // Disconnect from bus
     data->z() ;
   }) ;
-  */
+*/
   
   timing->A12clk2([]{    // Increment pl
     byte sum = pl + 1 ;
@@ -129,23 +129,44 @@ void ADDR_timing(){
 
 void setPH(){
   ph = incr_in ;
+  //if (timing->_pass == 0){
+  //  Serial.print(timing->_cycle) ;
+  //  Serial.print(" ph ") ;
+  //  Serial.println(ph) ;
+  //}
 }
-
 
 
 void setPM(){
   pm = incr_in ;
+  //if (timing->_pass == 0){
+  //  Serial.print(timing->_cycle) ;
+  //  Serial.print(" pm ") ;
+  //  Serial.println(pm) ;
+  //}
 }
 
 
 void setPL(){
   pl = incr_in ;
+  //if (timing->_pass == 0){
+  //  Serial.print(timing->_cycle) ;  
+  //  Serial.print(" pl ") ;
+  //  Serial.println(pl) ;
+  //}
 }
 
 
 // Decrement the stack pointer
 void decSP(){
-  sp = (sp - 1) & 0b11 ;
+  if (timing->_pass == 0){
+    sp = (sp - 1) & 0b11 ;
+  }
+  //if (timing->_pass == 0){  
+  //  Serial.print(timing->_cycle) ;  
+  //  Serial.print(" sp ") ;
+  //  Serial.println(sp) ;
+  //}
 }
 
 

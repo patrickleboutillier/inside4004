@@ -16,7 +16,7 @@ class timing(sensor):
         sensor.__init__(self, self.phx)
         self.slave = 0
         self.master = 0 
-        self.cycle = -1 
+        self.cycle = 0 
         if sync is None:
             self.gen_sync = True
             self.sync = wire(0)
