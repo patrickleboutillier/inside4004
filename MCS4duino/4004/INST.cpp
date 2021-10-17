@@ -1,6 +1,8 @@
 #include "INST.h"
 #include "IO.h"
 
+#define COND    A2 
+
 static TIMING *timing ;
 static DATA *data ;
 bool INST_sc ;
@@ -20,6 +22,7 @@ void INST_reset(){
 void INST_setup(TIMING *t, DATA *d){
   timing = t ;
   data = d ;
+  pinMode(COND, INPUT) ;
   INST_reset() ;
   INST_timing() ;
 }
@@ -38,12 +41,14 @@ void INST_timing(){
     }
 
     if (! INST_sc){
-      //if (jcn()){
-      //    setJCNINST_cond() ;
-      //}
-      //if (isz()){
-      //    INST_cond = ~alu.addZero() & 1
-      //}
+      if (jcn()){
+        INST_cond = digitalRead(COND) ;
+        // INST_cond = setJCNcond() ;
+      }
+      if (isz()){
+        INST_cond = digitalRead(COND) ;
+        // INST_cond = ~alu.addZero() & 1
+      }
     }
   }) ;
   
@@ -66,7 +71,7 @@ void INST_timing(){
 // C2 = 1 Jump if the accumulator content is zero
 // C3 = 1 Jump if the carry/link content is 1
 // C4 = 1 Jump if test signal (pin 10 on 4004) is zero.
-bool setJCNcond(){
+byte setJCNcond(){
   bool z = 0 ; // alu.accZero() ;
   bool c = 0 ; // alu.carryOne() ;
   bool t = testZero() ;
@@ -75,16 +80,18 @@ bool setJCNcond(){
   byte zero = INST_opa & 0b0100 ;
   byte cy = INST_opa & 0b0010 ;
   byte test = INST_opa & 0b0001 ;
-  INST_cond = 0 ;
+  byte cond = 0 ;
   if (zero && (z ^ invert)){
-      INST_cond = 1 ;
+      cond = 1 ;
   }
   else if (cy && (c ^ invert)){
-      INST_cond = 1 ;
+      cond = 1 ;
   }
   else if (test && (t ^ invert)){
-      INST_cond = 1 ;
+      cond = 1 ;
   }
+
+  return cond ;
 }
 
 

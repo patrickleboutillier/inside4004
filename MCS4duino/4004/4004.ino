@@ -20,7 +20,7 @@ void reset(){
   INST_reset() ;
   CONTROL_reset() ;
   IO_reset() ;
-  //ADDR_reset() ;
+  ADDR_reset() ;
   SCRATCH_reset() ;
 }
 
@@ -33,7 +33,7 @@ void setup(){
   INST_setup(&TIMING, &DATA) ;
   CONTROL_setup(&TIMING, &DATA) ;
   IO_setup(&TIMING) ;
-  //ADDR_setup(&TIMING, &DATA) ;
+  ADDR_setup(&TIMING, &DATA) ;
   SCRATCH_setup(&TIMING, &DATA) ;
   TIMING.setup() ;
   reset() ;
