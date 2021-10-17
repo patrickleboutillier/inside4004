@@ -57,21 +57,21 @@ void ADDR_timing(){
   timing->X32clk1(f1) ;    // Sample data from the bus at these times.
 
   /*
-        @A11        # Output pl to the data bus.
-        def _():
-    data.v = self.pl
+  timing->A11([]{        // Output pl to the data bus.
+    data->write(pl) ;
+  }) ;
 
-        @A21        # Output pm to the data bus.
-        def _():
-    data.v = self.pm
+  timing->A21([]{        // Output pm to the data bus.
+    data->write(pm) ;
+  }) ;
 
-        @A31        # Output ph to the data bus.
-        def _():
-    data.v = self.ph
+  timing->A31([]{        // Output ph to the data bus.
+    data->write(ph) ;
+  }) ;
 
-        @M11    # Disconnect from bus
-        def _():
-    data.v = None
+  timing->M11([]{        // Disconnect from bus
+    data->z() ;
+  }) ;
   */
   
   timing->A12clk2([]{    // Increment pl

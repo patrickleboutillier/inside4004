@@ -14,15 +14,12 @@ class DATA {
     }
     
     void reset(){
-      DDRB = DDRB & ~DATA_32 ;
-      PORTB = PORTB & ~DATA_32 ;
-      DDRD = DDRD & ~DATA_10 ;
-      PORTD = PORTD & ~DATA_10 ;
+      z() ;
     }
     
     void write(byte data){
-      DDRB = DDRB | DATA_32 ;
-      DDRD = DDRD | DATA_10 ;
+      DDRB |= DATA_32 ;
+      DDRD |= DATA_10 ;
       PORTB = (PORTB & ~DATA_32) | (((data >> 3) & 1) << 1) | ((data >> 2) & 1) ;  
       PORTD = (PORTD & ~DATA_10) | (((data >> 1) & 1) << 6) | ((data & 1) << 5) ;      
     }
@@ -32,10 +29,8 @@ class DATA {
     }
 
     void z(){
-      DDRB = DDRB & ~DATA_32 ;
-      PORTB = PORTB & ~DATA_32 ;
-      DDRD = DDRD & ~DATA_10 ;
-      PORTD = PORTD & ~DATA_10 ; 
+      DDRB &= ~DATA_32 ;
+      DDRD &= ~DATA_10 ;
     }
 } ;
 
