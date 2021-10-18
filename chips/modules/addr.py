@@ -37,19 +37,20 @@ class addr:
 
         @A11        # Output pl to the data bus.
         def _():
-            self.data.v = self.pl
-
-        @A21        # Output pm to the data bus.
-        def _():
-            self.data.v = self.pm
-
-        @A31        # Output ph to the data bus.
-        def _():
-            self.data.v = self.ph
-
-        @M11    # Disconnect from bus
-        def _():
+            # self.data.v = self.pl
             self.data.v = None
+            
+        # @A21        # Output pm to the data bus.
+        # def _():
+        #     self.data.v = self.pm
+
+        # @A31        # Output ph to the data bus.
+        # def _():
+        #     self.data.v = self.ph
+
+        # @M11    # Disconnect from bus
+        # def _():
+        #     self.data.v = None
 
         @A12clk2    # Increment pl
         def _():

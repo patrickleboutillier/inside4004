@@ -22,7 +22,7 @@ class clock():
         self.sclk1 = wire(0, 0b0010)
         self.sclk2 = wire(0, 0b0011)
         self.n = 0
-        self.qperiod = 0.00005
+        self.qperiod = 0.0001
         print("qperiod", self.qperiod)
 
 
