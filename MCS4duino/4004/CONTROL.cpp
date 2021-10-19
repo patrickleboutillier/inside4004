@@ -59,28 +59,43 @@ void JCN_M22clk2(){
 } ;
 
 void FIM_M12clk2(){
+  if (! get_sc()){
+    setRegPairH() ;
+  }
 } ;
 
 void FIM_M22clk2(){
+  if (! get_sc()){
+    setRegPairL() ;
+  }
 } ;
 
 void SRC_X21(){
-  // enableRegPairH() ;
+  //enableRegPairH() ;
   CMon() ;
 } ;
 
 void SRC_X31(){
-  // enableRegPairL() ;
+  //enableRegPairL() ;
   CMoff() ;
 } ;
 
 void FIN_M12clk2(){
+  if (! get_sc()){
+    setRegPairH() ;
+  }  
 } ;
 
 void FIN_M22clk2(){
+  if (! get_sc()){
+    setRegPairL() ;
+  }
 } ;
 
 void FIN_X21(){
+  if (get_sc()){
+    //enableRegPairH() ;
+  }
 } ;
 
 void FIN_X22clk2(){
@@ -90,6 +105,9 @@ void FIN_X22clk2(){
 } ;
 
 void FIN_X31(){
+  if (get_sc()){
+    //enableRegPairL() ;
+  }
 } ;
 
 void FIN_X32clk2(){
@@ -99,6 +117,7 @@ void FIN_X32clk2(){
 } ;
 
 void JIN_X21(){
+  //enableRegPairH() ;
 } ;
 
 void JIN_X22clk2(){
@@ -106,6 +125,7 @@ void JIN_X22clk2(){
 } ;
 
 void JIN_X31(){
+  //enableRegPairL() ;
 } ;
 
 void JIN_X32clk2(){
@@ -157,6 +177,7 @@ void JMS_X22clk2(){
 } ;
 
 void INC_X21(){
+  //enableReg() ;
 } ;
 
 void INC_X22clk1(){
@@ -166,6 +187,7 @@ void INC_X31(){
 } ;
 
 void INC_X32clk2(){
+  setReg() ;
 } ;
 
 void ISZ_M12clk2(){
@@ -181,6 +203,9 @@ void ISZ_M22clk2(){
 } ;
 
 void ISZ_X21(){
+  if (get_sc()){
+    //enableReg() ;
+  }
 } ;
 
 void ISZ_X22clk1(){
@@ -190,9 +215,13 @@ void ISZ_X31(){
 } ;
 
 void ISZ_X32clk2(){
+  if (get_sc()){
+    setReg() ;
+  }
 } ;
 
 void ADD_X21(){
+  //enableReg() ;
 } ;
 
 void ADD_X22clk1(){
@@ -202,6 +231,7 @@ void ADD_X31(){
 } ;
 
 void SUB_X21(){
+  //enableReg() ;
 } ;
 
 void SUB_X22clk1(){
@@ -211,18 +241,21 @@ void SUB_X31(){
 } ;
 
 void LD_X21(){
+  //enableReg() ;
 } ;
 
 void LD_X31(){
 } ;
 
 void XCH_X21(){
+  //enableReg() ;
 } ;
 
 void XCH_X31(){
 } ;
 
 void XCH_X32clk2(){
+  setReg() ;
 } ;
 
 void BBL_M22clk2(){

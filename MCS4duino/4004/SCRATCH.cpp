@@ -45,15 +45,15 @@ void SCRATCH_timing(){
 
   auto f2 = []{            // Set working row from the register array. There is a 0 override for FIN during X12.
     if (get_sc()){
-      byte r = row_num ;
+      byte r = row_num << 1 ;
       if (timing->x1()){
         // WARNING: a bit of FIN logic here...
         if (fin()){
           r = 0 ;  
         }
       }
-      row_even = index_reg[r * 2] ;
-      row_odd = index_reg[(r * 2) + 1] ;
+      row_even = index_reg[r] ;
+      row_odd = index_reg[r + 1] ;
     }
   } ;
   timing->A32clk2(f2) ;
@@ -62,8 +62,9 @@ void SCRATCH_timing(){
 
   auto f3 = []{
     if (get_sc()){
-      index_reg[row_num * 2] = row_even ;
-      index_reg[(row_num * 2) + 1] = row_odd ;
+      byte r = row_num << 1 ;
+      index_reg[r] = row_even ;
+      index_reg[r + 1] = row_odd ;
     }
   } ;
   timing->A12clk2(f3) ;
@@ -81,16 +82,31 @@ void SCRATCH_timing(){
 // Enable the working register (according to whether OPA is even or odd) to the bus.
 void enableReg(){
   data->write(opa_even() ? row_even : row_odd) ;
+  //if (timing->_pass == 0){
+  //  Serial.print(timing->_cycle) ;
+  //  Serial.print(" enableReg ") ;
+  //  Serial.println(opa_even() ? row_even : row_odd) ;
+  //}
 }
 
 // Enable the even working register to the bus.
 void enableRegPairH(){
   data->write(row_even) ;
+  //if (timing->_pass == 0){
+  //  Serial.print(timing->_cycle) ;
+  //  Serial.print(" enableRegPairH ") ;
+  //  Serial.println(row_even) ;
+  //}
 }
 
 // Enable the odd working register to the bus.
 void enableRegPairL(){
   data->write(row_odd) ;
+  //if (timing->_pass == 0){
+  //  Serial.print(timing->_cycle) ;
+  //  Serial.print(" enableRegPairL ") ;
+  //  Serial.println(row_odd) ;
+  //}
 }
 
 // Set the proper working register value from data_in.
@@ -101,95 +117,31 @@ void setReg(){
   else {
       row_odd = data_in ;
   }
+  //if (timing->_pass == 0){
+  //  Serial.print(timing->_cycle) ;
+  //  Serial.print(" setReg ") ;
+  //  Serial.print(opa_even()) ;
+  //  Serial.print(" ") ;
+  //  Serial.println(data_in) ;
+  //}
 }
 
 // Set the even (high) working register from data_in
 void setRegPairH(){
   row_even = data_in ;
+  //if (timing->_pass == 0){
+  //  Serial.print(timing->_cycle) ;
+  //  Serial.print(" setRegPairH ") ;
+  //  Serial.println(row_even) ;
+  //}
 }
 
 // Set the odd (low) working register from data_in
 void setRegPairL(){
   row_odd = data_in ;
+  //if (timing->_pass == 0){
+  //  Serial.print(timing->_cycle) ;
+  //  Serial.print(" setRegPairL ") ;
+  //  Serial.println(row_odd) ;
+  //}
 }
-
-
-/*
-
-class scratch:
-    void __init__(self, inst, timing, data):
-        data = data            # The data bus
-        inst = inst
-        inst.scratch = self
-        index_reg = [0] * 16   # The actual registers
-        row_num = 0            # The working row number
-        row_even = 0           # The even register in the working row
-        row_odd = 0            # The odd register in the working row
-        data_in = 0            # Data in from the bus
-
-        timing = timing
-
-        @M12
-        @M22
-        @A12clk1
-        @A22clk1
-        @A32clk1
-        @X12clk1
-        @X22clk1
-        @X32clk1    # Sample data from the bus at these times.
-        void _():
-            data_in = data.v
-
-        @A32clk2
-        @X12clk2    # Set working row from the register array. There is a 0 override for FIN during X12.
-        void _():
-            if inst.sc:
-                row_num = row_num
-                if timing.x1():
-                    # WARNING: a bit of FIN logic here...
-                    if inst.fin():
-                        row_num = 0  
-                row_even = index_reg[row_num * 2]
-                row_odd = index_reg[(row_num * 2) + 1]
-
-        @A12clk2
-        @M12clk2
-        void _():    #  Save working row to the register array
-            if inst.sc:
-                index_reg[row_num * 2] = row_even
-                index_reg[(row_num * 2) + 1] = row_odd
-
-        @M22clk2    # Read OPA from the data bus and set the working row.
-        void _():
-            if inst.sc:
-                row_num = data.v >> 1
-
-
-    # Enable the working register (according to whether OPA is even or odd) to the bus.
-    void enableReg(self):
-        data.v = row_even if inst.opa_even() else row_odd
-
-    # Enable the even working register to the bus.
-    void enableRegPairH(self):
-        data.v = row_even
-
-    # Enable the odd working register to the bus.
-    void enableRegPairL(self):
-        data.v = row_odd
-
-    # Set the proper working register value from data_in.
-    void setReg(self):
-        if inst.opa_even():
-            row_even = data_in
-        else:
-            row_odd = data_in
-
-    # Set the even (high) working register from data_in
-    void setRegPairH(self):
-        row_even = data_in
-
-    # Set the odd (low) working register from data_in
-    void setRegPairL(self):
-        row_odd = data_in
-*/
-    

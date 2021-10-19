@@ -5,7 +5,7 @@
 #include "CONTROL.h"
 #include "ADDR.h"
 #include "SCRATCH.h"
-
+#include "ALU.h"
 
 #define READ_RESET  PINC &   0b00000010
 #define RESET_INPUT DDRC &= ~0b00000010
@@ -22,6 +22,7 @@ void reset(){
   IO_reset() ;
   ADDR_reset() ;
   SCRATCH_reset() ;
+  ALU_reset() ;
 }
 
 
@@ -35,6 +36,7 @@ void setup(){
   IO_setup(&TIMING) ;
   ADDR_setup(&TIMING, &DATA) ;
   SCRATCH_setup(&TIMING, &DATA) ;
+  ALU_setup(&TIMING, &DATA) ;
   TIMING.setup() ;
   reset() ;
 }
@@ -54,7 +56,9 @@ void loop(){
       max_dur = dur ;
       Serial.print("Max loop duration: ") ;
       Serial.print(max_dur) ;
-      Serial.println("us") ;
+      Serial.print("us ") ;
+      Serial.print(INST_opr, HEX) ;
+      Serial.println(INST_opa, HEX) ;
     }
   }
 }
