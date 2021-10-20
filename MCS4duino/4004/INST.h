@@ -14,6 +14,9 @@ void INST_reset() ;
 void INST_setup(TIMING *t, DATA *d) ;
 void INST_timing() ;
 
+bool setJCNcond() ;
+
+
 inline bool opa_odd() __attribute__((always_inline)) ;
 bool opa_odd(){
     return INST_opa & 1 ;

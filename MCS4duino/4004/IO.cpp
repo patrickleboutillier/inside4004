@@ -14,6 +14,7 @@ void IO_setup(TIMING *t){
   timing = t ;
   CM_ROM_OUTPUT ;
   CM_RAM_OUTPUT ; 
+  TEST_INPUT ;
   IO_reset() ;
   IO_timing() ;
 }

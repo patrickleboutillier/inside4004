@@ -11,7 +11,10 @@
 #define CM_RAM_OFF    PORTC &= ~0b00010000
 #define CM_RAM_OUTPUT DDRC  |=  0b00010000
 
-#define TEST      7
+#define READ_TEST     PIND  &   0b10000000
+#define TEST_INPUT    DDRD  &= ~0b10000000
+
+
 
 void IO_reset() ;
 void IO_setup(TIMING *t) ;
@@ -31,8 +34,11 @@ void CMoff(){
 
 inline bool testZero() __attribute__((always_inline)) ;
 bool testZero(){
-  return !digitalRead(TEST) ;
+  return !(READ_TEST) ;
 }
 
+inline void setRAMBank() __attribute__((always_inline)) ;
+void setRAMBank(){
+}
 
 #endif

@@ -81,7 +81,7 @@ void SCRATCH_timing(){
 
 // Enable the working register (according to whether OPA is even or odd) to the bus.
 void enableReg(){
-  data->write(opa_even() ? row_even : row_odd) ;
+  //data->write(opa_even() ? row_even : row_odd) ;
   //if (timing->_pass == 0){
   //  Serial.print(timing->_cycle) ;
   //  Serial.print(" enableReg ") ;
@@ -91,7 +91,7 @@ void enableReg(){
 
 // Enable the even working register to the bus.
 void enableRegPairH(){
-  data->write(row_even) ;
+  //data->write(row_even) ;
   //if (timing->_pass == 0){
   //  Serial.print(timing->_cycle) ;
   //  Serial.print(" enableRegPairH ") ;
@@ -101,7 +101,7 @@ void enableRegPairH(){
 
 // Enable the odd working register to the bus.
 void enableRegPairL(){
-  data->write(row_odd) ;
+  //data->write(row_odd) ;
   //if (timing->_pass == 0){
   //  Serial.print(timing->_cycle) ;
   //  Serial.print(" enableRegPairL ") ;

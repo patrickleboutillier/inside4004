@@ -12,8 +12,8 @@ class i4004:
         self.test = test
         self.reset = reset
         self.cond = cond
-        self.inst = inst.inst(self.data, self.cond)
-        self.alu = alu.alu(self.inst, data)
+        self.inst = inst.inst(self.data, self.timing, self.cond)
+        self.alu = alu.alu(self.inst, self.timing, data)
         self.scratch = scratch.scratch(self.inst, self.timing, data)
         self.addr = addr.addr(self.inst, self.timing, self.data)
         self.io = io.io(self.inst, test, cm_rom, cm_ram)

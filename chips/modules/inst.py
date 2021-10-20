@@ -8,13 +8,15 @@ from hdl import *
 
 
 class inst:
-    def __init__(self, data, condw):
+    def __init__(self, data, timing, condw):
         self.data = data
         self.sc = 1
         self.cond = 0
         self.condw = condw
         self.opr = 0
         self.opa = 0
+
+        self.timing = timing
 
         @A12clk1
         def _():
@@ -24,9 +26,11 @@ class inst:
                 if self.jcn():
                     self.setJCNCond()
                     self.condw.v = self.cond
+                    #print(self.timing.cycle, "condJCN", self.cond)
                 if self.isz():
                     self.cond = ~self.alu.addZero() & 1
                     self.condw.v = self.cond
+                    #print(self.timing.cycle, "condISZ", self.cond)
             else:
                 self.sc = 1
 
@@ -51,6 +55,7 @@ class inst:
         c = self.alu.carryOne()
         t = self.ioc.testZero()
 
+        #print(self.opa, "z", z, "c", c, "t", t)
         invert = (self.opa & 0b1000) >> 3
         (zero, cy, test) = (self.opa & 0b0100, self.opa & 0b0010, self.opa & 0b0001)
         self.cond = 0

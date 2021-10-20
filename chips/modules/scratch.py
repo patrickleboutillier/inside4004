@@ -59,6 +59,7 @@ class scratch:
     # Enable the working register (according to whether OPA is even or odd) to the bus.
     def enableReg(self):
         self.data.v = self.row_even if self.inst.opa_even() else self.row_odd
+        #print(self.timing.cycle, "enableReg", self.row_even if self.inst.opa_even() else self.row_odd)
 
     # Enable the even working register to the bus.
     def enableRegPairH(self):

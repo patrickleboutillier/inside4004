@@ -54,11 +54,11 @@ void loop(){
     unsigned long dur = micros() - start ;
     if (dur > max_dur){
       max_dur = dur ;
-      Serial.print("Max loop duration: ") ;
-      Serial.print(max_dur) ;
-      Serial.print("us ") ;
-      Serial.print(INST_opr, HEX) ;
-      Serial.println(INST_opa, HEX) ;
+      //Serial.print("Max loop duration: ") ;
+      //Serial.print(max_dur) ;
+      //Serial.print("us ") ;
+      //Serial.print(INST_opr, HEX) ;
+      //Serial.println(INST_opa, HEX) ;
     }
   }
 }
