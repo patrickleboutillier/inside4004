@@ -30,7 +30,6 @@ KEYBOARD::KEYBOARD(i4003 *input, int pin_kbd_row_3, int pin_kbd_row_2, int pin_k
 
 
 void KEYBOARD::reset(){
-  Serial.println("KEYBOARD reset") ;
   for (int i = 0 ; i < 10  ; i++){
     for (int j = 0 ; j < 4 ; j++){
       _buffer[i][j] = 0 ; 

@@ -69,6 +69,7 @@ void reset(){
 
 void loop(){
   if (digitalRead(RESET)){
+    Serial.println("RESET!!!") ;
     return reset() ;
   }
 
