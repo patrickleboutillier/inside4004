@@ -69,12 +69,12 @@ void FIM_M22clk2(){
 } ;
 
 void SRC_X21(){
-  //enableRegPairH() ;
+  enableRegPairH() ;
   CMon() ;
 } ;
 
 void SRC_X31(){
-  //enableRegPairL() ;
+  enableRegPairL() ;
   CMoff() ;
 } ;
 

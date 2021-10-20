@@ -184,15 +184,15 @@ class control:
                 scratch.setRegPairL()
 
         # SRC
-        opr, opa = 0b0010, odd
-        @X21
-        def _():
-            scratch.enableRegPairH()
+        # opr, opa = 0b0010, odd
+        # @X21
+        # def _():
+            # scratch.enableRegPairH()
             # ioc.cm_rom.v = 1
             # ioc.cm_ram.v = ioc.ram_bank & 1
-        @X31
-        def _():
-            scratch.enableRegPairL()
+        # @X31
+        # def _():
+            # scratch.enableRegPairL()
             # ioc.cm_rom.v = 0
             # ioc.cm_ram.v = 0
 
