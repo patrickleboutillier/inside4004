@@ -92,7 +92,7 @@ void FIN_M22clk2(){
 
 void FIN_X21(){
   if (get_sc()){
-    //enableRegPairH() ;
+    enableRegPairH() ;
   }
 } ;
 
@@ -104,7 +104,7 @@ void FIN_X22clk2(){
 
 void FIN_X31(){
   if (get_sc()){
-    //enableRegPairL() ;
+    enableRegPairL() ;
   }
 } ;
 
@@ -115,7 +115,7 @@ void FIN_X32clk2(){
 } ;
 
 void JIN_X21(){
-  //enableRegPairH() ;
+  enableRegPairH() ;
 } ;
 
 void JIN_X22clk2(){
@@ -123,7 +123,7 @@ void JIN_X22clk2(){
 } ;
 
 void JIN_X31(){
-  //enableRegPairL() ;
+  enableRegPairL() ;
 } ;
 
 void JIN_X32clk2(){

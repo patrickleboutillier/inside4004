@@ -206,18 +206,18 @@ class control:
         def _():
             if not inst.sc:
                 scratch.setRegPairL()
-        @X21
-        def _():
-            if inst.sc:
-                scratch.enableRegPairH()
+        #@X21
+        #def _():
+        #    if inst.sc:
+        #        scratch.enableRegPairH()
         @X22clk2
         def _():
             if inst.sc:
                 addr.setPM()
-        @X31
-        def _():
-            if inst.sc:
-                scratch.enableRegPairL()
+        #@X31
+        #def _():
+        #    if inst.sc:
+        #        scratch.enableRegPairL()
         @X32clk2
         def _():
             if inst.sc:
@@ -225,15 +225,15 @@ class control:
 
         # JIN
         opr, opa = 0b0011, odd
-        @X21
-        def _():
-            scratch.enableRegPairH()
+        #@X21
+        #def _():
+        #    scratch.enableRegPairH()
         @X22clk2
         def _():
             addr.setPM()
-        @X31
-        def _():
-            scratch.enableRegPairL()
+        #@X31
+        #def _():
+        #    scratch.enableRegPairL()
         @X32clk2
         def _():
             addr.setPL()
