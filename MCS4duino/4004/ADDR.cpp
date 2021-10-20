@@ -125,7 +125,7 @@ void ADDR_timing(){
   timing->M12clk1(f4) ;
   timing->X22clk1(f4) ;        // Update the stack with the contents of the program counter. 
 
-  timing->X32([]{            // Commit the stack pointer to row_num
+  timing->X32([]{              // Commit the stack pointer to row_num
     row_num = sp ;
   }) ;
 } ;

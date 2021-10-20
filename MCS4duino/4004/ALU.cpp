@@ -58,7 +58,7 @@ void ALU_timing(){
           
   timing->X21([]{    // Set the bus with the proper initialization value, depending on the current instruction.
     if (ope()){
-      enableInitializer() ;
+      //enableInitializer() ;
     }
   }) ;
           
@@ -181,7 +181,7 @@ void setADC(bool invert, bool one){
       
 // Place acc_out on the bus.
 void enableAccOut(){
-  //data->write(acc_out) ;
+  data->write(acc_out) ;
   #ifdef DEBUG
     if (timing->_pass == 0){
       Serial.print(timing->_cycle) ;
@@ -194,7 +194,7 @@ void enableAccOut(){
 
 // Place adder result on the bus
 void enableAdd(){
-  //data->write(add) ;
+  data->write(add) ;
   #ifdef DEBUG
     if (timing->_pass == 0){
       Serial.print(timing->_cycle) ;
@@ -207,7 +207,7 @@ void enableAdd(){
 
 // Place carry out on the bus
 void enableCyOut(){
-  //data->write(cy_out) ;
+  data->write(cy_out) ;
   #ifdef DEBUG
     if (timing->_pass == 0){
       Serial.print(timing->_cycle) ;
@@ -252,7 +252,7 @@ void enableInitializer(){
     } 
   }
   
-  //data->write(d) ;
+  data->write(d) ;
   #ifdef DEBUG
     if (timing->_pass == 0){
       Serial.print(timing->_cycle) ;

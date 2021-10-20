@@ -39,6 +39,7 @@ bool testZero(){
 
 inline void setRAMBank() __attribute__((always_inline)) ;
 void setRAMBank(){
+  // TODO: but not used in the calculator
 }
 
 #endif
