@@ -248,10 +248,10 @@ class control:
         def _():
             if not inst.sc:
                 addr.setPL()
-        @X21
-        def _():
-            if not inst.sc:
-                inst.data.v = inst.opa
+        #@X21
+        #def _():
+        #    if not inst.sc:
+        #        inst.data.v = inst.opa
         @X22clk2
         def _():
             if not inst.sc:
@@ -269,10 +269,10 @@ class control:
                 # Order not important here since sp in not copied to row_num until x32
                 addr.setPL()
                 addr.decSP()
-        @X21
-        def _():
-            if not inst.sc:
-                inst.data.v = inst.opa
+        #@X21
+        #def _():
+        #    if not inst.sc:
+        #        inst.data.v = inst.opa
         @X22clk2
         def _():
             if not inst.sc:
@@ -280,16 +280,16 @@ class control:
 
         # INC
         opr, opa = 0b0110, any
-        @X21
-        def _():
-            scratch.enableReg()
+        #@X21
+        #def _():
+        #    scratch.enableReg()
         @X22clk1
         def _():
             alu.setADC(one=True)
         @X31
         def _():
             alu.runAdder()
-            alu.enableAdd()
+            #alu.enableAdd()
         @X32clk2
         def _():
             scratch.setReg()    
@@ -304,10 +304,10 @@ class control:
         def _():
             if not inst.sc:
                 addr.setPL()
-        @X21
-        def _():
-            if inst.sc:
-                scratch.enableReg()
+        #@X21
+        #def _():
+        #    if inst.sc:
+        #        scratch.enableReg()
         @X22clk1
         def _():
             if inst.sc:
@@ -316,7 +316,7 @@ class control:
         def _():
             if inst.sc:
                 alu.runAdder()
-                alu.enableAdd()
+                #alu.enableAdd()
         @X32clk2
         def _():
             if inst.sc:
@@ -324,9 +324,9 @@ class control:
 
         # ADD
         opr, opa = 0b1000, any
-        @X21
-        def _():
-            scratch.enableReg()
+        #@X21
+        #def _():
+        #    scratch.enableReg()
         @X22clk1
         def _():
             alu.setADA()
@@ -337,9 +337,9 @@ class control:
 
         # SUB
         opr, opa = 0b1001, any
-        @X21
-        def _():
-            scratch.enableReg()
+        #@X21
+        #def _():
+        #    scratch.enableReg()
         @X22clk1
         def _():
             alu.setADA()

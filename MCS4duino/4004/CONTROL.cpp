@@ -144,7 +144,7 @@ void JUN_M22clk2(){
 
 void JUN_X21(){
     if (! get_sc()){
-      // data->write(get_opa()) ;
+      data->write(get_opa()) ;
     }
 } ;
 
@@ -170,7 +170,7 @@ void JMS_M22clk2(){
 
 void JMS_X21(){
   if (! get_sc()){
-    // data->write(get_opa()) ;
+    data->write(get_opa()) ;
   }
 } ;
 
@@ -181,7 +181,7 @@ void JMS_X22clk2(){
 } ;
 
 void INC_X21(){
-  //enableReg() ;
+  enableReg() ;
 } ;
 
 void INC_X22clk1(){
@@ -190,7 +190,7 @@ void INC_X22clk1(){
 
 void INC_X31(){
   runAdder(0, 0, 0, 0, 0) ;
-  //enableAdd() ;
+  enableAdd() ;
 } ;
 
 void INC_X32clk2(){
@@ -211,7 +211,7 @@ void ISZ_M22clk2(){
 
 void ISZ_X21(){
   if (get_sc()){
-    //enableReg() ;
+    enableReg() ;
   }
 } ;
 
@@ -224,7 +224,7 @@ void ISZ_X22clk1(){
 void ISZ_X31(){
   if (get_sc()){
     runAdder(0, 0, 0, 0, 0) ;
-    //enableAdd() ;
+    enableAdd() ;
   }
 } ;
 
@@ -235,7 +235,7 @@ void ISZ_X32clk2(){
 } ;
 
 void ADD_X21(){
-  //enableReg() ;
+  enableReg() ;
 } ;
 
 void ADD_X22clk1(){
@@ -248,7 +248,7 @@ void ADD_X31(){
 } ;
 
 void SUB_X21(){
-  //enableReg() ;
+  enableReg() ;
 } ;
 
 void SUB_X22clk1(){

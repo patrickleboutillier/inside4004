@@ -26,9 +26,8 @@ class MCS4:
         self.cm_ram = wire(0)
         self.test = wire(0, 0b0111, True)
         self.reset = wire(1, 0b0001)
-        self.cond = wire(0, 0b0101)
         self.data.v = 0
-        self.CPU = i4004.i4004(self.clock.clk1, self.clock.clk2, self.data, self.cm_rom, self.cm_ram, self.test, self.reset, self.cond)
+        self.CPU = i4004.i4004(self.clock.clk1, self.clock.clk2, self.data, self.cm_rom, self.cm_ram, self.test, self.reset)
 
         self.PROM = []
         self.RAM = [None, [], [], None, [], None, None, None, []]

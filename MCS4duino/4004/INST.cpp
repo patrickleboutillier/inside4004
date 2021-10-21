@@ -2,7 +2,6 @@
 #include "IO.h"
 #include "ALU.h"
 
-#define COND    A2 
 
 static TIMING *timing ;
 static DATA *data ;
@@ -23,7 +22,6 @@ void INST_reset(){
 void INST_setup(TIMING *t, DATA *d){
   timing = t ;
   data = d ;
-  //pinMode(COND, INPUT) ;
   INST_reset() ;
   INST_timing() ;
 }
@@ -44,7 +42,6 @@ void INST_timing(){
     if (! INST_sc){
       if (jcn()){
         byte cond = setJCNcond() ;
-        //INST_cond = digitalRead(COND) ;
         INST_cond = cond ;
         #ifdef DEBUG
           if (timing->_pass == 0){
@@ -56,7 +53,6 @@ void INST_timing(){
       }
       if (isz()){
         byte cond = ~addZero() & 1 ;
-        //INST_cond = digitalRead(COND) ;
         INST_cond = cond ;
         #ifdef DEBUG
           if (timing->_pass == 0){

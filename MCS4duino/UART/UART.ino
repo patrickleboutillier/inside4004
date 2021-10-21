@@ -4,7 +4,6 @@
 #define CLK1_2    0b000010000   // PORTD
 #define CLK2_1    0b000001000   // PORTB
 #define CLK2_2    0b000001000   // PORTD
-#define COND      A0
 #define SEND_KEY  A2
 #define TEST      7
 #define DATA_32   0b00000011    // PORTB
@@ -19,8 +18,13 @@
 #define CMD_DATA_R   0b1000
 #define CMD_DATA_W   0b1001
 
+#define MIN_CLK 100
+
+unsigned long start = 0 ;
+
 
 void reset(){
+  start = 0 ;
   DDRB = DDRB | CLK1_1 | CLK2_1 ;
   DDRD = DDRD | CLK1_2 | CLK2_2 ;
   
@@ -28,7 +32,6 @@ void reset(){
   digitalWrite(RESET_2, HIGH) ;
   PORTB = PORTB & ~(CLK1_1 | CLK2_1) ;
   PORTD = PORTD & ~(CLK1_2 | CLK2_2) ;
-  digitalWrite(COND, LOW) ;
   digitalWrite(SEND_KEY, LOW) ;
   DDRB = DDRB & ~DATA_32 ;
   PORTB = PORTB & ~DATA_32 ;
@@ -41,7 +44,6 @@ void setup(){
   Serial.begin(2000000) ;
   pinMode(RESET_1, OUTPUT) ;
   pinMode(RESET_2, OUTPUT) ;
-  pinMode(COND, OUTPUT) ;
   pinMode(SEND_KEY, OUTPUT) ;
   pinMode(TEST, INPUT) ;
   reset() ;
@@ -65,7 +67,11 @@ void loop(){
           digitalWrite(RESET_2, LOW) ;
         }
         break ;
-      case CMD_CLK1:
+      case CMD_CLK1: {
+        unsigned long diff = micros() - start ;
+        if (diff < MIN_CLK){
+          delayMicroseconds(MIN_CLK - diff) ; 
+        }
         if (opa){
           PORTB = PORTB | CLK1_1 ;
           PORTD = PORTD | CLK1_2 ;         
@@ -74,8 +80,14 @@ void loop(){
           PORTB = PORTB & ~CLK1_1 ;
           PORTD = PORTD & ~CLK1_2 ;
         }
+        start = micros() ;
         break ;
-      case CMD_CLK2:
+      }
+      case CMD_CLK2: {
+        unsigned long diff = micros() - start ;
+        if (diff < MIN_CLK){
+          delayMicroseconds(MIN_CLK - diff) ; 
+        }
         if (opa){
           PORTB = PORTB | CLK2_1 ;
           PORTD = PORTD | CLK2_2 ;         
@@ -84,10 +96,9 @@ void loop(){
           PORTB = PORTB & ~CLK2_1 ;
           PORTD = PORTD & ~CLK2_2 ;
         }
+        start = micros() ;
         break ;
-      case CMD_COND:
-        digitalWrite(COND, opa) ;
-        break ;
+      }
       case CMD_SEND_KEY:
         digitalWrite(SEND_KEY, opa) ;
         break ;
