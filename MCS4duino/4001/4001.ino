@@ -13,15 +13,10 @@
 #define DATA_INPUT          DDRB &= ~DATA_3 ; DDRD &= ~DATA_210
 #define DATA_OUTPUT         DDRB |=  DATA_3 ; DDRD |=  DATA_210
 
-#define SHFT_DATA_ON        PORTB |=  0b00100000
-#define SHFT_DATA_OFF       PORTB &= ~0b00100000
-#define SHFT_DATA_OUTPUT    DDRB  |=  0b00100000
-#define KBD_SHFT_CLK_ON     PORTB |=  0b00010000
-#define KBD_SHFT_CLK_OFF    PORTB &= ~0b00010000
-#define KBD_SHFT_CLK_OUTPUT DDRB  |=  0b00010000
-#define PRN_SHFT_CLK_ON     PORTB |=  0b00001000
-#define PRN_SHFT_CLK_OFF    PORTB &= ~0b00001000
-#define PRN_SHFT_CLK_OUTPUT DDRB  |=  0b00001000
+#define SHIFT               0b00111000
+#define WRITE_SHIFT(data)   PORTB = (PORTB & ~SHIFT) | (data << 3) 
+#define SHIFT_OUTPUT        DDRB  |=  SHIFT
+
 #define READ_PRN_INDEX      PINB  &   0b00000100
 #define PRN_INDEX_INPUT     DDRB  &= ~0b00000100
 #define READ_PRN_ADV_BTN    PINB  &   0b00000010
@@ -61,9 +56,7 @@ void setup(){
   Serial.println("4001") ;
   RESET_INPUT ;
   CM_INPUT ;
-  KBD_SHFT_CLK_OUTPUT ;
-  SHFT_DATA_OUTPUT ;
-  PRN_SHFT_CLK_OUTPUT ;
+  SHIFT_OUTPUT ;
   PRN_INDEX_INPUT ;
   PRN_ADV_BTN_INPUT ;
   KBD_ROW_INPUT ;
@@ -137,24 +130,7 @@ void setup(){
         // Grab data for WRR
         if (io_select == 0){
           byte data = READ_DATA ;
-          if ((data >> 1) & 1){
-            SHFT_DATA_ON ;
-          } 
-          else {
-            SHFT_DATA_OFF ;
-          }
-          if (data & 1){
-            KBD_SHFT_CLK_ON ;
-          }
-          else {
-            KBD_SHFT_CLK_OFF ;
-          }
-          if ((data >> 2) & 1){
-            PRN_SHFT_CLK_ON ;
-          }
-          else {
-            PRN_SHFT_CLK_OFF ;            
-          }
+          WRITE_SHIFT(data) ;
         }
       }
       else if (rdr){

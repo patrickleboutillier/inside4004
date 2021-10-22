@@ -3,6 +3,11 @@
 
 #define DEFAULT_KEY_BUF   "11+7+="
 
+#define KBD_ROW              0b01111000
+#define KBD_ROW_OUTPUT       DDRD |= 0b01111000
+#define WRITE_KBD_ROW(data)  PORTD = (PORTD & ~KBD_ROW) | (data << 3) 
+
+#define KBD_SEND_KEY  A1
  
 const char *lookup[] = {
   "CM",  "RM", "M-",     "M+",
@@ -16,20 +21,16 @@ const char *lookup[] = {
 } ;
 
 
-KEYBOARD::KEYBOARD(i4003 *input, int pin_kbd_row_3, int pin_kbd_row_2, int pin_kbd_row_1, int pin_kbd_row_0, 
-  int pin_send_key){
+KEYBOARD::KEYBOARD(i4003 *input){
   _input = input ;
-  _pin_kbd_row_3 = pin_kbd_row_3 ;
-  _pin_kbd_row_2 = pin_kbd_row_2 ;
-  _pin_kbd_row_1 = pin_kbd_row_1 ;
-  _pin_kbd_row_0 = pin_kbd_row_0 ;
-  _pin_send_key = pin_send_key ;
   _key_buffer[0] = '\0' ;
   reset() ;
 }
 
 
 void KEYBOARD::reset(){
+  WRITE_KBD_ROW(0) ;
+  
   for (int i = 0 ; i < 10  ; i++){
     for (int j = 0 ; j < 4 ; j++){
       _buffer[i][j] = 0 ; 
@@ -43,6 +44,12 @@ void KEYBOARD::reset(){
   
   _cur_send_key = 0 ;
   _reg = 0 ;
+}
+
+
+void KEYBOARD::setup(){
+  KBD_ROW_OUTPUT ;
+  pinMode(KBD_SEND_KEY, INPUT) ;  
 }
 
 
@@ -70,10 +77,7 @@ void KEYBOARD::loop(){
         Serial.print(": ") ;
         byte data = (_buffer[i][3] << 3) | (_buffer[i][2] << 2) | (_buffer[i][1] << 1) | _buffer[i][0] ;
         Serial.println(data) ;
-        digitalWrite(_pin_kbd_row_3, _buffer[i][0]) ;
-        digitalWrite(_pin_kbd_row_2, _buffer[i][1]) ;
-        digitalWrite(_pin_kbd_row_1, _buffer[i][2]) ; 
-        digitalWrite(_pin_kbd_row_0, _buffer[i][3]) ;            
+        WRITE_KBD_ROW(data) ;           
         if (i < 8){   // Don't reset the switches!
           _buffer[i][0] = 0 ;
           _buffer[i][1] = 0 ;
@@ -85,7 +89,7 @@ void KEYBOARD::loop(){
   }
   
   // Check the send key signal
-  if (digitalRead(_pin_send_key)){
+  if (digitalRead(KBD_SEND_KEY)){
       if (! _cur_send_key){
         sendKey() ;
         _cur_send_key = 1 ;
