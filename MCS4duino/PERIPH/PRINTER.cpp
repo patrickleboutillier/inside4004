@@ -32,6 +32,7 @@ void PRINTER::reset(){
   _cur_advance = 0 ;
   _cur_color = ' ' ;
   _cur_sync = 0 ;  
+  _reg = 0 ;
 }
 
 
@@ -83,6 +84,12 @@ void PRINTER::loop(){
   
   if (digitalRead(_pin_color)){
     _cur_color = '-' ;    // Set color to "red", meaning negative value.
+  }  
+
+  if (_input->getReg() != _reg){
+    _reg = _input->getReg() ;
+    Serial.print("prn reg ") ;
+    Serial.println(_reg | 0b100000000000000000000, BIN) ;
   }  
 }
 

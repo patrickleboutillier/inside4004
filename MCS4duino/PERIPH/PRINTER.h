@@ -32,6 +32,7 @@ class PRINTER {
     bool _cur_advance ;
     char _cur_color ; 
     bool _cur_sync ;
+    long _reg ;
 } ;
 
 
