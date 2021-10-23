@@ -6,8 +6,9 @@
 
 class PRINTER {
   public:
-    PRINTER(i4003 *input, int pin_fire, int pin_advance, int pin_color, int pin_sector, int pin_index, int pin_sync) ;
+    PRINTER(i4003 *input, int pin_fire, int pin_advance, int pin_color, int pin_sector, int pin_index) ;
     void reset() ;
+    void setup() ;
     void loop() ;
     void startSectorPulse() ;
     void endSectorPulse() ;
@@ -24,7 +25,6 @@ class PRINTER {
     int _pin_color ;
     int _pin_sector ;
     int _pin_index ;
-    int _pin_sync ;
     
     int _cur_sector ; 
     int _cur_cycle ;

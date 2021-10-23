@@ -6,14 +6,12 @@
 
 class i4003 {
   public:
-    i4003(int pin_clock, int pin_data_in, long mask) ;
+    i4003(long mask) ;
     void reset() ;
-    void loop() ;
+    void loop(bool clk, bool data) ;
     long getReg() ;
     bool getBit(int b) ;
   private:
-    int _pin_clock ;
-    int _pin_data_in ;
     long _mask ;
     long _reg ;
     bool _cur_clock ;

@@ -1,9 +1,7 @@
 #include "i4003.h"
 
 
-i4003::i4003(int pin_clock, int pin_data_in, long mask){
-  _pin_clock = pin_clock ;
-  _pin_data_in = pin_data_in ;
+i4003::i4003(long mask){
   _mask = mask ;
   reset() ;
 }
@@ -15,10 +13,10 @@ void i4003::reset(){
 }
 
 
-void i4003::loop(){
-  if (digitalRead(_pin_clock)){
+void i4003::loop(bool clk, bool data){
+  if (clk){
     if (! _cur_clock){
-      _reg = ((_reg << 1) | digitalRead(_pin_data_in)) & _mask ;
+      _reg = ((_reg << 1) | data) & _mask ;
       _cur_clock = 1 ;  
     }
   }
