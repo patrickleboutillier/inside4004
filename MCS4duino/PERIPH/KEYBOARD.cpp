@@ -68,15 +68,17 @@ void KEYBOARD::loop(){
   // Check if the keyboard is being scanned
   if (_input->getReg() != _reg){
     _reg = _input->getReg() ;
-    Serial.print("reg ") ;
+    Serial.print("kbd reg ") ;
     Serial.println(_reg | 0b10000000000, BIN) ;
     for (int i = 0 ; i < 10 ; i++){
       if (_input->getBit(i) == 0){
-        Serial.print("scanning ") ;
-        Serial.print(i) ;
-        Serial.print(": ") ;
         byte data = (_buffer[i][3] << 3) | (_buffer[i][2] << 2) | (_buffer[i][1] << 1) | _buffer[i][0] ;
-        Serial.println(data) ;
+         if (data != 0){
+          Serial.print("scanned ") ;
+          Serial.print(i) ;
+          Serial.print(": ") ;
+          Serial.println(data) ;
+         }
         WRITE_KBD_ROW(data) ;           
         if (i < 8){   // Don't reset the switches!
           _buffer[i][0] = 0 ;

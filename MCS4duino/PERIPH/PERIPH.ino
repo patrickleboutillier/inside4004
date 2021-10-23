@@ -2,7 +2,9 @@
 #include "PRINTER.h"
 #include "KEYBOARD.h"
 
-#define RESET         A2
+#define READ_RESET          PINC &   0b00000100
+#define RESET_INPUT         DDRC &= ~0b00000100
+
 #define KBD_SHFT_CLK  11
 #define PRN_SHFT_CLK  8
 #define PRN_INDEX     10
@@ -27,7 +29,7 @@ void setup(){
   Serial.print("key buffer: ") ;
   Serial.println(KEYBOARD.getKeyBuffer()) ;
   
-  pinMode(RESET, INPUT) ;
+  RESET_INPUT ;
   pinMode(KBD_SHFT_CLK, INPUT) ;
   pinMode(SHFT_DATA, INPUT) ;
   pinMode(PRN_SHFT_CLK, INPUT) ;
@@ -43,6 +45,7 @@ void setup(){
 }
 
 
+unsigned long max_dur = 0 ;
 void reset(){
   PSHIFT.reset() ;
   PRINTER.reset() ;
@@ -51,17 +54,28 @@ void reset(){
   digitalWrite(PRN_ADV_BTN, 0) ;
   digitalWrite(PRN_INDEX, 0) ;  
   digitalWrite(PRN_SECTOR, 0) ; 
+  max_dur = 0 ;
 }
 
 
 void loop(){
-  if (digitalRead(RESET)){
-    Serial.println("RESET!!!") ;
-    return reset() ;
+  while (1){
+    unsigned long start = micros() ;
+    if (READ_RESET){
+      Serial.println("RESET!!!") ;
+      return reset() ;
+    }
+  
+    PSHIFT.loop() ;
+    PRINTER.loop() ;
+    KSHIFT.loop() ;
+    KEYBOARD.loop() ;
+    unsigned long dur = micros() - start ;
+    if (dur > max_dur){
+      max_dur = dur ;
+      Serial.print("Max loop duration: ") ;
+      Serial.print(max_dur) ;
+      Serial.println("us ") ;
+    }
   }
-
-  PSHIFT.loop() ;
-  PRINTER.loop() ;
-  KSHIFT.loop() ;
-  KEYBOARD.loop() ;
 }
