@@ -1,6 +1,8 @@
 #include "TIMING.h"
 #include "ROM.h"
 
+#define DEBUG
+
 #define READ_RESET          PINC &   0b00100000
 #define RESET_INPUT         DDRC &= ~0b00100000
 #define READ_CM             PINC &   0b00010000
@@ -34,6 +36,7 @@ bool io_inst = 0 ;
 bool src = 0 ;
 bool rdr = 0 ;
 bool wrr = 0 ;
+unsigned long max_dur = 0 ;
 
 
 void reset(){
@@ -48,12 +51,17 @@ void reset(){
   src = 0 ; 
   rdr = 0 ;
   wrr = 0 ;
+  max_dur = 0 ;
 }
 
 
 void setup(){
-  Serial.begin(115200) ;
-  Serial.println("4001") ;
+  #ifdef DEBUG
+    Serial.begin(2000000) ;
+    Serial.println("4001") ;
+    Serial.println("Serial.end()") ;
+    Serial.end() ;
+  #endif
   RESET_INPUT ;
   CM_INPUT ;
   SHIFT_OUTPUT ;
@@ -159,21 +167,24 @@ void setup(){
 }
 
 
-unsigned long max_dur = 0 ;
 void loop(){
   while (1){
-    unsigned long start = micros() ;
+    #ifdef DEBUG
+        unsigned long start = micros() ;
+    #endif
     if (READ_RESET){
       return reset() ;
     }
 
     TIMING.loop() ;
-    unsigned long dur = micros() - start ;
-    if (dur > max_dur){
-      max_dur = dur ;
-      Serial.print("Max loop duration: ") ;
-      Serial.print(max_dur) ;
-      Serial.println("us") ;
-    }
+    #ifdef DEBUG
+      unsigned long dur = micros() - start ;
+      if (dur > max_dur){
+        max_dur = dur ;
+        Serial.print("Max loop duration: ") ;
+        Serial.print(max_dur) ;
+        Serial.println("us") ;
+      }
+    #endif
   }
 }

@@ -14,12 +14,16 @@ const long sector_period = (28 * 1000) / 22 ;
 #define SYNC_INPUT  DDRD &= ~0b00000100
 #define READ_SYNC   PIND &   0b00000100
 
+#define PRN_ADV          0b00001000
+#define PRN_ADV_INPUT    DDRC &= ~PRN_ADV
+#define PRN_FIRE         0b00010000
+#define PRN_FIRE_INPUT   DDRC &= ~PRN_FIRE
+#define PRN_COLOR        0b00100000
+#define PRN_COLOR_INPUT  DDRC &= ~PRN_COLOR
 
-PRINTER::PRINTER(i4003 *input, int pin_fire, int pin_advance, int pin_color, int pin_sector, int pin_index){
+
+PRINTER::PRINTER(i4003 *input, int pin_sector, int pin_index){
   _input = input ;
-  _pin_fire = pin_fire ;
-  _pin_advance = pin_advance ;
-  _pin_color = pin_color ;
   _pin_sector = pin_sector ;
   _pin_index = pin_index ;
   reset() ;
@@ -40,6 +44,9 @@ void PRINTER::reset(){
 
 void PRINTER::setup(){
   SYNC_INPUT ;
+  PRN_ADV_INPUT ;
+  PRN_FIRE_INPUT ;
+  PRN_COLOR_INPUT ;
 }
 
 
@@ -67,8 +74,9 @@ void PRINTER::loop(){
   else {
     _cur_sync = 0 ; 
   }
-  
-  if (digitalRead(_pin_fire)){
+
+  byte data = PINC ;
+  if (data & PRN_FIRE){
       if (! _cur_fire){
         fireHammers() ;
         _cur_fire = 1 ;
@@ -78,7 +86,7 @@ void PRINTER::loop(){
     _cur_fire = 0 ;
   }
   
-  if (digitalRead(_pin_advance)){
+  if (data & PRN_ADV){
     if (! _cur_advance){
       advanceLine() ;
       _cur_color = ' ' ;   // Reset line color
@@ -89,7 +97,7 @@ void PRINTER::loop(){
     _cur_advance = 0 ;
   }
   
-  if (digitalRead(_pin_color)){
+  if (data & PRN_COLOR){
     _cur_color = '-' ;    // Set color to "red", meaning negative value.
   }  
 
@@ -128,15 +136,15 @@ void PRINTER::endSectorPeriod(){
 
 
 void PRINTER::fireHammers(){
-  Serial.print("FIRE HAMMERS ") ;
-  Serial.println(_input->getReg() | 0b100000000000000000000, BIN) ;
+  Serial.println("FIRE HAMMERS ") ;
+  //Serial.println(_input->getReg() | 0b100000000000000000000, BIN) ;
   for (int i = 0 ; i < 20 ; i++){
     if (_input->getBit(i)){
       punchChar(i) ;
     }
   }
-  Serial.print("  ") ;
-  Serial.println(_line) ;
+  //Serial.print("  ") ;
+  //Serial.println(_line) ;
 }
 
 

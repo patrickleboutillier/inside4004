@@ -1,5 +1,7 @@
 #include "TIMING.h"
 
+#define DEBUG
+
 #define READ_RESET       PINC &   0b00000010
 #define RESET_INPUT      DDRC &= ~0b00000010
 #define READ_CM          PINC &   0b00000001
@@ -30,16 +32,19 @@ int opa = -1 ;
 byte chip_select = 0 ;
 byte RAM[4][4][16] ;
 byte STATUS[4][4][4] ;
+unsigned long max_dur = 0 ;
 
 
 void reset(){
   DATA_INPUT ;   
+  
   TIMING.reset() ;
   reg = 0 ;
   chr = 0 ;
   src = 0 ;
   opa = -1 ;
   chip_select = 0 ;
+  max_dur = 0 ;
 
   for (int i = 0 ; i < 4  ; i++){
     for (int j = 0 ; j < 4 ; j++){
@@ -59,8 +64,12 @@ void reset(){
 
 
 void setup(){
-  Serial.begin(115200) ;
-  Serial.println("4002") ;
+  #ifdef DEBUG
+    Serial.begin(2000000) ;
+    Serial.println("4002") ;
+    Serial.println("Serial.end()") ;
+    Serial.end() ;
+  #endif
   RESET_INPUT ;
   CM_INPUT ;
   PRN_ADV_OUTPUT ; 
@@ -187,21 +196,24 @@ void setup(){
 }
 
 
-unsigned long max_dur = 0 ;
 void loop(){
   while (1){
-    unsigned long start = micros() ;
+    #ifdef DEBUG
+      unsigned long start = micros() ;
+    #endif
     if (READ_RESET){
       return reset() ;
     }
 
     TIMING.loop() ;
-    unsigned long dur = micros() - start ;
-    if (dur > max_dur){
-      max_dur = dur ;
-      Serial.print("Max loop duration: ") ;
-      Serial.print(max_dur) ;
-      Serial.println("us") ;
-    }
+    #ifdef DEBUG
+      unsigned long dur = micros() - start ;
+      if (dur > max_dur){
+        max_dur = dur ;
+        Serial.print("Max loop duration: ") ;
+        Serial.print(max_dur) ;
+        Serial.println("us") ;
+      }
+    #endif
   }
 }

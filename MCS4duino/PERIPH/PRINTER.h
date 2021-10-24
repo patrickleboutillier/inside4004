@@ -6,7 +6,7 @@
 
 class PRINTER {
   public:
-    PRINTER(i4003 *input, int pin_fire, int pin_advance, int pin_color, int pin_sector, int pin_index) ;
+    PRINTER(i4003 *input, int pin_sector, int pin_index) ;
     void reset() ;
     void setup() ;
     void loop() ;
@@ -20,9 +20,6 @@ class PRINTER {
   private:
     i4003 *_input ;
     char _line[23] ;
-    int _pin_fire ;
-    int _pin_advance ;
-    int _pin_color ;
     int _pin_sector ;
     int _pin_index ;
     

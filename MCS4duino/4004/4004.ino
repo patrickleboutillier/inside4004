@@ -27,7 +27,7 @@ void reset(){
 
 
 void setup(){
-  Serial.begin(115200) ;
+  Serial.begin(2000000) ;
   Serial.println("4004") ;
   RESET_INPUT ;
 

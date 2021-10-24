@@ -16,18 +16,14 @@
 #define PRN_ADV_BTN   9
 #define PRN_SECTOR    7
 
-#define PRN_ADV       A3
-#define PRN_FIRE      A4
-#define PRN_COLOR     A5
-
 i4003 PSHIFT(0xFFFFF) ;
 i4003 KSHIFT(0x3FF) ;
-PRINTER PRINTER(&PSHIFT, PRN_FIRE, PRN_ADV, PRN_COLOR, PRN_SECTOR, PRN_INDEX) ;
+PRINTER PRINTER(&PSHIFT, PRN_SECTOR, PRN_INDEX) ;
 KEYBOARD KEYBOARD(&KSHIFT) ;
 
 
 void setup(){
-  Serial.begin(115200) ;
+  Serial.begin(2000000) ;
   Serial.println("Welcome to Busicom 141-PF!") ;
   Serial.print("key buffer: ") ;
   Serial.println(KEYBOARD.getKeyBuffer()) ;
@@ -37,9 +33,6 @@ void setup(){
   KBD_SHFT_CLK_INPUT ;
   PRN_SHFT_CLK_INPUT ;
   pinMode(PRN_ADV_BTN, OUTPUT) ;
-  pinMode(PRN_ADV, INPUT) ;
-  pinMode(PRN_FIRE, INPUT) ;
-  pinMode(PRN_COLOR, INPUT) ;
   pinMode(PRN_INDEX, OUTPUT) ;
   pinMode(PRN_SECTOR, OUTPUT) ;
   KEYBOARD.setup() ;
