@@ -6,12 +6,15 @@
 #include "ADDR.h"
 #include "SCRATCH.h"
 #include "ALU.h"
+#include "CLOCK.h"
 
 #define READ_RESET  PINC &   0b00000010
 #define RESET_INPUT DDRC &= ~0b00000010
 
 TIMING TIMING ;
 DATA DATA ;
+
+unsigned long max_dur = 0 ;
 
 
 void reset(){  
@@ -23,6 +26,8 @@ void reset(){
   ADDR_reset() ;
   SCRATCH_reset() ;
   ALU_reset() ;
+  CLOCK_reset() ;
+  max_dur = 0 ;
 }
 
 
@@ -37,12 +42,12 @@ void setup(){
   ADDR_setup(&TIMING, &DATA) ;
   SCRATCH_setup(&TIMING, &DATA) ;
   ALU_setup(&TIMING, &DATA) ;
+  CLOCK_setup(&TIMING) ;
   TIMING.setup() ;
   reset() ;
 }
 
 
-unsigned long max_dur = 0 ;
 void loop(){
   while (1){
     unsigned long start = micros() ;
@@ -54,9 +59,9 @@ void loop(){
     unsigned long dur = micros() - start ;
     if (dur > max_dur){
       max_dur = dur ;
-      //Serial.print("Max loop duration: ") ;
-      //Serial.print(max_dur) ;
-      //Serial.print("us ") ;
+      Serial.print("Max loop duration: ") ;
+      Serial.print(max_dur) ;
+      Serial.println("us ") ;
       //Serial.print(INST_opr, HEX) ;
       //Serial.println(INST_opa, HEX) ;
     }

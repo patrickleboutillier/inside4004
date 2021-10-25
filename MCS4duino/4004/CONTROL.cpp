@@ -261,7 +261,7 @@ void SUB_X31(){
 } ;
 
 void LD_X21(){
-  //enableReg() ;
+  enableReg() ;
 } ;
 
 void LD_X31(){
@@ -294,7 +294,7 @@ void BBL_X22clk2(){
 } ;
 
 void BBL_X21(){
-  //data->write(get_opa()) ;
+  data->write(get_opa()) ;
 } ;
 
 void BBL_X31(){
@@ -302,7 +302,7 @@ void BBL_X31(){
 } ;
 
 void LDM_X21(){  
-  //data->write(get_opa()) ;
+  data->write(get_opa()) ;
 } ;
 
 void LDM_X31(){

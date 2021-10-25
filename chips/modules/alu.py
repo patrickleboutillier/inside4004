@@ -34,10 +34,10 @@ class alu:
             self.cy_out = self.cy
             #print(self.timing.cycle, "acc_out", self.acc_out, "cy_out", self.cy_out)
         
-        @X21    # Set the bus with the proper initialization value, depending on the current instruction.
-        def _():
-            if self.inst.ope():
-                self.enableInitializer()
+        #@X21    # Set the bus with the proper initialization value, depending on the current instruction.
+        #def _():
+        #    if self.inst.ope():
+        #        self.enableInitializer()
         
         @X22clk1  # Set input B by sampling data from the bus (n0342, for non IO instructions).
         def _():

@@ -350,9 +350,9 @@ class control:
 
         # LD
         opr, opa = 0b1010, any
-        @X21
-        def _():
-            scratch.enableReg()
+        #@X21
+        #def _():
+        #    scratch.enableReg()
         @X31
         def _():
             alu.runAdder(saveAcc=True)
@@ -377,18 +377,18 @@ class control:
         @X22clk2
         def _():
             addr.decSP()
-        @X21
-        def _():
-            inst.data.v = inst.opa
+        #@X21
+        #def _():
+        #    inst.data.v = inst.opa
         @X31
         def _():
             alu.runAdder(saveAcc=True)
 
         # LDM
         opr, opa = 0b1101, any
-        @X21
-        def _():
-            inst.data.v = inst.opa
+        #@X21
+        #def _():
+        #    inst.data.v = inst.opa
         @X31
         def _():
             alu.runAdder(saveAcc=True)

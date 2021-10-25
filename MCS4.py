@@ -75,12 +75,12 @@ class MCS4:
 
     def dump(self, nb):
         self.CPU.dump(nb)
-        self.RAM[1][0].dump()
-        self.RAM[1][1].dump()
-        for r in self.PROM:
-            r.dump()
-        print()
-        if len(self.SR):
-            for s in self.SR:
-                s.dump()
-            print()
+        #self.RAM[1][0].dump()
+        #self.RAM[1][1].dump()
+        #for r in self.PROM:
+        #    r.dump()
+        #print()
+        #if len(self.SR):
+        #    for s in self.SR:
+        #        s.dump()
+        #    print()

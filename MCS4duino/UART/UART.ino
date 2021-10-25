@@ -18,13 +18,8 @@
 #define CMD_DATA_R   0b1000
 #define CMD_DATA_W   0b1001
 
-#define MIN_CLK 100
-
-unsigned long start = 0 ;
-
 
 void reset(){
-  start = 0 ;
   DDRB = DDRB | CLK1_1 | CLK2_1 ;
   DDRD = DDRD | CLK1_2 | CLK2_2 ;
   
@@ -34,9 +29,7 @@ void reset(){
   PORTD = PORTD & ~(CLK1_2 | CLK2_2) ;
   digitalWrite(SEND_KEY, LOW) ;
   DDRB = DDRB & ~DATA_32 ;
-  PORTB = PORTB & ~DATA_32 ;
   DDRD = DDRD & ~DATA_10 ;
-  PORTD = PORTD & ~DATA_10 ;
 }
 
 
@@ -68,10 +61,6 @@ void loop(){
         }
         break ;
       case CMD_CLK1: {
-        unsigned long diff = micros() - start ;
-        if (diff < MIN_CLK){
-          delayMicroseconds(MIN_CLK - diff) ; 
-        }
         if (opa){
           PORTB = PORTB | CLK1_1 ;
           PORTD = PORTD | CLK1_2 ;         
@@ -80,14 +69,9 @@ void loop(){
           PORTB = PORTB & ~CLK1_1 ;
           PORTD = PORTD & ~CLK1_2 ;
         }
-        start = micros() ;
         break ;
       }
       case CMD_CLK2: {
-        unsigned long diff = micros() - start ;
-        if (diff < MIN_CLK){
-          delayMicroseconds(MIN_CLK - diff) ; 
-        }
         if (opa){
           PORTB = PORTB | CLK2_1 ;
           PORTD = PORTD | CLK2_2 ;         
@@ -96,7 +80,6 @@ void loop(){
           PORTB = PORTB & ~CLK2_1 ;
           PORTD = PORTD & ~CLK2_2 ;
         }
-        start = micros() ;
         break ;
       }
       case CMD_SEND_KEY:
@@ -108,9 +91,7 @@ void loop(){
       case CMD_DATA_R:
         if (opa){ // Z
           DDRB = DDRB & ~DATA_32 ;
-          PORTB = PORTB & ~DATA_32 ;
-          DDRD = DDRD & ~DATA_10 ;
-          PORTD = PORTD & ~DATA_10 ;        
+          DDRD = DDRD & ~DATA_10 ;       
         }
         else {
           byte data = ((PINB & DATA_32) << 2) | ((PIND & DATA_10) >> 5) ; 

@@ -1,4 +1,4 @@
-import os
+import os, time
 import chips.i4001 as i4001, chips.i4002 as i4002, chips.i4003 as i4003, chips.i4004 as i4004
 import chips.keyboard as keyboard, chips.printer as printer, chips.lights as lights
 import MCS4
@@ -85,6 +85,7 @@ def callback(nb):
         if not kb_toggle:
             # print(nb, "readKey")
             # keyboard.readKey()
+            print(time.localtime() ,"send_key")
             send_key.v = 1
 
 

@@ -63,6 +63,11 @@ class TIMING {
       bool clk1 = READ_CLK1 ;
       bool clk2 = READ_CLK2 ;
 
+      tick(clk1, clk2) ;
+    }
+
+
+    void tick(bool clk1, bool clk2){
       int cur_phase ;
       if ((clk1)&&(!clk2)){
         _slave = _master ;
