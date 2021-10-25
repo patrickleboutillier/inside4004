@@ -69,25 +69,25 @@ sync = CPU.sync
 
 # TODO: Use argparse to handle these options
 step = False
-kb_toggle = False
 
-send_key = wire(0, 0b0110)
+# kb_toggle = False
+# send_key = wire(0, 0b0110)
 
 
 def callback(nb):
     global step, kb_toggle, MCS4
     # printer.doCycle()
 
-    send_key.v = 0 
-    if CPU.addr.isPCin([0x003]):                      # Before keyboard scanning in main loop, and a button is not currently held down)
-        # keyboard.clearAdvance()                     # In case we "pressed" the paper advance button
-        kb_toggle = not kb_toggle
-        if not kb_toggle:
-            # print(nb, "readKey")
-            # keyboard.readKey()
-            print(time.localtime() ,"send_key")
-            send_key.v = 1
-
+    # CPU.addr.sendKey() 
+    # send_key.v = 0 
+    # if CPU.addr.isPCin([0x003]):                      # Before keyboard scanning in main loop, and a button is not currently held down)
+    #     # keyboard.clearAdvance()                     # In case we "pressed" the paper advance button
+    #     kb_toggle = not kb_toggle
+    #     if not kb_toggle:
+    #         # print(nb, "readKey")
+    #         # keyboard.readKey()
+    #         print(time.localtime() ,"send_key")
+    #         send_key.v = 1
 
     if step:
         MCS4.dump(nb)

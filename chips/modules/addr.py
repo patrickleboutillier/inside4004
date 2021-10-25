@@ -1,3 +1,4 @@
+import datetime
 from chips.modules.timing import *
 from hdl import *
 
@@ -23,6 +24,8 @@ class addr:
         self.stack = [{'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}, {'h':0, 'm':0, 'l':0}]
 
         self.timing = timing
+        self.kb_toggle = False
+        self.send_key = wire(0, 0b0110)
 
         @M12
         @M22
@@ -39,6 +42,7 @@ class addr:
         def _():
             # self.data.v = self.pl
             self.data.v = None
+            self.sendKey()
             
         # @A21        # Output pm to the data bus.
         # def _():
@@ -129,6 +133,14 @@ class addr:
     def decSP(self):
         self.sp = (self.sp - 1) & 0b11
         # print(self.timing.cycle, "sp", self.sp)
+
+    def sendKey(self):
+        self.send_key.v = 0 
+        if self.isPCin([0x003]): # Before keyboard scanning in main loop
+            self.kb_toggle = not self.kb_toggle
+            if not self.kb_toggle:
+                print(datetime.datetime.now(), "send_key")
+                self.send_key.v = 1
 
     def dump(self):
         print("SP/PC:{:02b}/{:<4}".format(self.sp, self.ph << 8 | self.pm << 4 | self.pl), end = '')  
