@@ -269,12 +269,12 @@ void LD_X31(){
 } ;
 
 void XCH_X21(){
-  //enableReg() ;
+  enableReg() ;
 } ;
 
 void XCH_X31(){
   runAdder(0, 1, 0, 0, 0) ;
-  //enableAccOut() ;
+  enableAccOut() ;
 } ;
 
 void XCH_X32clk2(){
@@ -310,7 +310,7 @@ void LDM_X31(){
 } ;
 
 void WXX_X21(){
-  //data->write(get_acc()) ;
+  enableAccOut() ;
 } ;
 
 void SBM_X22clk2(){

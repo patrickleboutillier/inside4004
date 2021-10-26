@@ -98,4 +98,4 @@ def callback(nb):
 
 
 # Run the system
-MCS4.run(callback)
+MCS4.run(None)

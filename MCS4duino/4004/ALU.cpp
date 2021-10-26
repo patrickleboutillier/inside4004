@@ -103,7 +103,7 @@ void runAdder(bool invertADB, bool saveAcc, bool saveCy, bool shiftL, bool shift
 
   if (shiftL){
     cy = add >> 3 ;
-    acc = acc << 1 | cy_out ;
+    acc = (add << 1 | cy_out) & 0xF ;
   }    
   else if (shiftR){
     cy = add & 1 ;

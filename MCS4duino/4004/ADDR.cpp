@@ -171,8 +171,3 @@ void decSP(){
     sp = (sp - 1) & 0b11 ;
   }
 }
-
-
-void sendKey(){
-
-}

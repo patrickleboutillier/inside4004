@@ -22,7 +22,7 @@ class clock():
         self.sclk1 = wire(0, 0b0010)
         self.sclk2 = wire(0, 0b0011)
         self.n = 0
-        self.qperiod = 0.0001
+        self.qperiod = 0.000200
         print("qperiod", self.qperiod)
 
 
@@ -34,19 +34,20 @@ class clock():
             if self.n == 0:
                 cycle += 1
                 self.sclk1.v = 1
-                self.phx.v(0b10)
+                #self.phx.v(0b10)
             elif self.n == 1:
                 self.sclk1.v = 0
-                self.phx.v(0b00)
+                #self.phx.v(0b00)
             elif self.n == 2:
                 self.sclk2.v = 1
-                self.phx.v(0b01)
+                #self.phx.v(0b01)
             else:   # n == 3
                 self.sclk2.v = 0
-                self.phx.v(0b00)
+                #self.phx.v(0b00)
             self.n = (self.n + 1) % 4
 
             dur = time.perf_counter() - start
+            #print(dur * 1000000)
             if dur < self.qperiod:
                 #print("sleep", self.qperiod - dur)
                 time.sleep(self.qperiod - dur) 

@@ -359,13 +359,15 @@ class control:
 
         # XCH
         opr, opa = 0b1011, any
-        @X21
-        def _():
-            scratch.enableReg()
+        #@X21
+        #def _():
+        #    scratch.enableReg()
+        #    print(timing.active_timing.cycle, "X21", scratch.get_reg())
         @X31
         def _():
             alu.runAdder(saveAcc=True)
-            alu.enableAccOut()
+            #alu.enableAccOut()
+            #print(timing.active_timing.cycle, "X31", alu.acc_out)
         @X32clk2
         def _():
             scratch.setReg()
@@ -396,9 +398,9 @@ class control:
 
         # WRM, WMP, WRR, WR0/1/2/3
         opr, opa = 0b1110, [0b0000, 0b0001, 0b0010, 0b0100, 0b0101, 0b0110, 0b0111]
-        @X21
-        def _():
-            alu.enableAccOut()
+        #@X21
+        #def _():
+        #    alu.enableAccOut()
 
         # SBM
         opr, opa = 0b1110, [0b1000]
