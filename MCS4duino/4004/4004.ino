@@ -42,8 +42,8 @@ void setup(){
   ADDR_setup(&TIMING, &DATA) ;
   SCRATCH_setup(&TIMING, &DATA) ;
   ALU_setup(&TIMING, &DATA) ;
-  CLOCK_setup(&TIMING) ;
   TIMING.setup() ;
+  CLOCK_setup(&TIMING) ;
   reset() ;
 }
 
@@ -55,7 +55,9 @@ void loop(){
       return reset() ;
     }
 
-    TIMING.loop() ;
+    //TIMING.loop() ;
+    CLOCK_tick() ;
+    
     unsigned long dur = micros() - start ;
     if (dur > max_dur){
       max_dur = dur ;

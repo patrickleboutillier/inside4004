@@ -8,5 +8,6 @@
 void CLOCK_reset() ;
 void CLOCK_setup(TIMING *t) ;
 void CLOCK_timing() ;
+void CLOCK_tick() ;
 
 #endif

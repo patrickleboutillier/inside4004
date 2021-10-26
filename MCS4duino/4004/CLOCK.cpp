@@ -1,6 +1,10 @@
 #include "CLOCK.h"
 
-#define MIN_CLK_US  100 
+#define CLK1_1    0b000010000   // PORTB
+#define CLK1_2    0b000010000   // PORTD
+#define CLK2_1    0b000001000   // PORTB
+#define CLK2_2    0b000001000   // PORTD
+#define CLK_US    75 
 
 static TIMING *timing ;
 static unsigned long n = 0 ;
@@ -8,35 +12,43 @@ static unsigned long n = 0 ;
 
 void CLOCK_reset(){
   n = 0 ;
+  PORTB = PORTB & ~(CLK1_1 | CLK2_1) ;
+  PORTD = PORTD & ~(CLK1_2 | CLK2_2) ;
 }
 
 
 void CLOCK_setup(TIMING *t){
   timing = t ;
+  DDRB = DDRB | CLK1_1 | CLK2_1 ;
+  DDRD = DDRD | CLK1_2 | CLK2_2 ;  
   CLOCK_reset() ;
 }
 
 
-void tick(int nb){
-  for (int i = 0 ; i < nb ; i++){
-    unsigned long start = micros() ;
-    if (n == 0){
-      timing->tick(1, 0) ;
-    }
-    else if (n == 1){
-      timing->tick(0, 0) ;
-    }
-    else if (n == 2){
-      timing->tick(0, 1) ;
-    }
-    else { // n == 3
-      timing->tick(0, 0) ;
-    }
-    n = (n + 1) & 0b11 ;
-
-    unsigned long diff = micros() - start ;
-    if (diff < MIN_CLK_US){
-      delayMicroseconds(MIN_CLK_US - diff) ;
+void CLOCK_tick(){
+  unsigned long start = micros() ;
+  while ((micros() - start) < CLK_US){
+    switch (n & 0b11){
+      case 0:
+        PORTB = PORTB | CLK1_1 ;
+        PORTD = PORTD | CLK1_2 ; 
+        timing->tick(1, 0) ;
+        break ;
+      case 1:
+        PORTB = PORTB & ~CLK1_1 ;
+        PORTD = PORTD & ~CLK1_2 ;
+        timing->tick(0, 0) ;
+        break ;
+      case 2:
+        PORTB = PORTB | CLK2_1 ;
+        PORTD = PORTD | CLK2_2 ;  
+        timing->tick(0, 1) ;
+        break ;
+      default:
+        PORTB = PORTB & ~CLK2_1 ;
+        PORTD = PORTD & ~CLK2_2 ;
+        timing->tick(0, 0) ;      
     }
   }
+  n++ ; 
 }

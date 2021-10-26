@@ -1,7 +1,7 @@
 #include "TIMING.h"
 #include "ROM.h"
 
-#define DEBUG
+// #define DEBUG
 
 #define READ_RESET          PINC &   0b00100000
 #define RESET_INPUT         DDRC &= ~0b00100000
@@ -59,8 +59,6 @@ void setup(){
   #ifdef DEBUG
     Serial.begin(2000000) ;
     Serial.println("4001") ;
-    Serial.println("Serial.end()") ;
-    Serial.end() ;
   #endif
   RESET_INPUT ;
   CM_INPUT ;
