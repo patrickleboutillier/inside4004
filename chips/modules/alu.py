@@ -62,7 +62,7 @@ class alu:
 
         if shiftL:
             self.cy = self.add >> 3
-            self.acc = self.acc << 1 | self.cy_out
+            self.acc = (self.add << 1 | self.cy_out) & 0xF
         elif shiftR:
             self.cy = self.add & 1
             self.acc = self.cy_out << 3 | self.add >> 1

@@ -64,7 +64,7 @@ class i4001:
             self.rdr = 1 if self.io_inst and self.data.v == 0b1010 else 0
             self.wrr = 1 if self.io_inst and self.data.v == 0b0010 else 0
 
-        @X11    # Disconnect from bus
+        @X12clk1    # Disconnect from bus
         def _():
             self.data.v = None
 
@@ -80,15 +80,15 @@ class i4001:
                     self.io_select = 0
             else:
                 self.src = 0
-                if self.io_select:
-                    if self.wrr:
-                        # Grab data for WRR
-                        self.io.v(self.data.v)
-                    elif self.rdr:
-                        # Send data for RDR
-                        self.data.v = self.io._v
+            if self.io_select:
+                if self.wrr:
+                    # Grab data for WRR
+                    self.io.v(self.data.v)
+                elif self.rdr:
+                    # Send data for RDR
+                    self.data.v = self.io._v
 
-        @X31
+        @X32clk1
         def _():
             if self.io_select and self.rdr:
                 self.data.v = None

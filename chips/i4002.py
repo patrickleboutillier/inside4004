@@ -34,55 +34,76 @@ class i4002:
             else:
                 self.ram_inst = 0
 
-        @X22clk1
-        def _():
-            if self.ram_inst:
-                # A RAM/I/O instruction is on progress, execute the proper operation according to the value of opa
-                if self.opa == 0b1000:
-                    self.data.v = self.ram[self.reg][self.char]
-                elif self.opa == 0b1001:
-                    self.data.v = self.ram[self.reg][self.char]
-                elif self.opa == 0b1011:
-                    self.data.v = self.ram[self.reg][self.char]
-                elif self.opa == 0b1100:
-                    self.data.v = self.status[self.reg][0]
-                elif self.opa == 0b1101:
-                    self.data.v = self.status[self.reg][1]
-                elif self.opa == 0b1110:
-                    self.data.v = self.status[self.reg][2]
-                elif self.opa == 0b1111:
-                    self.data.v = self.status[self.reg][3]
 
-        @X22clk2
+        @X22clk1
         def _():
             if self.cm.v:
                 # An SRC instruction is in progress
-                if self.chip == (self.data.v >> 2):
+                data = self.data.v
+                if self.chip == (data >> 2):
                     # We are the selected RAM chip for RAM/I/O if self.chip == (self.data.v >> 2)
                     self.src = 1
                     self.ram_select = 1
                     # Grab the selected RAM register
-                    self.reg = self.data.v & 0b0011
+                    self.reg = data & 0b0011
                 else:
                     self.ram_select = 0
             else:
                 self.src = 0                
             if self.ram_inst:
                 # A RAM/I/O instruction is on progress, execute the proper operation according to the value of opa
-                if self.opa == 0b0000:
-                    self.ram[self.reg][self.char] = self.data.v
-                elif self.opa == 0b0001:
-                    self.output.v(self.data.v)
-                elif self.opa == 0b0100:
-                    self.status[self.reg][0] = self.data.v
-                elif self.opa == 0b0101:
-                    self.status[self.reg][1] = self.data.v
-                elif self.opa == 0b0110:
-                    self.status[self.reg][2] = self.data.v
-                elif self.opa == 0b0111:
-                    self.status[self.reg][3] = self.data.v
+                data = self.data.v
+                w = False
+                r = False
 
-        @X31
+                if self.opa == 0b0000:
+                    self.ram[self.reg][self.char] = data
+                    w = True
+                elif self.opa == 0b0001:
+                    self.output.v(data)
+                    w = True
+                elif self.opa == 0b0100:
+                    self.status[self.reg][0] = data
+                    w = True
+                elif self.opa == 0b0101:
+                    self.status[self.reg][1] = data
+                    w = True
+                elif self.opa == 0b0110:
+                    self.status[self.reg][2] = data
+                    w = True
+                elif self.opa == 0b0111:
+                    self.status[self.reg][3] = data
+                    w = True
+                elif self.opa == 0b1000:
+                    data = self.ram[self.reg][self.char]
+                    r = True
+                elif self.opa == 0b1001:
+                    data = self.ram[self.reg][self.char]
+                    r = True
+                elif self.opa == 0b1011:
+                    data = self.ram[self.reg][self.char]
+                    r = True
+                elif self.opa == 0b1100:
+                    data = self.status[self.reg][0]
+                    r = True
+                elif self.opa == 0b1101:
+                    data = self.status[self.reg][1]
+                    r = True
+                elif self.opa == 0b1110:
+                    data = self.status[self.reg][2]
+                    r = True
+                elif self.opa == 0b1111:
+                    data = self.status[self.reg][3]
+                    r = True
+
+                # if w:
+                    # print("STORED", self.chip, self.reg, self.char, self.opa, data)
+                if r:
+                    self.data.v = data
+                    # print("RETRIEVED", self.chip, self.reg, self.char, self.opa, data)
+
+
+        @X32clk1
         def _():    # Disconnect from bus
             if self.ram_inst:
                 self.data.v = None
