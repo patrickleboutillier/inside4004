@@ -75,7 +75,6 @@ class printer(sensor):
         return self.cur_sector
 
     def fireHammers(self):
-        # print("{:020b}".format(self.input.v))
         for i in range(20):
             if self.input.pwire(i).v:
                 self.punchChar(i)

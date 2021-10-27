@@ -11,6 +11,7 @@ parser.add_argument("-d", "--debug", help="output debug information",
                     action="store_true")      
 parser.add_argument("-o", "--optimize", help="optimize for speed",
                     action="store_true")             
+parser.add_argument("-kb", "--key_buffer", help="initialize key buffer")             
 
 
 class MCS4:
@@ -55,7 +56,7 @@ class MCS4:
     def run(self, callback=None):
         dump = self.args.debug
         nb = 0
-        while (True):
+        while True:
             if callback is not None:
                 callback(nb)
             for i in range(8):

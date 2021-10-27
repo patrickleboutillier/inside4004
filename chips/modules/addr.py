@@ -81,7 +81,6 @@ class addr:
                 self.ph = self.stack[self.row_num]['h']
                 self.pm = self.stack[self.row_num]['m']
                 self.pl = self.stack[self.row_num]['l']
-                #print("restored", self.ph << 8 | self.pm << 4 | self.pl)
 
         @M12clk1
         @X22clk1        # Update the stack with the contents of the program counter. 
@@ -89,7 +88,6 @@ class addr:
             if self.timing.x2() and self.inst.inh:
                 return
             if not (self.inst.fin() and not self.inst.sc):
-                #print("commit", self.timing.slave, self.ph << 8 | self.pm << 4 | self.pl)
                 self.stack[self.row_num]['h'] = self.ph
                 self.stack[self.row_num]['m'] = self.pm
                 self.stack[self.row_num]['l'] = self.pl
