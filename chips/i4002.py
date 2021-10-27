@@ -96,11 +96,8 @@ class i4002:
                     data = self.status[self.reg][3]
                     r = True
 
-                # if w:
-                    # print("STORED", self.chip, self.reg, self.char, self.opa, data)
                 if r:
                     self.data.v = data
-                    # print("RETRIEVED", self.chip, self.reg, self.char, self.opa, data)
 
 
         @X32clk1
