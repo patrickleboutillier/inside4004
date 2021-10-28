@@ -3,8 +3,11 @@
 
 #include "Arduino.h"
 
-#define DATA_32   0b00000011    // PORTB
-#define DATA_10   0b01100000    // PORTD
+#define DATA_            0b00111100 // PORTD
+#define READ_DATA        ((PIND & DATA_) >> 2)
+#define WRITE_DATA(data) PORTD = ((PORTD & ~DATA_) | (data << 2))  
+#define DATA_INPUT       DDRD &= ~DATA_
+#define DATA_OUTPUT      DDRD |=  DATA_
 
 
 class DATA {
@@ -18,19 +21,16 @@ class DATA {
     }
     
     void write(byte data){
-      DDRB |= DATA_32 ;
-      DDRD |= DATA_10 ;
-      PORTB = (PORTB & ~DATA_32) | (((data >> 3) & 1) << 1) | ((data >> 2) & 1) ;  
-      PORTD = (PORTD & ~DATA_10) | (((data >> 1) & 1) << 6) | ((data & 1) << 5) ;      
+      DATA_OUTPUT ;
+      WRITE_DATA(data) ;     
     }
 
     byte read(){
-      return ((PINB & DATA_32) << 2) | ((PIND & DATA_10) >> 5) ; 
+      return READ_DATA ; 
     }
 
     void z(){
-      DDRB &= ~DATA_32 ;
-      DDRD &= ~DATA_10 ;
+      DATA_INPUT ;
     }
 } ;
 

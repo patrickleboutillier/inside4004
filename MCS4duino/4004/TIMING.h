@@ -3,17 +3,10 @@
 
 #include "Arduino.h"
 
-#define READ_CLK1  PINB &   0b00010000
-#define CLK1_INPUT DDRB &= ~0b00010000
-#define READ_CLK2  PINB &   0b00001000
-#define CLK2_INPUT DDRB &= ~0b00001000
 
-#define SYNC1_ON     PORTB |=  0b00000100
-#define SYNC1_OFF    PORTB &= ~0b00000100
-#define SYNC1_OUTPUT DDRB  |=  0b00000100
-#define SYNC2_ON     PORTD |=  0b00000100
-#define SYNC2_OFF    PORTD &= ~0b00000100
-#define SYNC2_OUTPUT DDRD  |=  0b00000100
+#define SYNC_ON     PORTB |=  0b00000100
+#define SYNC_OFF    PORTB &= ~0b00000100
+#define SYNC_OUTPUT DDRB  |=  0b00000100
 
 
 class TIMING {
@@ -42,10 +35,7 @@ class TIMING {
 
     
     void setup(){
-      CLK1_INPUT ;
-      CLK2_INPUT ;
-      SYNC1_OUTPUT ;
-      SYNC2_OUTPUT ;     
+      SYNC_OUTPUT ;    
     }
 
     
@@ -58,13 +48,13 @@ class TIMING {
       _pass = 0 ;
     }
     
-    
-    void loop(){
+  
+    /* void loop(){
       bool clk1 = READ_CLK1 ;
       bool clk2 = READ_CLK2 ;
 
       tick(clk1, clk2) ;
-    }
+    } */
 
 
     void tick(bool clk1, bool clk2){
@@ -92,12 +82,10 @@ class TIMING {
         else {
           cur_phase = 3 ;
           if (_slave == 6){
-            SYNC1_ON ;
-            SYNC2_ON ;
+            SYNC_ON ;
           }
           else if (_slave == 7){
-            SYNC1_OFF ;
-            SYNC2_OFF ;            
+            SYNC_OFF ;            
           }
         }
       }

@@ -3,28 +3,31 @@
 
 // #define DEBUG
 
-#define READ_RESET          PINC &   0b00100000
+#define RESET_ON            PINC &   0b00100000
 #define RESET_INPUT         DDRC &= ~0b00100000
-#define READ_CM             PINC &   0b00010000
+#define CM_ON               PINC &   0b00010000
 #define CM_INPUT            DDRC &= ~0b00010000
 
 #define DATA_3              0b00000001 // PORTB
 #define DATA_210            0b11100000 // PORTD
 #define READ_DATA           (((PINB & DATA_3) << 3) | ((PIND & DATA_210) >> 5))
-#define WRITE_DATA(data)    PORTB = (PORTB & ~DATA_3) | ((data >> 3) & 1) ; PORTD = (PORTD & ~DATA_210) | ((data & 0b111) << 5) 
+#define WRITE_DATA(data)    PORTB = (PORTB & ~DATA_3) | (((data) >> 3) & 1) ; PORTD = (PORTD & ~DATA_210) | (((data) & 0b111) << 5) 
 #define DATA_INPUT          DDRB &= ~DATA_3 ; DDRD &= ~DATA_210
 #define DATA_OUTPUT         DDRB |=  DATA_3 ; DDRD |=  DATA_210
 
-#define SHIFT               0b00111000
-#define WRITE_SHIFT(data)   PORTB = (PORTB & ~SHIFT) | (data << 3) 
-#define SHIFT_OUTPUT        DDRB  |=  SHIFT
+#define READ_KBD_ROW        ((PINB &  0b00011110) >> 1)
+#define KBD_ROW_INPUT       DDRB  &= ~0b00011110
 
-#define READ_PRN_INDEX      PINB  &   0b00000100
-#define PRN_INDEX_INPUT     DDRB  &= ~0b00000100
-#define READ_PRN_ADV_BTN    PINB  &   0b00000010
-#define PRN_ADV_BTN_INPUT   DDRB  &= ~0b00000010
-#define READ_KBD_ROW        PINC  &   0b00001111
-#define KBD_ROW_INPUT       DDRC  &= ~0b00001111
+#define READ_PRN_INDEX      ((PINC &  0b00000010) >> 1)
+#define PRN_INDEX_INPUT     DDRC  &= ~0b00000010
+#define READ_PRN_ADV_BTN    (PINC  &  0b00000001)
+#define PRN_ADV_BTN_INPUT   DDRC  &= ~0b00000001
+
+#define SHIFT_DATA              0b00100000
+#define WRITE_SHIFT_DATA(d)     PORTB =  (PORTB & ~SHIFT_DATA) | ((d) << 5)
+#define SHIFT_DATA_OUTPUT       DDRB  |=  SHIFT_DATA
+#define WRITE_SHIFT_CLKS(p, k)  PORTC =  (PORTC & ~0b00001100) | ((p) << 3) | ((k) << 2)
+#define SHIFT_CLKS_OUTPUT       DDRC  |=  0b00001100
 
 TIMING TIMING ;
 
@@ -62,7 +65,8 @@ void setup(){
   #endif
   RESET_INPUT ;
   CM_INPUT ;
-  SHIFT_OUTPUT ;
+  SHIFT_DATA_OUTPUT ;
+  SHIFT_CLKS_OUTPUT ;
   PRN_INDEX_INPUT ;
   PRN_ADV_BTN_INPUT ;
   KBD_ROW_INPUT ;
@@ -82,7 +86,7 @@ void setup(){
   
   TIMING.A32clk1([]{
     // If cm is on, we are the selected ROM chip for instructions if chipnum == data
-    if (READ_CM){
+    if (CM_ON){
       rom_select = READ_DATA ;
     }
   }) ;  
@@ -126,7 +130,7 @@ void setup(){
 
 
   TIMING.X22clk1([]{
-    if (READ_CM){
+    if (CM_ON){
       io_select = READ_DATA ;
       src = 1 ;
     }
@@ -136,7 +140,8 @@ void setup(){
         // Grab data for WRR
         if (io_select == 0){
           byte data = READ_DATA ;
-          WRITE_SHIFT(data) ;
+          WRITE_SHIFT_DATA(bitRead(data, 1)) ;
+          WRITE_SHIFT_CLKS(bitRead(data, 2), bitRead(data, 0)) ;
         }
       }
       else if (rdr){
@@ -147,7 +152,7 @@ void setup(){
           WRITE_DATA(data) ;
         }
         else if (io_select == 2){ 
-          byte data = ((READ_PRN_ADV_BTN) << 2) | ((READ_PRN_INDEX) >> 2) ;
+          byte data = (READ_PRN_ADV_BTN << 3) | READ_PRN_INDEX ;
           DATA_OUTPUT ;
           WRITE_DATA(data) ;
         }
@@ -170,7 +175,7 @@ void loop(){
     #ifdef DEBUG
         unsigned long start = micros() ;
     #endif
-    if (READ_RESET){
+    if (RESET_ON){
       return reset() ;
     }
 

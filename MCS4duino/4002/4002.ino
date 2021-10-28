@@ -6,22 +6,15 @@
 #define RESET_INPUT      DDRC &= ~0b00000010
 #define READ_CM          PINC &   0b00000001
 #define CM_INPUT         DDRC &= ~0b00000001
-#define DATA_32          0b00000011 // PORTB
-#define DATA_10          0b01100000 // PORTD
-#define READ_DATA        (((PINB & DATA_32) << 2) | ((PIND & DATA_10) >> 5))
-#define WRITE_DATA(data) PORTB = (PORTB & ~DATA_32) | (((data >> 3) & 1) << 1) | ((data >> 2) & 1) ; PORTD = (PORTD & ~DATA_10) | (((data >> 1) & 1) << 6) | ((data & 1) << 5)  
-#define DATA_INPUT       DDRB &= ~DATA_32 ; DDRD &= ~DATA_10
-#define DATA_OUTPUT      DDRB |=  DATA_32 ; DDRD |=  DATA_10
+#define DATA             0b00111100 // PORTD
+#define READ_DATA        ((PIND & DATA) >> 2)
+#define WRITE_DATA(data) PORTD = ((PORTD & ~DATA) | (data << 2))  
+#define DATA_INPUT       DDRD &= ~DATA
+#define DATA_OUTPUT      DDRD |=  DATA
 
-#define PRN_ADV_ON       PORTC |=  0b00001000
-#define PRN_ADV_OFF      PORTC &= ~0b00001000
-#define PRN_ADV_OUTPUT   DDRC  |=  0b00001000
-#define PRN_FIRE_ON      PORTC |=  0b00010000
-#define PRN_FIRE_OFF     PORTC &= ~0b00010000
-#define PRN_FIRE_OUTPUT  DDRC  |=  0b00010000
-#define PRN_COLOR_ON     PORTC |=  0b00100000
-#define PRN_COLOR_OFF    PORTC &= ~0b00100000
-#define PRN_COLOR_OUTPUT DDRC  |=  0b00100000
+#define PRN_ADV_FIRE_COLOR          0b00111000
+#define WRITE_ADV_FIRE_COLOR(data)  PORTC  = ((PORTC & ~PRN_ADV_FIRE_COLOR) | (data << 3))  
+#define PRN_ADV_FIRE_COLOR_OUTPUT   DDRC  |= PRN_ADV_FIRE_COLOR
 
 TIMING TIMING ;
 
@@ -57,9 +50,7 @@ void reset(){
     }
   }
   
-  PRN_ADV_OFF ;
-  PRN_FIRE_OFF ;
-  PRN_COLOR_OFF ;
+  WRITE_ADV_FIRE_COLOR(0) ;
 }
 
 
@@ -70,9 +61,7 @@ void setup(){
   #endif
   RESET_INPUT ;
   CM_INPUT ;
-  PRN_ADV_OUTPUT ; 
-  PRN_FIRE_OUTPUT ;   
-  PRN_COLOR_OUTPUT ; 
+  PRN_ADV_FIRE_COLOR_OUTPUT ;
   TIMING.setup() ;
   reset() ;
 
@@ -113,24 +102,17 @@ void setup(){
         case 0b0001:
           data = READ_DATA ;
           if (chip_select == 0){
-            if ((data >> 3) & 1){
-              PRN_ADV_ON ;
+            byte d = 0 ;
+            if ((data >> 3) & 1){ // A3
+              d |= 0b001 ;
             }
-            else {
-              PRN_ADV_OFF ;
+            if ((data >> 1) & 1){ // A4
+              d |= 0b010 ;
             }
-            if ((data >> 1) & 1){
-              PRN_FIRE_ON ;
+            if (data & 1){        // A5
+              d |= 0b100 ;
             }
-            else {
-              PRN_FIRE_OFF ;
-            }
-            if (data & 1){
-              PRN_COLOR_ON ;
-            }
-            else{
-              PRN_COLOR_OFF ;
-            }
+            WRITE_ADV_FIRE_COLOR(d) ;
           }
           break ;
         case 0b0100:

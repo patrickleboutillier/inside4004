@@ -16,13 +16,18 @@ void i4003::reset(){
 void i4003::loop(bool clk, bool data){
   if (clk){
     if (! _cur_clock){
-      _reg = ((_reg << 1) | data) & _mask ;
-      _cur_clock = 1 ;  
+      onClock(data) ;
     }
   }
   else {
     _cur_clock = 0 ;
   }
+}
+
+
+void i4003::onClock(bool data){
+  _reg = ((_reg << 1) | data) & _mask ;
+  _cur_clock = 1 ;  
 }
 
 

@@ -3,13 +3,13 @@
 
 #define DEFAULT_KEY_BUF      "11+7+="
 
-#define KBD_ROW              0b01111000
-#define KBD_ROW_OUTPUT       DDRD |= 0b01111000
-#define WRITE_KBD_ROW(data)  PORTD = (PORTD & ~KBD_ROW) | (data << 3) 
+#define KBD_ROW              0b00011110
+#define KBD_ROW_OUTPUT       DDRB |= KBD_ROW
+#define WRITE_KBD_ROW(data)  PORTB = (PORTB & ~KBD_ROW) | ((data) << 1) 
 
 #define KBD_SEND_KEY         0b00000010
+#define KBD_SEND_KEY_ON      PINC &   KBD_SEND_KEY
 #define KBD_SEND_KEY_INPUT   DDRC &= ~KBD_SEND_KEY
-#define READ_KBD_SEND_KEY    PINC &   KBD_SEND_KEY
 
  
 const char *lookup[] = {
@@ -73,28 +73,11 @@ void KEYBOARD::loop(){
     _reg = _input->getReg() ;
     //Serial.print("kbd reg ") ;
     //Serial.println(_reg | 0b10000000000, BIN) ;
-    for (int i = 0 ; i < 10 ; i++){
-      if (_input->getBit(i) == 0){
-        byte data = (_buffer[i][3] << 3) | (_buffer[i][2] << 2) | (_buffer[i][1] << 1) | _buffer[i][0] ;
-        if (data != 0){
-          Serial.print("scanned ") ;
-          Serial.print(i) ;
-          Serial.print(": ") ;
-          Serial.println(data) ;
-        }
-        WRITE_KBD_ROW(data) ;           
-        if (i < 8){   // Don't reset the switches!
-          _buffer[i][0] = 0 ;
-          _buffer[i][1] = 0 ;
-          _buffer[i][2] = 0 ;
-          _buffer[i][3] = 0 ;
-        }
-      }
-    }   
+    writeKey() ;
   }
   
   // Check the send key signal
-  if (READ_KBD_SEND_KEY){
+  if (KBD_SEND_KEY_ON){
     if (! _cur_send_key){
       sendKey() ;
       _cur_send_key = 1 ;
@@ -103,6 +86,28 @@ void KEYBOARD::loop(){
   else {
     _cur_send_key = 0 ;
   }
+}
+
+
+void KEYBOARD::writeKey(){
+  for (int i = 0 ; i < 10 ; i++){
+    if (_input->getBit(i) == 0){
+      byte data = (_buffer[i][0] << 3) | (_buffer[i][1] << 2) | (_buffer[i][2] << 1) | _buffer[i][3] ;
+      /* if (data != 0){
+        Serial.print("scanned ") ;
+        Serial.print(i) ;
+        Serial.print(": ") ;
+        Serial.println(data) ;
+      } */
+      WRITE_KBD_ROW(data) ;           
+      if (i < 8){   // Don't reset the switches!
+        _buffer[i][0] = 0 ;
+        _buffer[i][1] = 0 ;
+        _buffer[i][2] = 0 ;
+        _buffer[i][3] = 0 ;
+      }
+    }
+  }     
 }
 
 

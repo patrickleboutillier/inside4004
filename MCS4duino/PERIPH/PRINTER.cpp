@@ -11,8 +11,8 @@ const char *dash = "-" ;
 const long sector_pulse =  (5 * 1000) / 22 ;
 const long sector_period = (28 * 1000) / 22 ;
 
-#define SYNC_INPUT  DDRD &= ~0b00000100
-#define READ_SYNC   PIND &   0b00000100
+#define SYNC_INPUT  DDRD &= ~0b00010000
+#define SYNC_ON     PIND &   0b00010000
 
 #define PRN_ADV          0b00001000
 #define PRN_ADV_INPUT    DDRC &= ~PRN_ADV
@@ -54,7 +54,7 @@ void PRINTER::loop(){
   // TODO: For now we use the sync signal as a cycle indicator.
   // Once the 4004 is in the Nano, we will know the real clock period and will be able to 
   // have the printer manage it's own timing independently, based on setting sector_pulse and sector_period.
-  if (READ_SYNC){
+  if (SYNC_ON){
     if (! _cur_sync){
       if (_cur_cycle == 0){
           startSectorPulse() ;
@@ -101,11 +101,11 @@ void PRINTER::loop(){
     _cur_color = '-' ;    // Set color to "red", meaning negative value.
   }  
 
-  //if (_input->getReg() != _reg){
-  //  _reg = _input->getReg() ;
-  //  Serial.print("prn reg ") ;
-  //  Serial.println(_reg | 0b100000000000000000000, BIN) ;
-  //}  
+  /* if (_input->getReg() != _reg){
+    _reg = _input->getReg() ;
+    Serial.print("prn reg ") ;
+    Serial.println(_reg | 0b100000000000000000000, BIN) ;
+  } */
 }
 
 
@@ -136,7 +136,7 @@ void PRINTER::endSectorPeriod(){
 
 
 void PRINTER::fireHammers(){
-  Serial.println("FIRE HAMMERS ") ;
+  Serial.print("!") ;
   //Serial.println(_input->getReg() | 0b100000000000000000000, BIN) ;
   for (int i = 0 ; i < 20 ; i++){
     if (_input->getBit(i)){

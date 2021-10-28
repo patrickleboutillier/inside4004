@@ -9,6 +9,7 @@ class i4003 {
     i4003(long mask) ;
     void reset() ;
     void loop(bool clk, bool data) ;
+    void onClock(bool data) ;
     long getReg() ;
     bool getBit(int b) ;
   private:

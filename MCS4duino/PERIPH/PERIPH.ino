@@ -2,24 +2,35 @@
 #include "PRINTER.h"
 #include "KEYBOARD.h"
 
-#define READ_RESET          PINC &   0b00000100
+#define RESET_ON            PINC &   0b00000100
 #define RESET_INPUT         DDRC &= ~0b00000100
 
-#define SHFT_DATA           0b00010000
-#define SHFT_DATA_INPUT     DDRB &= ~SHFT_DATA
-#define KBD_SHFT_CLK        0b00001000
-#define KBD_SHFT_CLK_INPUT  DDRB &= ~KBD_SHFT_CLK
-#define PRN_SHFT_CLK        0b00000001
-#define PRN_SHFT_CLK_INPUT  DDRB &= ~PRN_SHFT_CLK
+#define SHIFT_DATA            0b00000001
+#define READ_SHIFT_DATA       (PINB & SHIFT_DATA)
+#define SHIFT_DATA_INPUT      DDRB &= ~SHIFT_DATA
+#define KBD_SHIFT_CLK         0b00001000
+#define KBD_SHIFT_CLK_INPUT   DDRD &= ~KBD_SHIFT_CLK
+#define PRN_SHIFT_CLK         0b00000100
+#define PRN_SHIFT_CLK_INPUT   DDRD &= ~PRN_SHIFT_CLK
 
-#define PRN_INDEX     10
-#define PRN_ADV_BTN   9
+#define PRN_INDEX     5
+#define PRN_ADV_BTN   6
 #define PRN_SECTOR    7
 
 i4003 PSHIFT(0xFFFFF) ;
 i4003 KSHIFT(0x3FF) ;
 PRINTER PRINTER(&PSHIFT, PRN_SECTOR, PRN_INDEX) ;
 KEYBOARD KEYBOARD(&KSHIFT) ;
+
+
+void kbd_clk(){  
+  KSHIFT.onClock(READ_SHIFT_DATA) ; 
+}
+
+
+void prn_clk(){ 
+  PSHIFT.onClock(READ_SHIFT_DATA) ; 
+}
 
 
 void setup(){
@@ -29,9 +40,11 @@ void setup(){
   Serial.println(KEYBOARD.getKeyBuffer()) ;
   
   RESET_INPUT ;
-  SHFT_DATA_INPUT ;
-  KBD_SHFT_CLK_INPUT ;
-  PRN_SHFT_CLK_INPUT ;
+  SHIFT_DATA_INPUT ;
+  KBD_SHIFT_CLK_INPUT ;
+  //attachInterrupt(digitalPinToInterrupt(3), kbd_clk, RISING) ;
+  PRN_SHIFT_CLK_INPUT ;
+  attachInterrupt(digitalPinToInterrupt(2), prn_clk, RISING) ;
   pinMode(PRN_ADV_BTN, OUTPUT) ;
   pinMode(PRN_INDEX, OUTPUT) ;
   pinMode(PRN_SECTOR, OUTPUT) ;
@@ -57,15 +70,14 @@ void reset(){
 void loop(){
   while (1){
     unsigned long start = micros() ;
-    if (READ_RESET){
+    if (RESET_ON){
       Serial.println("RESET!!!") ;
       return reset() ;
     }
 
-    byte shift = PINB ;
-    PSHIFT.loop(shift & PRN_SHFT_CLK, shift & SHFT_DATA) ;
+    
     PRINTER.loop() ;
-    KSHIFT.loop(shift & KBD_SHFT_CLK, shift & SHFT_DATA) ;
+    KSHIFT.loop(PIND & KBD_SHIFT_CLK, READ_SHIFT_DATA) ;
     KEYBOARD.loop() ;
     unsigned long dur = micros() - start ;
     if (dur > max_dur){
