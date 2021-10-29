@@ -17,6 +17,7 @@ void i4003::loop(bool clk, bool data){
   if (clk){
     if (! _cur_clock){
       onClock(data) ;
+     _cur_clock = 1 ;  
     }
   }
   else {
@@ -27,7 +28,6 @@ void i4003::loop(bool clk, bool data){
 
 void i4003::onClock(bool data){
   _reg = ((_reg << 1) | data) & _mask ;
-  _cur_clock = 1 ;  
 }
 
 

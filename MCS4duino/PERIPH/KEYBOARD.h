@@ -13,7 +13,6 @@ class KEYBOARD {
     void writeKey() ;
     const char *getKeyBuffer() ;
     void appendKeyBuffer(const char *buffer) ;
-    const char *getKeyBufferHead() ;
     void sendKey() ;
 
   private:

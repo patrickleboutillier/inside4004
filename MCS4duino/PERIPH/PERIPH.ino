@@ -13,18 +13,15 @@
 #define PRN_SHIFT_CLK         0b00000100
 #define PRN_SHIFT_CLK_INPUT   DDRD &= ~PRN_SHIFT_CLK
 
-#define PRN_INDEX     5
-#define PRN_ADV_BTN   6
-#define PRN_SECTOR    7
-
 i4003 PSHIFT(0xFFFFF) ;
 i4003 KSHIFT(0x3FF) ;
-PRINTER PRINTER(&PSHIFT, PRN_SECTOR, PRN_INDEX) ;
+PRINTER PRINTER(&PSHIFT) ;
 KEYBOARD KEYBOARD(&KSHIFT) ;
 
 
 void kbd_clk(){  
   KSHIFT.onClock(READ_SHIFT_DATA) ; 
+  KEYBOARD.writeKey() ;
 }
 
 
@@ -42,12 +39,9 @@ void setup(){
   RESET_INPUT ;
   SHIFT_DATA_INPUT ;
   KBD_SHIFT_CLK_INPUT ;
-  //attachInterrupt(digitalPinToInterrupt(3), kbd_clk, RISING) ;
+  attachInterrupt(digitalPinToInterrupt(3), kbd_clk, RISING) ;
   PRN_SHIFT_CLK_INPUT ;
   attachInterrupt(digitalPinToInterrupt(2), prn_clk, RISING) ;
-  pinMode(PRN_ADV_BTN, OUTPUT) ;
-  pinMode(PRN_INDEX, OUTPUT) ;
-  pinMode(PRN_SECTOR, OUTPUT) ;
   KEYBOARD.setup() ;
   PRINTER.setup() ;
   reset() ;
@@ -60,9 +54,6 @@ void reset(){
   PRINTER.reset() ;
   KSHIFT.reset() ;
   KEYBOARD.reset() ;
-  digitalWrite(PRN_ADV_BTN, 0) ;
-  digitalWrite(PRN_INDEX, 0) ;  
-  digitalWrite(PRN_SECTOR, 0) ; 
   max_dur = 0 ;
 }
 
@@ -75,9 +66,7 @@ void loop(){
       return reset() ;
     }
 
-    
     PRINTER.loop() ;
-    KSHIFT.loop(PIND & KBD_SHIFT_CLK, READ_SHIFT_DATA) ;
     KEYBOARD.loop() ;
     unsigned long dur = micros() - start ;
     if (dur > max_dur){

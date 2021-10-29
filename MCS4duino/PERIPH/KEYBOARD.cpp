@@ -1,7 +1,7 @@
 #include "KEYBOARD.h"
 
 
-#define DEFAULT_KEY_BUF      "11+7+="
+#define DEFAULT_KEY_BUF      "55*41="
 
 #define KBD_ROW              0b00011110
 #define KBD_ROW_OUTPUT       DDRB |= KBD_ROW
@@ -67,14 +67,6 @@ void KEYBOARD::loop(){
       appendKeyBuffer(s) ;
     }
   }
-
-  // Check if the keyboard is being scanned
-  if (_input->getReg() != _reg){
-    _reg = _input->getReg() ;
-    //Serial.print("kbd reg ") ;
-    //Serial.println(_reg | 0b10000000000, BIN) ;
-    writeKey() ;
-  }
   
   // Check the send key signal
   if (KBD_SEND_KEY_ON){
@@ -90,23 +82,20 @@ void KEYBOARD::loop(){
 
 
 void KEYBOARD::writeKey(){
+  long reg = _input->getReg() ;
+  long mask = 1L ;
   for (int i = 0 ; i < 10 ; i++){
-    if (_input->getBit(i) == 0){
+    if ((reg & mask) == 0){
       byte data = (_buffer[i][0] << 3) | (_buffer[i][1] << 2) | (_buffer[i][2] << 1) | _buffer[i][3] ;
-      /* if (data != 0){
-        Serial.print("scanned ") ;
-        Serial.print(i) ;
-        Serial.print(": ") ;
-        Serial.println(data) ;
-      } */
       WRITE_KBD_ROW(data) ;           
-      if (i < 8){   // Don't reset the switches!
+      if ((data != 0)&&(i < 8)){   // Don't reset the switches!
         _buffer[i][0] = 0 ;
         _buffer[i][1] = 0 ;
         _buffer[i][2] = 0 ;
         _buffer[i][3] = 0 ;
       }
     }
+    mask = mask << 1 ;
   }     
 }
 
@@ -118,66 +107,43 @@ const char *KEYBOARD::getKeyBuffer(){
 
 void KEYBOARD::appendKeyBuffer(const char *buf){
   strcat(_key_buffer, buf) ;
-  Serial.print("key_buffer: ") ;
-  Serial.println(_key_buffer) ;
-}
-
-
-const char *KEYBOARD::getKeyBufferHead(){
-  static char head[4] ;
-  head[0] = '\0' ;
-  
-  if (strlen(_key_buffer) == 0){
-    return head ;
-  }
-
-  if ((_key_buffer[0] == 'd')||(_key_buffer[0] == 'r')||(_key_buffer[0] == 'a')||(_key_buffer[0] == 'h')){
-    head[0] = _key_buffer[0] ;
-    head[1] = '\0' ;
-    goto done ;
-  }
-  
-  for (int c = 0 ; c < 8 ; c++){
-    for (int r = 0 ; r < 4 ; r++){
-      const char *s = lookup[(c << 2) + (3 - r)] ;
-      if ((s != NULL)&&(strncmp(s, _key_buffer, strlen(s)) == 0)){
-        strcpy(head, s) ;
-        goto done ;
-      }
-    }
-  }
-
-  head[0] = _key_buffer[0] ;
-  head[1] = '\0' ;
-  
-  done:
-  // Remove head from _key_buffer
-  memmove(_key_buffer, _key_buffer+strlen(head), strlen(_key_buffer)-strlen(head)+1) ;
-
-  return head ;
 }
 
 
 void KEYBOARD::sendKey(){
-  if (strlen(_key_buffer) > 0){
-    Serial.print("sendKey: ") ;
-    const char *k = getKeyBufferHead() ;
-    Serial.println(k) ;
-    Serial.print("key_buffer: ") ;
-    Serial.println(_key_buffer) ;
-    if (k != NULL){
+  if (strlen(_key_buffer) == 0){
+    return ;
+  }
+
+  int head = 0 ;
+  switch(_key_buffer[0]){
+    //case 'd':
+    //case 'r':
+    //case 'a':
+    //case 'h':
+    //  head = 1 ;
+    //  break ;
+    default:
       for (int c = 0 ; c < 8 ; c++){
         for (int r = 0 ; r < 4 ; r++){
           const char *s = lookup[(c << 2) + (3 - r)] ;
-          if ((s != NULL)&&(strcmp(k, s) == 0)){
+          if ((s != NULL)&&(strncmp(s, _key_buffer, strlen(s)) == 0)){
             _buffer[c][r] = 1 ;
-            return ;
+            head = strlen(s) ;
+            goto done ;
           }
         }
       }
-      Serial.print(F("!!! ERROR: Unknown key ')")) ;
-      Serial.print(k) ;
-      Serial.println(F("! Use 'h' for help.")) ;
-    }
   }
+
+  done:
+  if (head == 0){
+    Serial.print(F("!!! ERROR: Unknown key '")) ;
+    Serial.print(_key_buffer[0]) ;
+    Serial.println(F("'! Use 'h' for help.")) ;
+    head = 1 ;
+  }
+  
+  // Remove head from _key_buffer
+  memmove(_key_buffer, _key_buffer+head, strlen(_key_buffer)-head+1) ;
 }

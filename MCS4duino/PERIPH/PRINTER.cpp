@@ -21,11 +21,22 @@ const long sector_period = (28 * 1000) / 22 ;
 #define PRN_COLOR        0b00100000
 #define PRN_COLOR_INPUT  DDRC &= ~PRN_COLOR
 
+#define PRN_INDEX           0b00100000
+#define PRN_INDEX_ON        PORTD |=  PRN_INDEX
+#define PRN_INDEX_OFF       PORTD &= ~PRN_INDEX
+#define PRN_INDEX_OUTPUT    DDRD  |=  PRN_INDEX
+#define PRN_ADV_BTN         0b01000000
+#define PRN_ADV_BTN_ON      PORTD |=  PRN_ADV_BTN
+#define PRN_ADV_BTN_OFF     PORTD &= ~PRN_ADV_BTN
+#define PRN_ADV_BTN_OUTPUT  DDRD  |=  PRN_ADV_BTN
+#define PRN_SECTOR          0b10000000
+#define PRN_SECTOR_ON       PORTD |=  PRN_SECTOR
+#define PRN_SECTOR_OFF      PORTD &= ~PRN_SECTOR
+#define PRN_SECTOR_OUTPUT   DDRD  |=  PRN_SECTOR
 
-PRINTER::PRINTER(i4003 *input, int pin_sector, int pin_index){
+
+PRINTER::PRINTER(i4003 *input){
   _input = input ;
-  _pin_sector = pin_sector ;
-  _pin_index = pin_index ;
   reset() ;
 }
 
@@ -39,6 +50,10 @@ void PRINTER::reset(){
   _cur_color = ' ' ;
   _cur_sync = 0 ;  
   _reg = 0 ;
+
+  PRN_ADV_BTN_OFF ;
+  PRN_INDEX_OFF ;  
+  PRN_SECTOR_OFF ; 
 }
 
 
@@ -47,6 +62,9 @@ void PRINTER::setup(){
   PRN_ADV_INPUT ;
   PRN_FIRE_INPUT ;
   PRN_COLOR_INPUT ;
+  PRN_ADV_BTN_OUTPUT ;
+  PRN_INDEX_OUTPUT ;
+  PRN_SECTOR_OUTPUT ;
 }
 
 
@@ -110,38 +128,41 @@ void PRINTER::loop(){
 
 
 void PRINTER::startSectorPulse(){
-  digitalWrite(_pin_sector, 1) ;
+  PRN_SECTOR_ON ;
   if (_cur_sector == 0){
-      digitalWrite(_pin_index, 1) ;
+      PRN_INDEX_ON ;
   }
   _cur_cycle += 1 ;
 }
 
 
 void PRINTER::endSectorPulse(){
-  digitalWrite(_pin_sector, 0) ;
+  PRN_SECTOR_OFF ;
   _cur_cycle += 1 ;
 }
 
 
 void PRINTER::endSectorPeriod(){
   if (_cur_sector == 0){
-      digitalWrite(_pin_index, 0) ;
+      PRN_INDEX_OFF ;
   }
   _cur_sector = (_cur_sector + 1) % 13 ;
-  Serial.print("SECTOR ") ;
-  Serial.println(_cur_sector) ;
+  //Serial.print("SECTOR ") ;
+  //Serial.println(_cur_sector) ;
   _cur_cycle = 0 ;
 }
 
 
 void PRINTER::fireHammers(){
-  Serial.print("!") ;
+  //Serial.print("!") ;
   //Serial.println(_input->getReg() | 0b100000000000000000000, BIN) ;
+  long reg = _input->getReg() ;
+  long mask = 1L ;
   for (int i = 0 ; i < 20 ; i++){
-    if (_input->getBit(i)){
+    if (reg & mask){
       punchChar(i) ;
     }
+    mask = mask << 1 ;
   }
   //Serial.print("  ") ;
   //Serial.println(_line) ;
