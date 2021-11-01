@@ -93,8 +93,7 @@ void PRINTER::loop(){
     _cur_sync = 0 ; 
   }
 
-  byte data = PINC ;
-  if (data & PRN_FIRE){
+  if (PINC & PRN_FIRE){
       if (! _cur_fire){
         fireHammers() ;
         _cur_fire = 1 ;
@@ -104,7 +103,7 @@ void PRINTER::loop(){
     _cur_fire = 0 ;
   }
   
-  if (data & PRN_ADV){
+  if (PINC & PRN_ADV){
     if (! _cur_advance){
       advanceLine() ;
       _cur_color = ' ' ;   // Reset line color
@@ -115,7 +114,7 @@ void PRINTER::loop(){
     _cur_advance = 0 ;
   }
   
-  if (data & PRN_COLOR){
+  if (PINC & PRN_COLOR){
     _cur_color = '-' ;    // Set color to "red", meaning negative value.
   }  
 

@@ -21,8 +21,9 @@ TIMING TIMING ;
 byte reg = 0 ;
 byte chr = 0 ;
 bool src = 0 ;
-int opa = -1 ;
-byte chip_select = 0 ;
+byte opa = 0 ;
+int chip_select = -1 ;
+bool ram_inst = 0 ;
 byte RAM[4][4][16] ;
 byte STATUS[4][4][4] ;
 unsigned long max_dur = 0 ;
@@ -35,8 +36,8 @@ void reset(){
   reg = 0 ;
   chr = 0 ;
   src = 0 ;
-  opa = -1 ;
-  chip_select = 0 ;
+  opa = 0 ;
+  chip_select = -1 ;
   max_dur = 0 ;
 
   for (int i = 0 ; i < 4  ; i++){
@@ -67,13 +68,17 @@ void setup(){
 
 
   TIMING.M22clk2([]{
-    if (READ_CM){
-      // If we are the selected chip for RAM/I/O and cm is on, the CPU is telling us that we are processing a RAM/I/O instruction
-      // Grab opa
+    // Timing a tight here, we need to chekc only the first time around
+    if (TIMING._pass == 0){
       opa = READ_DATA ;
-    }
-    else {
-      opa = -1 ;
+      if ((chip_select != -1)&&(READ_CM)){
+        // If we are the selected chip for RAM/I/O and cm is on, the CPU is telling us that we are processing a RAM/I/O instruction
+        // Grab opa
+        ram_inst = 1 ;
+      }
+      else {
+        ram_inst = 0 ;
+      }
     }
   }) ;
 
@@ -91,16 +96,16 @@ void setup(){
       src = 0 ;
     }                
     
-    if (opa != -1){
+    if (ram_inst){
       // A RAM/I/O instruction is in progress, execute the proper operation according to the value of opa
-      int data = -1 ; 
       
+      // Read instructions
       switch (opa){
         case 0b0000:
           RAM[chip_select][reg][chr] = READ_DATA ;
           break ;
-        case 0b0001:
-          data = READ_DATA ;
+        case 0b0001: {
+          byte data = READ_DATA ;
           if (chip_select == 0){
             byte d = 0 ;
             if ((data >> 3) & 1){ // A3
@@ -115,6 +120,7 @@ void setup(){
             WRITE_ADV_FIRE_COLOR(d) ;
           }
           break ;
+        }
         case 0b0100:
           STATUS[chip_select][reg][0] = READ_DATA ;
           break ;
@@ -127,7 +133,11 @@ void setup(){
         case 0b0111:
           STATUS[chip_select][reg][3] = READ_DATA ;
           break ;
-          
+      }
+
+      // Write instructions
+      int data = -1 ; 
+      switch (opa){          
         case 0b1000: 
           data = RAM[chip_select][reg][chr] ;
           break ;
@@ -161,16 +171,18 @@ void setup(){
 
   TIMING.X32clk1([]{
     // Disconnect from bus
-    if (opa != -1){
+    if (ram_inst){
       DATA_INPUT ;
     }
   }) ;
 
 
   TIMING.X32clk2([]{
-    // If we are processing an SRC instruction, grab the selected RAM character
-    if (src){
-      chr = READ_DATA ;
+    if (TIMING._pass == 0){
+      // If we are processing an SRC instruction, grab the selected RAM character
+      if (src){
+        chr = READ_DATA ;
+      }
     }
   }) ;
 }

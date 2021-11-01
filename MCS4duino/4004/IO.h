@@ -4,15 +4,12 @@
 #include "Arduino.h"
 #include "TIMING.h"
 
-#define CM_ROM_ON     PORTC |=  0b00000001
-#define CM_ROM_OFF    PORTC &= ~0b00000001
-#define CM_ROM_OUTPUT DDRC  |=  0b00000001
-#define CM_RAM_ON     PORTC |=  0b00010000
-#define CM_RAM_OFF    PORTC &= ~0b00010000
-#define CM_RAM_OUTPUT DDRC  |=  0b00010000
+#define CM_ON     PORTB |=  0b00000001
+#define CM_OFF    PORTB &= ~0b00000001
+#define CM_OUTPUT DDRB  |=  0b00000001
 
-#define READ_TEST     PIND  &   0b10000000
-#define TEST_INPUT    DDRD  &= ~0b10000000
+#define TEST_ON       (PINB  &   0b00000010)
+#define TEST_INPUT    DDRB  &= ~0b00000010
 
 
 
@@ -22,19 +19,17 @@ void IO_timing() ;
 
 inline void CMon() __attribute__((always_inline)) ;
 void CMon(){
-  CM_ROM_ON ;
-  CM_RAM_ON ;
+  CM_ON ;
 }
 
 inline void CMoff() __attribute__((always_inline)) ;
 void CMoff(){
-  CM_ROM_OFF ;
-  CM_RAM_OFF ;
+  CM_OFF ;
 }
 
 inline bool testZero() __attribute__((always_inline)) ;
 bool testZero(){
-  return !(READ_TEST) ;
+  return !TEST_ON ;
 }
 
 inline void setRAMBank() __attribute__((always_inline)) ;

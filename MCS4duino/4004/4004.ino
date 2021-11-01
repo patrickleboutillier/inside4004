@@ -8,8 +8,8 @@
 #include "ALU.h"
 #include "CLOCK.h"
 
-#define READ_RESET  PINC &   0b00000010
-#define RESET_INPUT DDRC &= ~0b00000010
+#define READ_RESET  PIND &   0b01000000
+#define RESET_INPUT DDRD &= ~0b01000000
 
 TIMING TIMING ;
 DATA DATA ;
@@ -32,8 +32,10 @@ void reset(){
 
 
 void setup(){
-  Serial.begin(2000000) ;
-  Serial.println("4004") ;
+  #ifdef DEBUG
+    Serial.begin(2000000) ;
+    Serial.println("4004") ;
+  #endif
   RESET_INPUT ;
 
   INST_setup(&TIMING, &DATA) ;
@@ -50,24 +52,28 @@ void setup(){
 
 void loop(){
   while (1){
-    unsigned long start = micros() ;
+    #ifdef DEBUG
+      unsigned long start = micros() ;
+    #endif
     if (READ_RESET){
       return reset() ;
     }
 
     //TIMING.loop() ;
     CLOCK_tick() ;
-    
-    unsigned long dur = micros() - start ;
-    if (dur > max_dur){
-      max_dur = dur ;
-      Serial.print("Max loop duration: ") ;
-      Serial.print(max_dur) ;
-      Serial.print("us ") ;
-      Serial.print(INST_opr, HEX) ;
-      Serial.print(INST_opa, HEX) ;
-      Serial.print(" ") ;
-      Serial.println(TIMING._cycle) ;
-    }
+
+    #ifdef DEBUG
+      unsigned long dur = micros() - start ;
+      if (dur > max_dur){
+        max_dur = dur ;
+        Serial.print("Max loop duration: ") ;
+        Serial.print(max_dur) ;
+        Serial.print("us ") ;
+        Serial.print(INST_opr, HEX) ;
+        Serial.print(INST_opa, HEX) ;
+        Serial.print(" ") ;
+        Serial.println(TIMING._cycle) ;
+      }
+    #endif
   }
 }

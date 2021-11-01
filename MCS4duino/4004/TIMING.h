@@ -17,8 +17,8 @@ class TIMING {
     bool _reset ;
     void (*_dispatch[8][4][8])() ;
   public:
-      unsigned long _cycle ;
-      int _pass ;
+    unsigned long _cycle ;
+    int _pass ;
         
   public:
     TIMING(){  
