@@ -49,7 +49,6 @@ void PRINTER::reset(){
   _cur_advance = 0 ;
   _cur_color = ' ' ;
   _cur_sync = 0 ;  
-  _reg = 0 ;
 
   PRN_ADV_BTN_OFF ;
   PRN_INDEX_OFF ;  
@@ -145,7 +144,10 @@ void PRINTER::endSectorPeriod(){
   if (_cur_sector == 0){
       PRN_INDEX_OFF ;
   }
-  _cur_sector = (_cur_sector + 1) % 13 ;
+  _cur_sector++ ;
+  if (_cur_sector == 13){
+    _cur_sector = 0 ;
+  }
   //Serial.print("SECTOR ") ;
   //Serial.println(_cur_sector) ;
   _cur_cycle = 0 ;

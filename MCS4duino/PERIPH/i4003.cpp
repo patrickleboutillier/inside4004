@@ -32,11 +32,9 @@ void i4003::onClock(bool data){
 
 
 long i4003::getReg(){
-  return _reg ;
-}
-
-
-bool i4003::getBit(int b){
-  long t = 1L << b ;
-  return _reg & t ;
+  noInterrupts() ;
+  // critical, time-sensitive code here
+  long ret = _reg ;
+  interrupts() ;
+  return ret ;
 }

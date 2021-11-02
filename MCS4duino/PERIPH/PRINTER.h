@@ -21,13 +21,12 @@ class PRINTER {
     i4003 *_input ;
     char _line[23] ;
     
-    int _cur_sector ; 
+    byte _cur_sector ; 
     int _cur_cycle ;
     bool _cur_fire ;
     bool _cur_advance ;
     char _cur_color ; 
     bool _cur_sync ;
-    long _reg ;
 } ;
 
 

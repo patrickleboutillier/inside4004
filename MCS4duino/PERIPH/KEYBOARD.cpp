@@ -37,6 +37,16 @@ void KEYBOARD::reset(){
       _buffer[i][j] = 0 ; 
     }
   }
+
+  _buffer[8][0] = 0 ; 
+  _buffer[8][1] = 0 ; 
+  _buffer[8][2] = 1 ; 
+  _buffer[8][3] = 1 ;   
+
+  _buffer[9][0] = 1 ; 
+  _buffer[9][1] = 0 ; 
+  _buffer[9][2] = 0 ; 
+  _buffer[9][3] = 0 ;   
   
   _cur_send_key = 0 ;
   key_buffer_idx = 0 ;
@@ -64,8 +74,8 @@ void KEYBOARD::loop(){
 
 
 void KEYBOARD::writeKey(){
-  long reg = _input->getReg() ;
-  long mask = 1 ;
+  int reg = _input->getReg() ;
+  int mask = 1 ;
   for (int i = 0 ; i < 10 ; i++){
     if ((reg & mask) == 0){
       byte data = (_buffer[i][0] << 3) | (_buffer[i][1] << 2) | (_buffer[i][2] << 1) | _buffer[i][3] ;

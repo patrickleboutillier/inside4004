@@ -11,10 +11,9 @@ class i4003 {
     void loop(bool clk, bool data) ;
     void onClock(bool data) ;
     long getReg() ;
-    bool getBit(int b) ;
   private:
     long _mask ;
-    long _reg ;
+    volatile long _reg ;
     bool _cur_clock ;
 } ;
 
