@@ -1,6 +1,5 @@
 #include "PRINTER.h"
 
-
 const char *specialChars_0[] = {"<>",  "+ ",  "- ",  "X ",  "/ ",  "M+",  "M-",  "^ ",  "= ",  "SQ",  "% ",  "C ",  "R "} ;
 const char *specialChars_1[] = {"#  ", "*  ", "I  ", "II ", "III", "M+ ", "M- ", "T  ", "K  ", "E  ", "Ex ", "C  ", "M  "} ;
 const char *digits[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"} ;
@@ -92,7 +91,8 @@ void PRINTER::loop(){
     _cur_sync = 0 ; 
   }
 
-  if (PINC & PRN_FIRE){
+  byte data = PINC ;
+  if (data & PRN_FIRE){
       if (! _cur_fire){
         fireHammers() ;
         _cur_fire = 1 ;
@@ -101,8 +101,8 @@ void PRINTER::loop(){
   else {
     _cur_fire = 0 ;
   }
-  
-  if (PINC & PRN_ADV){
+
+  if (data & PRN_ADV){
     if (! _cur_advance){
       advanceLine() ;
       _cur_color = ' ' ;   // Reset line color
@@ -113,7 +113,7 @@ void PRINTER::loop(){
     _cur_advance = 0 ;
   }
   
-  if (PINC & PRN_COLOR){
+  if (data & PRN_COLOR){
     _cur_color = '-' ;    // Set color to "red", meaning negative value.
   }  
 
@@ -149,13 +149,11 @@ void PRINTER::endSectorPeriod(){
     _cur_sector = 0 ;
   }
   //Serial.print("SECTOR ") ;
-  //Serial.println(_cur_sector) ;
   _cur_cycle = 0 ;
 }
 
 
 void PRINTER::fireHammers(){
-  //Serial.print("!") ;
   //Serial.println(_input->getReg() | 0b100000000000000000000, BIN) ;
   long reg = _input->getReg() ;
   long mask = 1L ;

@@ -15,7 +15,7 @@ class KEYBOARD {
 
   private:
     i4003 *_input ;
-    byte _buffer[10][4] ;
+    bool _buffer[10][4] ;
     bool _cur_send_key ;
 } ;
 

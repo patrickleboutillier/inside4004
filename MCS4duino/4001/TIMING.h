@@ -11,15 +11,15 @@ class TIMING {
     byte _master ;
     int _phase ;
     bool _reset ;
-    void (*_dispatch[8][4][8])() ;
+    void (*_dispatch[8][4][2])() ;
   public:
-      unsigned long _cycle ;
+    unsigned long _cycle ;
         
   public:
     TIMING(){  
       for (int i = 0 ; i < 8 ; i++){
         for (int j = 0 ; j < 4 ; j++){
-          for (int k = 0 ; k < 8 ; k++){
+          for (int k = 0 ; k < 2 ; k++){
             _dispatch[i][j][k] = NULL ;     
           }
         }
@@ -46,9 +46,11 @@ class TIMING {
 
     
     void loop(){
-      bool clk1 = READ_CLK1 ;
-      bool clk2 = READ_CLK2 ;
-      
+      byte clk = PIND ;
+      bool clk1 = clk & CLK1 ;
+      bool clk2 = clk & CLK2 ;
+
+      int cur_phase ;
       if ((clk1)&&(!clk2)){
         _slave = _master ;
         if ((_slave == 0)&&(_reset)){   // 0 == state A1!
@@ -59,7 +61,7 @@ class TIMING {
         if (_phase != 0){
           _cycle++ ;
         }
-        _phase = 0 ;
+        cur_phase = 0 ;
       }
       else if ((!clk1)&&(clk2)){
         if (READ_SYNC){
@@ -68,26 +70,29 @@ class TIMING {
         else {
           _master = (_slave + 1) & 0x7 ;
         }
-        _phase = 2 ;
+        cur_phase = 2 ;
       }
       else if ((!clk1)&&(!clk2)){
         if (_slave == _master){
-          _phase = 1 ;
+          cur_phase = 1 ;
         }
         else {
-          _phase = 3 ;
+          cur_phase = 3 ;
         }
       }
-    
+      
       if (_reset){
         return ;
       }
- 
-      // Do dispatch
-      int i = 0 ;
-      while (_dispatch[_slave][_phase][i] != NULL){
-        _dispatch[_slave][_phase][i]() ;
-        i++ ;
+      
+      if (cur_phase != _phase){
+        _phase = cur_phase ;
+        
+        int i = 0 ;
+        while (_dispatch[_slave][_phase][i] != NULL){
+          _dispatch[_slave][_phase][i]() ;
+          i++ ;
+        }
       }
     }
     

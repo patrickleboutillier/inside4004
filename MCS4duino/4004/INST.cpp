@@ -43,24 +43,10 @@ void INST_timing(){
       if (jcn()){
         byte cond = setJCNcond() ;
         INST_cond = cond ;
-        #ifdef DEBUG
-          if (timing->_pass == 0){
-            Serial.print(timing->_cycle) ;
-            Serial.print(" condJCN ") ;
-            Serial.println(cond) ;
-          }
-        #endif
       }
       if (isz()){
         byte cond = ~addZero() & 1 ;
         INST_cond = cond ;
-        #ifdef DEBUG
-          if (timing->_pass == 0){
-            Serial.print(timing->_cycle) ;
-            Serial.print(" condISZ ") ;
-            Serial.println(cond) ;
-          }
-        #endif
       }
     }
   }) ;
@@ -75,6 +61,8 @@ void INST_timing(){
     if (INST_sc){
       INST_opa = data->read() ;
     }
+    //Serial.print(INST_opr, HEX) ;
+    //Serial.println(INST_opa, HEX) ;
   }) ;
 }
 

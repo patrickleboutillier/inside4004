@@ -11,7 +11,7 @@ class TIMING {
     byte _master ;
     int _phase ;
     bool _reset ;
-    void (*_dispatch[8][4][8])() ;
+    void (*_dispatch[8][4][2])() ;
   public:
       unsigned long _cycle ;
       int _pass ;
@@ -20,7 +20,7 @@ class TIMING {
     TIMING(){  
       for (int i = 0 ; i < 8 ; i++){
         for (int j = 0 ; j < 4 ; j++){
-          for (int k = 0 ; k < 8 ; k++){
+          for (int k = 0 ; k < 2 ; k++){
             _dispatch[i][j][k] = NULL ;     
           }
         }
@@ -48,8 +48,9 @@ class TIMING {
 
     
     void loop(){
-      bool clk1 = READ_CLK1 ;
-      bool clk2 = READ_CLK2 ;
+      byte clk = PINB ;
+      bool clk1 = clk & CLK1 ;
+      bool clk2 = clk & CLK2 ;
 
       int cur_phase ;
       if ((clk1)&&(!clk2)){
@@ -95,11 +96,13 @@ class TIMING {
       }
  
       // Do dispatch
-      int i = 0 ;
-      while (_dispatch[_slave][_phase][i] != NULL){
-        _dispatch[_slave][_phase][i]() ;
-        i++ ;
-      }
+      //if (_pass == 0){
+        int i = 0 ;
+        while (_dispatch[_slave][_phase][i] != NULL){
+          _dispatch[_slave][_phase][i]() ;
+          i++ ;
+        }
+      //}
     }
     
     

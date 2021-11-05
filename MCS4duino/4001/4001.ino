@@ -3,25 +3,25 @@
 
 // #define DEBUG
 
-#define RESET_ON            PINC &   0b00100000
-#define RESET_INPUT         DDRC &= ~0b00100000
-#define CM_ON               PINC &   0b00010000
-#define CM_INPUT            DDRC &= ~0b00010000
+#define RESET_ON                PINC &   0b00100000
+#define RESET_INPUT             DDRC &= ~0b00100000
+#define CM_ON                   PINC &   0b00010000
+#define CM_INPUT                DDRC &= ~0b00010000
 
-#define DATA_3              0b00000001 // PORTB
-#define DATA_210            0b11100000 // PORTD
-#define READ_DATA           (((PINB & DATA_3) << 3) | ((PIND & DATA_210) >> 5))
-#define WRITE_DATA(data)    PORTB = (PORTB & ~DATA_3) | (((data) >> 3) & 1) ; PORTD = (PORTD & ~DATA_210) | (((data) & 0b111) << 5) 
-#define DATA_INPUT          DDRB &= ~DATA_3 ; DDRD &= ~DATA_210
-#define DATA_OUTPUT         DDRB |=  DATA_3 ; DDRD |=  DATA_210
+#define DATA_3                  0b00000001 // PORTB
+#define DATA_210                0b11100000 // PORTD
+#define READ_DATA               (((PINB & DATA_3) << 3) | ((PIND & DATA_210) >> 5))
+#define WRITE_DATA(data)        PORTB = (PORTB & ~DATA_3) | (((data) >> 3) & 1) ; PORTD = (PORTD & ~DATA_210) | (((data) & 0b111) << 5) 
+#define DATA_INPUT              DDRB &= ~DATA_3 ; DDRD &= ~DATA_210
+#define DATA_OUTPUT             DDRB |=  DATA_3 ; DDRD |=  DATA_210
 
-#define READ_KBD_ROW        ((PINB &  0b00011110) >> 1)
-#define KBD_ROW_INPUT       DDRB  &= ~0b00011110
+#define READ_KBD_ROW            ((PINB &  0b00011110) >> 1)
+#define KBD_ROW_INPUT           DDRB  &= ~0b00011110
 
-#define READ_PRN_INDEX      ((PINC &  0b00000010) >> 1)
-#define PRN_INDEX_INPUT     DDRC  &= ~0b00000010
-#define READ_PRN_ADV_BTN    (PINC  &  0b00000001)
-#define PRN_ADV_BTN_INPUT   DDRC  &= ~0b00000001
+#define READ_PRN_INDEX          ((PINC &  0b00000010) >> 1)
+#define PRN_INDEX_INPUT         DDRC  &= ~0b00000010
+#define READ_PRN_ADV_BTN        (PINC  &  0b00000001)
+#define PRN_ADV_BTN_INPUT       DDRC  &= ~0b00000001
 
 #define SHIFT_DATA              0b00100000
 #define WRITE_SHIFT_DATA(d)     PORTB =  (PORTB & ~SHIFT_DATA) | ((d) << 5)
@@ -39,6 +39,9 @@ bool io_inst = 0 ;
 bool src = 0 ;
 bool rdr = 0 ;
 bool wrr = 0 ;
+byte rom = 0 ;
+byte opr = 0 ;
+byte opa = 0 ;
 unsigned long max_dur = 0 ;
 
 
@@ -54,6 +57,9 @@ void reset(){
   src = 0 ; 
   rdr = 0 ;
   wrr = 0 ;
+  rom = 0 ;
+  opr = 0 ;
+  opa = 0 ;
   max_dur = 0 ;
 }
 
@@ -86,40 +92,39 @@ void setup(){
   
   TIMING.A32clk1([]{
     // If cm is on, we are the selected ROM chip for instructions if chipnum == data
-    if (CM_ON){
-      rom_select = READ_DATA ;
-    }
+    //if (CM_ON){
+    rom_select = READ_DATA ;
+    //}
   }) ;  
 
 
   TIMING.M12clk1([]{
-    DATA_OUTPUT ;
     // If we are the selected chip for instructions, send out opr
-    int addr = (rom_select << 8) + (addrh << 4 | addrl) ;
-    byte opr = pgm_read_byte(ROM + addr) >> 4 ;
+    int addr = rom_select << 8 | addrh << 4 | addrl ;
+    rom = pgm_read_byte(ROM + addr) ;
+    opr = rom >> 4 ;
+    DATA_OUTPUT ;
     WRITE_DATA(opr) ;
   }) ;
 
 
   TIMING.M12clk2([]{
     // opr is on the bus, no matter who put it there (us or another ROM chip). Check if an I/O instruction is in progress
-    io_inst = (READ_DATA == 0b1110 ? 1 : 0) ;
+    io_inst = (opr == 0b1110) ;
   }) ;
 
           
   TIMING.M22clk1([]{
     // If we are the selected chip for instructions, send out opa
-    int addr = (rom_select << 8) + (addrh << 4 | addrl) ;
-    byte opa = pgm_read_byte(ROM + addr) & 0xF ;
+    opa = rom & 0xF ;
     WRITE_DATA(opa) ;
   }) ;
 
 
   TIMING.M22clk2([]{
     // opa is on the bus, no matter who put it there (us or another ROM chip). 
-    byte data = READ_DATA ;
-    rdr = (io_inst && (data == 0b1010) ? 1 : 0) ;
-    wrr = (io_inst && (data == 0b0010) ? 1 : 0) ;
+    rdr = (io_inst && (opa == 0b1010)) ;
+    wrr = (io_inst && (opa == 0b0010)) ;
   }) ;
 
    
@@ -136,6 +141,7 @@ void setup(){
     }
     else {
       src = 0 ;
+
       if (wrr){
         // Grab data for WRR
         if (io_select == 0){
@@ -184,9 +190,9 @@ void loop(){
       unsigned long dur = micros() - start ;
       if (dur > max_dur){
         max_dur = dur ;
-        Serial.print("Max loop duration: ") ;
+        Serial.print(F("Max loop duration: ")) ;
         Serial.print(max_dur) ;
-        Serial.println("us") ;
+        Serial.println(F("us")) ;
       }
     #endif
   }

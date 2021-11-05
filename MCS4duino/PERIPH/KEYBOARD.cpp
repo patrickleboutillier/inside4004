@@ -98,7 +98,7 @@ void KEYBOARD::sendKey(){
     key_buffer_idx = 0 ;
     kc = key_buffer[key_buffer_idx] ;
   }
-  
+
   byte c = kc >> 2 ;
   byte r = 3 - (kc & 0b11) ;
   _buffer[c][r] = 1 ;

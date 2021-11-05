@@ -1,6 +1,6 @@
 #include "TIMING.h"
 
-// #define DEBUG
+#define DEBUG
 
 #define READ_RESET       PINC &   0b00000010
 #define RESET_INPUT      DDRC &= ~0b00000010
@@ -68,12 +68,12 @@ void setup(){
 
 
   TIMING.M22clk2([]{
-    // Timing a tight here, we need to chekc only the first time around
+    // Timing a tight here, we need to check only the first time around
     if (TIMING._pass == 0){
+      // Grab opa
       opa = READ_DATA ;
       if ((chip_select != -1)&&(READ_CM)){
         // If we are the selected chip for RAM/I/O and cm is on, the CPU is telling us that we are processing a RAM/I/O instruction
-        // Grab opa
         ram_inst = 1 ;
       }
       else {
@@ -133,46 +133,47 @@ void setup(){
         case 0b0111:
           STATUS[chip_select][reg][3] = READ_DATA ;
           break ;
-      }
 
-      // Write instructions
-      int data = -1 ; 
-      switch (opa){          
+        // Write instructions        
         case 0b1000: 
-          data = RAM[chip_select][reg][chr] ;
+          DATA_OUTPUT ;  
+          WRITE_DATA(RAM[chip_select][reg][chr]) ;
           break ;
         case 0b1001:
-          data = RAM[chip_select][reg][chr] ;
+          DATA_OUTPUT ;  
+          WRITE_DATA(RAM[chip_select][reg][chr]) ;
           break ;
         case 0b1011:
-          data = RAM[chip_select][reg][chr] ;
+          DATA_OUTPUT ;  
+          WRITE_DATA(RAM[chip_select][reg][chr]) ;
           break ;
         case 0b1100:
-          data = STATUS[chip_select][reg][0] ;
+          DATA_OUTPUT ;  
+          WRITE_DATA(STATUS[chip_select][reg][0]) ;
           break ;
         case 0b1101:
-          data = STATUS[chip_select][reg][1] ;
+          DATA_OUTPUT ;  
+          WRITE_DATA(STATUS[chip_select][reg][1]) ;
           break ;
         case 0b1110:
-          data = STATUS[chip_select][reg][2] ;
+          DATA_OUTPUT ;  
+          WRITE_DATA(STATUS[chip_select][reg][2]) ;
           break ;
         case 0b1111:
-          data = STATUS[chip_select][reg][3] ;
+          DATA_OUTPUT ;  
+          WRITE_DATA(STATUS[chip_select][reg][3]) ;
           break ;
-      }
-
-      if (data != -1){
-        DATA_OUTPUT ;  
-        WRITE_DATA(data) ;
       }
     }
   }) ;
 
 
   TIMING.X32clk1([]{
-    // Disconnect from bus
-    if (ram_inst){
-      DATA_INPUT ;
+    if (TIMING._pass == 0){
+      // Disconnect from bus
+      if (ram_inst){
+        DATA_INPUT ;
+      }
     }
   }) ;
 
