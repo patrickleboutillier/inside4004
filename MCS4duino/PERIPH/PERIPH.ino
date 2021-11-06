@@ -2,6 +2,8 @@
 #include "PRINTER.h"
 #include "KEYBOARD.h"
 
+#define DEBUG
+
 #define RESET_ON              PORTC |=  0b00000100
 #define RESET_OFF             PORTC &= ~0b00000100
 #define RESET_OUTPUT          DDRC  |=  0b00000100

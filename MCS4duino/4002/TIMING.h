@@ -13,8 +13,7 @@ class TIMING {
     bool _reset ;
     void (*_dispatch[8][4][2])() ;
   public:
-      unsigned long _cycle ;
-      int _pass ;
+    unsigned long _cycle ;
         
   public:
     TIMING(){  
@@ -36,7 +35,6 @@ class TIMING {
       _phase = -1 ;
       _reset = 1 ;
       _cycle = 0 ;
-      _pass = 0 ;
     }
 
     
@@ -82,27 +80,20 @@ class TIMING {
           cur_phase = 3 ;
         }
       }
-
-      if (cur_phase != _phase){
-        _phase = cur_phase ;
-        _pass = 0 ;
-      }
-      else {
-        _pass++ ;
-      }
       
       if (_reset){
         return ;
       }
- 
-      // Do dispatch
-      //if (_pass == 0){
+      
+      if (cur_phase != _phase){
+        _phase = cur_phase ;
+        
         int i = 0 ;
         while (_dispatch[_slave][_phase][i] != NULL){
           _dispatch[_slave][_phase][i]() ;
           i++ ;
         }
-      //}
+      }
     }
     
     

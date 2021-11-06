@@ -76,16 +76,6 @@ bool setJCNcond(){
   bool z = accZero() ;
   bool c = carryOne() ;
   bool t = testZero() ;
-
-  //if (timing->_pass == 0){
-  //  Serial.print(INST_opa) ;
-  //  Serial.print(" z ") ;
-  //  Serial.print(z) ;
-  //  Serial.print(" c ") ;
-  //  Serial.print(c) ;
-  //  Serial.print(" t ") ;
-  //  Serial.println(t) ;
-  //}
   
   bool invert = (INST_opa & 0b1000) >> 3 ;
   byte zero = INST_opa & 0b0100 ;

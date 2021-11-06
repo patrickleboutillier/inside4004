@@ -81,6 +81,8 @@ void KEYBOARD::writeKey(){
       byte data = (_buffer[i][0] << 3) | (_buffer[i][1] << 2) | (_buffer[i][2] << 1) | _buffer[i][3] ;
       WRITE_KBD_ROW(data) ;           
       if ((data != 0)&&(i < 8)){   // Don't reset the switches!
+        Serial.print(i) ;
+        Serial.println(data) ;
         _buffer[i][0] = 0 ;
         _buffer[i][1] = 0 ;
         _buffer[i][2] = 0 ;

@@ -1,7 +1,7 @@
 #include "TIMING.h"
 #include "ROM.h"
 
-// #define DEBUG
+#define DEBUG
 
 #define RESET_ON                PINC &   0b00100000
 #define RESET_INPUT             DDRC &= ~0b00100000

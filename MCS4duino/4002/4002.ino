@@ -44,9 +44,9 @@ void reset(){
     for (int j = 0 ; j < 4 ; j++){
       for (int k = 0 ; k < 16 ; k++){
         RAM[i][j][k] = 0 ; 
-      }
-      for (int k = 0 ; k < 4 ; k++){
-        STATUS[i][j][k] = 0 ; 
+        if (k < 4){
+          STATUS[i][j][k] = 0 ; 
+        }
       }
     }
   }
@@ -69,7 +69,7 @@ void setup(){
 
   TIMING.M22clk2([]{
     // Timing a tight here, we need to check only the first time around
-    if (TIMING._pass == 0){
+    //if (TIMING._pass == 0){
       // Grab opa
       opa = READ_DATA ;
       if ((chip_select != -1)&&(READ_CM)){
@@ -79,7 +79,7 @@ void setup(){
       else {
         ram_inst = 0 ;
       }
-    }
+    //}
   }) ;
 
 
@@ -93,97 +93,91 @@ void setup(){
       src = 1 ;
     }
     else {
-      src = 0 ;
-    }                
-    
-    if (ram_inst){
-      // A RAM/I/O instruction is in progress, execute the proper operation according to the value of opa
-      
-      // Read instructions
-      switch (opa){
-        case 0b0000:
-          RAM[chip_select][reg][chr] = READ_DATA ;
-          break ;
-        case 0b0001: {
-          byte data = READ_DATA ;
-          if (chip_select == 0){
-            byte d = 0 ;
-            if ((data >> 3) & 1){ // A3
-              d |= 0b001 ;
+      src = 0 ;                 
+      if (ram_inst){
+        // A RAM/I/O instruction is in progress, execute the proper operation according to the value of opa
+        
+        // Read instructions
+        switch (opa){
+          case 0b0000:
+            RAM[chip_select][reg][chr] = READ_DATA ;
+            break ;
+          case 0b0001:
+            if (chip_select == 0){
+              byte data = READ_DATA ;
+              byte d = 0 ;
+              if ((data >> 3) & 1){ // A3
+                d |= 0b001 ;
+              }
+              if ((data >> 1) & 1){ // A4
+                d |= 0b010 ;
+              }
+              if (data & 1){        // A5
+                d |= 0b100 ;
+              }
+              WRITE_ADV_FIRE_COLOR(d) ;
             }
-            if ((data >> 1) & 1){ // A4
-              d |= 0b010 ;
-            }
-            if (data & 1){        // A5
-              d |= 0b100 ;
-            }
-            WRITE_ADV_FIRE_COLOR(d) ;
-          }
-          break ;
+            break ;
+          case 0b0100:
+            STATUS[chip_select][reg][0] = READ_DATA ;
+            break ;
+          case 0b0101:
+            STATUS[chip_select][reg][1] = READ_DATA ;
+            break ;
+          case 0b0110:
+            STATUS[chip_select][reg][2] = READ_DATA ;
+            break ;
+          case 0b0111:
+            STATUS[chip_select][reg][3] = READ_DATA ;
+            break ;
+  
+          // Write instructions        
+          case 0b1000: 
+            DATA_OUTPUT ;  
+            WRITE_DATA(RAM[chip_select][reg][chr]) ;
+            break ;
+          case 0b1001:
+            DATA_OUTPUT ;  
+            WRITE_DATA(RAM[chip_select][reg][chr]) ;
+            break ;
+          case 0b1011:
+            DATA_OUTPUT ;  
+            WRITE_DATA(RAM[chip_select][reg][chr]) ;
+            break ;
+          case 0b1100:
+            DATA_OUTPUT ;  
+            WRITE_DATA(STATUS[chip_select][reg][0]) ;
+            break ;
+          case 0b1101:
+            DATA_OUTPUT ;  
+            WRITE_DATA(STATUS[chip_select][reg][1]) ;
+            break ;
+          case 0b1110:
+            DATA_OUTPUT ;  
+            WRITE_DATA(STATUS[chip_select][reg][2]) ;
+            break ;
+          case 0b1111:
+            DATA_OUTPUT ;  
+            WRITE_DATA(STATUS[chip_select][reg][3]) ;
+            break ;
         }
-        case 0b0100:
-          STATUS[chip_select][reg][0] = READ_DATA ;
-          break ;
-        case 0b0101:
-          STATUS[chip_select][reg][1] = READ_DATA ;
-          break ;
-        case 0b0110:
-          STATUS[chip_select][reg][2] = READ_DATA ;
-          break ;
-        case 0b0111:
-          STATUS[chip_select][reg][3] = READ_DATA ;
-          break ;
-
-        // Write instructions        
-        case 0b1000: 
-          DATA_OUTPUT ;  
-          WRITE_DATA(RAM[chip_select][reg][chr]) ;
-          break ;
-        case 0b1001:
-          DATA_OUTPUT ;  
-          WRITE_DATA(RAM[chip_select][reg][chr]) ;
-          break ;
-        case 0b1011:
-          DATA_OUTPUT ;  
-          WRITE_DATA(RAM[chip_select][reg][chr]) ;
-          break ;
-        case 0b1100:
-          DATA_OUTPUT ;  
-          WRITE_DATA(STATUS[chip_select][reg][0]) ;
-          break ;
-        case 0b1101:
-          DATA_OUTPUT ;  
-          WRITE_DATA(STATUS[chip_select][reg][1]) ;
-          break ;
-        case 0b1110:
-          DATA_OUTPUT ;  
-          WRITE_DATA(STATUS[chip_select][reg][2]) ;
-          break ;
-        case 0b1111:
-          DATA_OUTPUT ;  
-          WRITE_DATA(STATUS[chip_select][reg][3]) ;
-          break ;
       }
     }
   }) ;
 
 
   TIMING.X32clk1([]{
-    if (TIMING._pass == 0){
-      // Disconnect from bus
-      if (ram_inst){
-        DATA_INPUT ;
-      }
+    // Disconnect from bus
+    if (ram_inst){
+      DATA_INPUT ;
     }
   }) ;
 
 
   TIMING.X32clk2([]{
-    if (TIMING._pass == 0){
-      // If we are processing an SRC instruction, grab the selected RAM character
-      if (src){
-        chr = READ_DATA ;
-      }
+    // If we are processing an SRC instruction, grab the selected RAM character
+    if (src){
+      chr = READ_DATA ;
     }
   }) ;
 }
