@@ -2,21 +2,25 @@
 #define KEYBOARD_H
 
 #include "i4003.h"
+#include "PRINTER.h"
 
 
 class KEYBOARD {
   public:
-    KEYBOARD(i4003 *input) ;
+    KEYBOARD(i4003 *input, PRINTER *printer) ;
     void reset() ;
     void setup() ;
-    void loop() ;
+    bool loop() ;
     void writeKey() ;
     void sendKey() ;
 
   private:
     i4003 *_input ;
-    bool _buffer[10][4] ;
+    PRINTER *_printer ;
+    byte _buffer[10] ;
     bool _cur_send_key ;
+    byte _cur_round ;
+    byte _cur_prec ;
 } ;
 
 
@@ -34,36 +38,49 @@ class KEYBOARD {
 ;bit9     sw1   (unused)  (unused)  sw2 (rounding switch, value 0,1,8 can be switched)
 */
 
-#define KCM    0  
-#define KRM    1
-#define KMM    2
-#define KMP    3
+#define KCM    0b00000001  
+#define KRM    0b00000010
+#define KMM    0b00000100
+#define KMP    0b00001000
 
-#define KSQ    4
-#define KPCT   5
-#define KMEM   6
-#define KMEP   7
+#define KSQ    0b00010001
+#define KPCT   0b00010010
+#define KMEM   0b00010100
+#define KMEP   0b00011000
 
-#define KDIV   9
-#define KMULT  10
-#define KEQ    11
+// diamond
+#define KDIV   0b00100010
+#define KMULT  0b00100100
+#define KEQ    0b00101000
 
-#define KMIN   12
-#define KPLUS  13
-#define KHASH  14
+#define KMIN   0b00110001
+#define KPLUS  0b00110010
+#define KHASH  0b00110100
+// 000
 
-#define K9     16
-#define K6     17
-#define K3     18
-#define KDOT   19
+#define K9     0b01000001
+#define K6     0b01000010
+#define K3     0b01000100
+#define KDOT   0b01001000
 
-#define K8     20
-#define K5     21
-#define K2     22
+#define K8     0b01010001
+#define K5     0b01010010
+#define K2     0b01010100
+// 00
 
-#define K7     24
-#define K4     25
-#define K1     26
-#define K0     27
+#define K7     0b01100001
+#define K4     0b01100010
+#define K1     0b01100100
+#define K0     0b01101000
+
+#define KSIGN  0b01110001
+#define KEX    0b01110010
+#define KCE    0b01110100
+#define KCL    0b01111000
+
+#define KD     250
+#define KR     251
+
+#define KEND   255
 
 #endif

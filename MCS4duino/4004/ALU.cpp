@@ -45,15 +45,6 @@ void ALU_timing(){
   timing->X12([]{    // Save acc and cy to their output registers. 
     acc_out = acc ;
     cy_out = cy ;
-    #ifdef DEBUG
-      if (timing->_pass == 0){
-        Serial.print(timing->_cycle) ;  
-        Serial.print(" acc_out ") ;
-        Serial.print(acc_out) ;
-        Serial.print(" cy_out ") ;
-        Serial.println(cy_out) ;
-      }
-    #endif
   }) ;
           
   timing->X21([]{    // Set the bus with the proper initialization value, depending on the current instruction.
@@ -65,26 +56,12 @@ void ALU_timing(){
   timing->X22clk1([]{  // Set input B by sampling data from the bus (n0342, for non IO instructions).
     if (! io()){
       tmp = data->read() ;
-      #ifdef DEBUG
-        if (timing->_pass == 0){
-          Serial.print(timing->_cycle) ;  
-          Serial.print(" tmp ") ;
-          Serial.println(tmp) ;
-        }
-      #endif
     }
   }) ;
   
   timing->X22clk2([]{  // Set input B by sampling data from the bus (n0342, for IO instructions).
     if (io()){
       tmp = data->read() ;
-      #ifdef DEBUG
-        if (timing->_pass == 0){
-          Serial.print(timing->_cycle) ;  
-          Serial.print(" tmp ") ;
-          Serial.println(tmp) ;
-        }
-      #endif
     }
   }) ;
 }
@@ -123,20 +100,6 @@ void runAdder(bool invertADB, bool saveAcc, bool saveCy, bool shiftL, bool shift
       }
     }
   }
-
-  #ifdef DEBUG
-    if (timing->_pass == 0){
-      Serial.print(timing->_cycle) ; 
-      Serial.print(" ") ;
-      Serial.print(get_opr()) ;
-      Serial.print(" ") ;
-      Serial.print(get_opa()) ;
-      Serial.print(" runAdder ") ;
-      Serial.print(add) ;
-      Serial.print(" ") ;   
-      Serial.println(cy) ;   
-    }
-  #endif
 }
 
 
@@ -146,14 +109,6 @@ void setADA(bool invert){
   if (invert){
     ada = ~ada & 0xF ;
   }
-
-  #ifdef DEBUG
-    if (timing->_pass == 0){
-      Serial.print(timing->_cycle) ; 
-      Serial.print(" setADA ") ;
-      Serial.println(ada) ;
-    }
-  #endif
 }
 
 
@@ -168,53 +123,24 @@ void setADC(bool invert, bool one){
       adc = ~adc & 1 ;
     }
   }
-
-  #ifdef DEBUG
-    if (timing->_pass == 0){
-      Serial.print(timing->_cycle) ;
-      Serial.print(" setADC ") ;
-      Serial.println(adc) ;
-    }
-  #endif
 }
 
       
 // Place acc_out on the bus.
 void enableAccOut(){
   data->write(acc_out) ;
-  #ifdef DEBUG
-    if (timing->_pass == 0){
-      Serial.print(timing->_cycle) ;
-      Serial.print(" enableAccOut ") ;
-      Serial.println(acc_out) ;
-    }
-  #endif
 }
 
 
 // Place adder result on the bus
 void enableAdd(){
   data->write(add) ;
-  #ifdef DEBUG
-    if (timing->_pass == 0){
-      Serial.print(timing->_cycle) ;
-      Serial.print(" enableAdd ") ;
-      Serial.println(add) ;
-    }
-  #endif
 }
 
 
 // Place carry out on the bus
 void enableCyOut(){
   data->write(cy_out) ;
-  #ifdef DEBUG
-    if (timing->_pass == 0){
-      Serial.print(timing->_cycle) ;
-      Serial.print(" enableCyOut ") ;
-      Serial.println(cy_out) ;
-    }
-  #endif
 }
 
 
@@ -253,50 +179,22 @@ void enableInitializer(){
   }
   
   data->write(d) ;
-  #ifdef DEBUG
-    if (timing->_pass == 0){
-      Serial.print(timing->_cycle) ;
-      Serial.print(" enableInitializer ") ;
-      Serial.println(d) ;
-    }
-  #endif
 }
 
 
 // Is acc == 0?
 bool accZero(){
-  #ifdef DEBUG
-    if (timing->_pass == 0){
-      Serial.print(timing->_cycle) ;
-      Serial.print(" accZero ") ;
-      Serial.println(acc_out == 0) ;
-    }
-  #endif
   return acc_out == 0 ;
 }
 
 
 // Is adder result == 0?
 bool addZero(){
-  #ifdef DEBUG
-    if (timing->_pass == 0){
-      Serial.print(timing->_cycle) ;
-      Serial.print(" addZero ") ;
-      Serial.println(add == 0) ;
-    }
-  #endif
   return add == 0 ;
 }
 
 
 // Is carry == 1?
 bool carryOne(){
-  #ifdef DEBUG
-    if (timing->_pass == 0){
-      Serial.print(timing->_cycle) ;
-      Serial.print(" carryOne ") ;
-      Serial.println(cy_out) ;
-    }
-  #endif
   return cy_out ;
 }

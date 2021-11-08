@@ -82,31 +82,16 @@ void SCRATCH_timing(){
 // Enable the working register (according to whether OPA is even or odd) to the bus.
 void enableReg(){
   data->write(opa_even() ? row_even : row_odd) ;
-  //if (timing->_pass == 0){
-  //  Serial.print(timing->_cycle) ;
-  //  Serial.print(" enableReg ") ;
-  //  Serial.println(opa_even() ? row_even : row_odd) ;
-  //}
 }
 
 // Enable the even working register to the bus.
 void enableRegPairH(){
   data->write(row_even) ;
-  //if (timing->_pass == 0){
-  //  Serial.print(timing->_cycle) ;
-  //  Serial.print(" enableRegPairH ") ;
-  //  Serial.println(row_even) ;
-  //}
 }
 
 // Enable the odd working register to the bus.
 void enableRegPairL(){
   data->write(row_odd) ;
-  //if (timing->_pass == 0){
-  //  Serial.print(timing->_cycle) ;
-  //  Serial.print(" enableRegPairL ") ;
-  //  Serial.println(row_odd) ;
-  //}
 }
 
 // Set the proper working register value from data_in.
@@ -117,31 +102,14 @@ void setReg(){
   else {
       row_odd = data_in ;
   }
-  //if (timing->_pass == 0){
-  //  Serial.print(timing->_cycle) ;
-  //  Serial.print(" setReg ") ;
-  //  Serial.print(opa_even()) ;
-  //  Serial.print(" ") ;
-  //  Serial.println(data_in) ;
-  //}
 }
 
 // Set the even (high) working register from data_in
 void setRegPairH(){
   row_even = data_in ;
-  //if (timing->_pass == 0){
-  //  Serial.print(timing->_cycle) ;
-  //  Serial.print(" setRegPairH ") ;
-  //  Serial.println(row_even) ;
-  //}
 }
 
 // Set the odd (low) working register from data_in
 void setRegPairL(){
   row_odd = data_in ;
-  //if (timing->_pass == 0){
-  //  Serial.print(timing->_cycle) ;
-  //  Serial.print(" setRegPairL ") ;
-  //  Serial.println(row_odd) ;
-  //}
 }

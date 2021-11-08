@@ -1,5 +1,5 @@
 #include "KEYBOARD.h"
-
+#include "TESTS.h"
 
 #define KBD_ROW              0b00011110
 #define KBD_ROW_OUTPUT       DDRB |= KBD_ROW
@@ -9,22 +9,14 @@
 #define KBD_SEND_KEY_ON      PINC &   KBD_SEND_KEY
 #define KBD_SEND_KEY_INPUT   DDRC &= ~KBD_SEND_KEY
 
+static int test_idx = 0 ;
+static const byte *key_buffer = tests[test_idx] ;
 static int key_buffer_idx = 0 ;
-static const byte key_buffer[] = 
-  // {K1, K1, KPLUS, K7, KPLUS, KEQ, 255} ;
-  // {K1, K1, KPLUS, K7, KPLUS, KEQ, K5, K5, KMULT, K4, K1, KEQ, K2, KSQ, 255} ;
-  {K1, K2, KDOT, K3, K4, KPLUS, 
-   K3, K4, KDOT, K5, K6, KMIN,
-   K5, K6, KDOT, K7, K8, K9, KPLUS, 
-   KPLUS,
-   KDOT, K1, K2, K3, KPLUS,
-   KEQ, 255} ;
-  // {K2, KSQ, 255} ;
 
 
-KEYBOARD::KEYBOARD(i4003 *input){
+KEYBOARD::KEYBOARD(i4003 *input, PRINTER *printer){
   _input = input ;
-  key_buffer_idx = 0 ;
+  _printer = printer ;
   reset() ;
 }
 
@@ -33,22 +25,15 @@ void KEYBOARD::reset(){
   WRITE_KBD_ROW(0) ;
   
   for (int i = 0 ; i < 10  ; i++){
-    for (int j = 0 ; j < 4 ; j++){
-      _buffer[i][j] = 0 ; 
-    }
+    _buffer[i] = 0 ; 
   }
-
-  _buffer[8][0] = 0 ; 
-  _buffer[8][1] = 0 ; 
-  _buffer[8][2] = 1 ; 
-  _buffer[8][3] = 1 ;   
-
-  _buffer[9][0] = 1 ; 
-  _buffer[9][1] = 0 ; 
-  _buffer[9][2] = 0 ; 
-  _buffer[9][3] = 0 ;   
   
   _cur_send_key = 0 ;
+  _cur_round = 0 ;
+  _cur_prec = 0 ;
+
+  test_idx = 0 ;
+  key_buffer = tests[test_idx] ;
   key_buffer_idx = 0 ;
 }
 
@@ -59,17 +44,21 @@ void KEYBOARD::setup(){
 }
 
 
-void KEYBOARD::loop(){
+bool KEYBOARD::loop(){
   // Check the send key signal
+  bool ret = 0 ;
   if (KBD_SEND_KEY_ON){
     if (! _cur_send_key){
       sendKey() ;
       _cur_send_key = 1 ;
+      ret = 1 ;
     }
   }
   else {
     _cur_send_key = 0 ;
   }
+
+  return ret ;
 }
 
 
@@ -78,15 +67,9 @@ void KEYBOARD::writeKey(){
   int mask = 1 ;
   for (int i = 0 ; i < 10 ; i++){
     if ((reg & mask) == 0){
-      byte data = (_buffer[i][0] << 3) | (_buffer[i][1] << 2) | (_buffer[i][2] << 1) | _buffer[i][3] ;
-      WRITE_KBD_ROW(data) ;           
-      if ((data != 0)&&(i < 8)){   // Don't reset the switches!
-        Serial.print(i) ;
-        Serial.println(data) ;
-        _buffer[i][0] = 0 ;
-        _buffer[i][1] = 0 ;
-        _buffer[i][2] = 0 ;
-        _buffer[i][3] = 0 ;
+      WRITE_KBD_ROW(_buffer[i]) ;           
+      if (i < 8){   // Don't reset the switches!
+        _buffer[i] = 0 ;
       }
     }
     mask = mask << 1 ;
@@ -96,45 +79,60 @@ void KEYBOARD::writeKey(){
 
 void KEYBOARD::sendKey(){
   byte kc = key_buffer[key_buffer_idx] ;
-  if (kc == 255){
-    key_buffer_idx = 0 ;
-    kc = key_buffer[key_buffer_idx] ;
+  
+  while ((kc == KD)||(kc == KR)){
+    if (kc == KD){
+      _cur_prec++ ;
+      if (_cur_prec == 9){
+        _cur_prec = 0 ;
+      }
+      else if (_cur_prec == 7){
+        _cur_prec == 8 ;
+      }
+
+      _buffer[8] = _cur_prec ;
+
+      key_buffer_idx++ ;
+      kc = key_buffer[key_buffer_idx] ;
+    }
+    else {
+      if (_cur_round == 0){
+        _cur_round = 1 ;
+      }
+      else if (_cur_round == 1){
+        _cur_round = 8 ;
+      }
+      else {
+        _cur_round = 0 ;
+      }
+      
+      _buffer[9] = _cur_round ;
+
+      key_buffer_idx++ ;
+      kc = key_buffer[key_buffer_idx] ;
+    }
   }
 
-  byte c = kc >> 2 ;
-  byte r = 3 - (kc & 0b11) ;
-  _buffer[c][r] = 1 ;
+  if (kc == KEND){
+    int t = test_idx ;
+    reset() ;
+    test_idx = t + 1 ;
+    key_buffer = tests[test_idx] ;
+    if (key_buffer == NULL){
+      Serial.println("HALTED!") ;
+      while(1){
+        delay(1000) ;
+      }
+    }
+    else {
+      char buf[16] ;
+      sprintf(buf, "TEST %d\n", test_idx) ;
+      _printer->appendOutputBuffer(buf) ;
+    }
+    kc = key_buffer[key_buffer_idx] ;
+  }
+  
+  byte c = kc >> 4 ;
+  _buffer[c] |= kc & 0xF ;
   key_buffer_idx++ ;
 }
-
-
-/*
-    def incDP(self):
-        n = int("".join(map(str, self.dp_sw)), 2)
-        n = (n + 1) % 9
-        self.dp_sw[:] = list(map(int, list("{:04b}".format(n))))
-
-    def incRND(self):
-        n = int("".join(map(str, self.rnd_sw)), 2)
-        if n == 0:
-            n = 1
-            desc = "round"
-        elif n == 1:
-            n = 8
-            desc = "trunc"
-        else:
-            n = 0
-            desc = "float"
-        self.rnd_sw[:] = list(map(int, list("{:04b}".format(n))))
-
-    def switches(self):
-        dp = int("".join(map(str, self.dp_sw)), 2)
-        rnd = int("".join(map(str, self.rnd_sw)), 2)
-        if rnd == 0:
-            r = "F"
-        elif rnd == 1:
-            r = "R"
-        else:
-            r = "T"
-        return "DP[{}] RND[{}]".format(dp, r)
- */

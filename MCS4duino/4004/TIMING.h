@@ -18,7 +18,6 @@ class TIMING {
     void (*_dispatch[8][4][8])() ;
   public:
     unsigned long _cycle ;
-    int _pass ;
         
   public:
     TIMING(){  
@@ -45,18 +44,9 @@ class TIMING {
       _phase = -1 ;
       _reset = 1 ;
       _cycle = 0 ;
-      _pass = 0 ;
     }
-    
-  
-    /* void loop(){
-      bool clk1 = READ_CLK1 ;
-      bool clk2 = READ_CLK2 ;
 
-      tick(clk1, clk2) ;
-    } */
-
-
+   
     void tick(bool clk1, bool clk2){
       int cur_phase ;
       if ((clk1)&&(!clk2)){
@@ -89,24 +79,20 @@ class TIMING {
           }
         }
       }
-
-      if (cur_phase != _phase){
-        _phase = cur_phase ;
-        _pass = 0 ;
-      }
-      else {
-        _pass++ ;
-      }
       
       if (_reset){
         return ;
       }
  
-      // Do dispatch
-      int i = 0 ;
-      while (_dispatch[_slave][_phase][i] != NULL){
-        _dispatch[_slave][_phase][i]() ;
-        i++ ;
+      if (cur_phase != _phase){
+        _phase = cur_phase ;
+        
+        // Do dispatch
+        int i = 0 ;
+        while (_dispatch[_slave][_phase][i] != NULL){
+          _dispatch[_slave][_phase][i]() ;
+          i++ ;
+        }
       }
     }
     
@@ -121,7 +107,9 @@ class TIMING {
     
     
     void A12(void (*f)()){
-      A12clk1(f) ;
+      for (int i = 0 ; i < 4 ; i++){
+        append(0, i, f) ;
+      }
     }
     
     
@@ -141,7 +129,9 @@ class TIMING {
     
     
     void A22(void (*f)()){
-      A22clk1(f) ;
+      for (int i = 0 ; i < 4 ; i++){
+        append(1, i, f) ;
+      }
     }
     
     
@@ -161,7 +151,9 @@ class TIMING {
     
     
     void A32(void (*f)()){
-      A32clk1(f) ;
+      for (int i = 0 ; i < 4 ; i++){
+        append(2, i, f) ;
+      }
     }
     
     
@@ -181,7 +173,9 @@ class TIMING {
     
     
     void M12(void (*f)()){
-      M12clk1(f) ;
+      for (int i = 0 ; i < 4 ; i++){
+        append(3, i, f) ;
+      }
     }
     
     
@@ -201,7 +195,9 @@ class TIMING {
     
     
     void M22(void (*f)()){
-      M22clk1(f) ;
+      for (int i = 0 ; i < 4 ; i++){
+        append(4, i, f) ;
+      }
     }
     
     
@@ -221,7 +217,9 @@ class TIMING {
     
     
     void X12(void (*f)()){
-      X12clk1(f) ;
+      for (int i = 0 ; i < 4 ; i++){
+        append(5, i, f) ;
+      }
     }
     
     
@@ -241,7 +239,9 @@ class TIMING {
     
     
     void X22(void (*f)()){
-      X22clk1(f) ;
+      for (int i = 0 ; i < 4 ; i++){
+        append(6, i, f) ;
+      }
     }
     
     
@@ -261,7 +261,9 @@ class TIMING {
     
     
     void X32(void (*f)()){
-      X32clk1(f) ;
+      for (int i = 0 ; i < 4 ; i++){
+        append(7, i, f) ;
+      }
     }
     
     void X32clk1(void (*f)()){

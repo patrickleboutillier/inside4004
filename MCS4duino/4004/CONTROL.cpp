@@ -162,7 +162,7 @@ void JMS_M12clk2(){
 
 void JMS_M22clk2(){
     if (! get_sc()){
-      // Order not important here since sp in not copied to row_num until x32
+      // Order not important here since sp is not copied to row_num until x32
       setPL() ;
       decSP() ;
     }

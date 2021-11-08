@@ -2,7 +2,7 @@
 
 #define CLK1      0b000010000   // PORTB
 #define CLK2      0b000001000   // PORTB
-#define CLK_US    300
+#define CLK_US    100
 
 static TIMING *timing ;
 static unsigned long n = 0 ;
@@ -23,24 +23,27 @@ void CLOCK_setup(TIMING *t){
 
 void CLOCK_tick(){
   unsigned long start = micros() ;
-  while ((micros() - start) < CLK_US){
-    switch (n & 0b11){
-      case 0:
-        PORTB |= CLK1 ;
-        timing->tick(1, 0) ;
-        break ;
-      case 1:
-        PORTB &= ~CLK1 ;
-        timing->tick(0, 0) ;
-        break ;
-      case 2:
-        PORTB |= CLK2 ;
-        timing->tick(0, 1) ;
-        break ;
-      default:
-        PORTB &= ~CLK2 ;
-        timing->tick(0, 0) ;      
-    }
+  switch (n & 0b11){
+    case 0:
+      PORTB |= CLK1 ;
+      timing->tick(1, 0) ;
+      break ;
+    case 1:
+      PORTB &= ~CLK1 ;
+      timing->tick(0, 0) ;
+      break ;
+    case 2:
+      PORTB |= CLK2 ;
+      timing->tick(0, 1) ;
+      break ;
+    default:
+      PORTB &= ~CLK2 ;
+      timing->tick(0, 0) ;      
   }
+  int delay = CLK_US - (micros() - start) ;
+  if (delay > 0){
+    delayMicroseconds(delay < CLK_US ? delay : CLK_US) ; 
+  }
+  
   n++ ; 
 }

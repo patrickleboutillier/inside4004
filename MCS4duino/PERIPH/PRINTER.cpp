@@ -7,7 +7,7 @@ const char *dot = "." ;
 const char *dash = "-" ;
 
 // Units are CPU cycles
-const long sector_pulse =  (5 * 1000) / 22 ;
+const long sector_pulse =  (10 * 1000) / 22 ;
 const long sector_period = (28 * 1000) / 22 ;
 
 #define SYNC_INPUT  DDRD &= ~0b00010000
@@ -42,13 +42,17 @@ PRINTER::PRINTER(i4003 *input){
 
 void PRINTER::reset(){
   strcpy(_line, "                      ") ;
+  _output_buffer[0] = '\0' ;
   _cur_sector = 0 ; 
   _cur_cycle = 0 ;
   _cur_fire = 0 ;
   _cur_advance = 0 ;
-  _cur_color = ' ' ;
+  strcpy(_cur_color, " ") ;
   _cur_sync = 0 ;  
 
+  _output_buffer[0] = '\0' ;
+  _output_buffer_idx = 0 ;
+  
   PRN_ADV_BTN_OFF ;
   PRN_INDEX_OFF ;  
   PRN_SECTOR_OFF ; 
@@ -66,19 +70,24 @@ void PRINTER::setup(){
 }
 
 
-void PRINTER::loop(){
+bool PRINTER::loop(){
   // TODO: For now we use the sync signal as a cycle indicator.
   // Once the 4004 is in the Nano, we will know the real clock period and will be able to 
   // have the printer manage it's own timing independently, based on setting sector_pulse and sector_period.
+  bool ret = 0 ;
+  
   if (SYNC_ON){
     if (! _cur_sync){
       if (_cur_cycle == 0){
+          ret = 1 ;
           startSectorPulse() ;
       }
       else if (_cur_cycle == sector_pulse){
+          ret = 1 ;
           endSectorPulse() ;
       }
       else if (_cur_cycle == sector_period){
+          ret = 1 ;
           endSectorPeriod() ;
       }
       else {
@@ -96,6 +105,7 @@ void PRINTER::loop(){
       if (! _cur_fire){
         fireHammers() ;
         _cur_fire = 1 ;
+        ret = 1 ;
       }
   }
   else {
@@ -105,8 +115,9 @@ void PRINTER::loop(){
   if (data & PRN_ADV){
     if (! _cur_advance){
       advanceLine() ;
-      _cur_color = ' ' ;   // Reset line color
+      strcpy(_cur_color, " ") ;   // Reset line color
       _cur_advance = 1 ;
+      ret = 1 ;
     }
   }
   else{
@@ -114,7 +125,8 @@ void PRINTER::loop(){
   }
   
   if (data & PRN_COLOR){
-    _cur_color = '-' ;    // Set color to "red", meaning negative value.
+    strcpy(_cur_color, "-") ;    // Set color to "red", meaning negative value.
+    ret = 1 ;
   }  
 
   /* if (_input->getReg() != _reg){
@@ -122,6 +134,8 @@ void PRINTER::loop(){
     Serial.print("prn reg ") ;
     Serial.println(_reg | 0b100000000000000000000, BIN) ;
   } */
+
+  return ret ;
 }
 
 
@@ -170,13 +184,29 @@ void PRINTER::fireHammers(){
 
 void PRINTER::advanceLine(){
   // print previous line
-  Serial.print(">>> ") ;
-  Serial.print(_cur_color) ;
-  Serial.print("|") ;
-  Serial.print(_line) ;
-  Serial.println("|") ;
+  _output_buffer[0] = '\0' ;
+  _output_buffer_idx = 0 ;
+  appendOutputBuffer(">>> ") ;
+  appendOutputBuffer(_cur_color) ;
+  appendOutputBuffer("|") ;
+  appendOutputBuffer(_line) ;
+  appendOutputBuffer("|\n") ;
   for (int i = 0 ; _line[i] != '\0' ; i++){
     _line[i] = ' ' ;
+  }
+}
+
+
+void PRINTER::appendOutputBuffer(const char *s){
+  strcat(_output_buffer, s) ;
+}
+
+
+void PRINTER::printChar(){
+  char c = _output_buffer[_output_buffer_idx] ;
+  if (c != '\0'){
+    Serial.print(c) ;
+    _output_buffer_idx++ ;
   }
 }
 

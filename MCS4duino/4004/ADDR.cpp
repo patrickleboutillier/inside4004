@@ -68,13 +68,11 @@ void ADDR_timing(){
   }) ;
 
   timing->A12clk1([]{
-    if (timing->_pass == 0){
-      SEND_KEY_OFF ; 
-      if ((ph == 0) && (pm == 0) && (pl == 3)){ // Before keyboard scanning in main loop
-        kb_toggle = !kb_toggle ;
-        if (! kb_toggle){
-          SEND_KEY_ON ;
-        }
+    SEND_KEY_OFF ; 
+    if ((ph == 0) && (pm == 0) && (pl == 3)){ // Before keyboard scanning in main loop
+      kb_toggle = !kb_toggle ;
+      if (! kb_toggle){
+        SEND_KEY_ON ;
       }
     }
   }) ;
@@ -92,11 +90,9 @@ void ADDR_timing(){
   }) ;
   
   timing->A12clk2([]{    // Increment pl
-    if (timing->_pass == 0){
-      byte sum = pl + 1 ;
-      cy_out = sum >> 4 ;
-      pl = sum & 0xF ;
-    }
+    byte sum = pl + 1 ;
+    cy_out = sum >> 4 ;
+    pl = sum & 0xF ;
   }) ;
 
   auto f2 = []{
@@ -106,19 +102,15 @@ void ADDR_timing(){
   timing->A32clk1(f2) ;
 
   timing->A22clk2([]{    // Increment pm
-    if (timing->_pass == 0){
-      byte sum = pm + cy ;
-      cy_out = sum >> 4 ;
-      pm = sum & 0xF ;
-    }
+    byte sum = pm + cy ;
+    cy_out = sum >> 4 ;
+    pm = sum & 0xF ;
   }) ;
   
   timing->A32clk2([]{    // Increment ph
-    if (timing->_pass == 0){
-      byte sum = ph + cy ;
-      cy_out = sum >> 4 ;
-      ph = sum & 0xF ;
-    }
+    byte sum = ph + cy ;
+    cy_out = sum >> 4 ;
+    ph = sum & 0xF ;
   }) ;
 
   auto f3 = []{
@@ -167,7 +159,5 @@ void setPL(){
 
 // Decrement the stack pointer
 void decSP(){
-  if (timing->_pass == 0){
-    sp = (sp - 1) & 0b11 ;
-  }
+  sp = (sp - 1) & 0b11 ;
 }

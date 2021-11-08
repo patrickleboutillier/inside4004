@@ -1,7 +1,7 @@
 #include "TIMING.h"
 #include "ROM.h"
 
-#define DEBUG
+// #define DEBUG
 
 #define RESET_ON                PINC &   0b00100000
 #define RESET_INPUT             DDRC &= ~0b00100000
@@ -47,7 +47,9 @@ unsigned long max_dur = 0 ;
 
 void reset(){
   DATA_INPUT ;
-  
+  WRITE_SHIFT_DATA(0) ;
+  WRITE_SHIFT_CLKS(0, 0) ;
+            
   TIMING.reset() ;
   addrh = 0 ;
   addrl = 0 ;
@@ -190,7 +192,7 @@ void loop(){
       unsigned long dur = micros() - start ;
       if (dur > max_dur){
         max_dur = dur ;
-        Serial.print(F("Max loop duration: ")) ;
+        Serial.print(F("Max loop: ")) ;
         Serial.print(max_dur) ;
         Serial.println(F("us")) ;
       }

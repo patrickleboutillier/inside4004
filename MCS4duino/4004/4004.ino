@@ -8,7 +8,7 @@
 #include "ALU.h"
 #include "CLOCK.h"
 
-#define DEBUG
+// #define DEBUG
 
 #define READ_RESET  PIND &   0b01000000
 #define RESET_INPUT DDRD &= ~0b01000000
@@ -61,7 +61,6 @@ void loop(){
       return reset() ;
     }
 
-    //TIMING.loop() ;
     CLOCK_tick() ;
 
     #ifdef DEBUG

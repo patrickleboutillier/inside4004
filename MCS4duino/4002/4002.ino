@@ -13,7 +13,7 @@
 #define DATA_OUTPUT      DDRD |=  DATA
 
 #define PRN_ADV_FIRE_COLOR          0b00111000
-#define WRITE_ADV_FIRE_COLOR(data)  PORTC  = ((PORTC & ~PRN_ADV_FIRE_COLOR) | (data << 3))  
+#define WRITE_ADV_FIRE_COLOR(data)  PORTC =  ((PORTC & ~PRN_ADV_FIRE_COLOR) | (data << 3))  
 #define PRN_ADV_FIRE_COLOR_OUTPUT   DDRC  |= PRN_ADV_FIRE_COLOR
 
 TIMING TIMING ;
@@ -69,17 +69,15 @@ void setup(){
 
   TIMING.M22clk2([]{
     // Timing a tight here, we need to check only the first time around
-    //if (TIMING._pass == 0){
-      // Grab opa
-      opa = READ_DATA ;
-      if ((chip_select != -1)&&(READ_CM)){
-        // If we are the selected chip for RAM/I/O and cm is on, the CPU is telling us that we are processing a RAM/I/O instruction
-        ram_inst = 1 ;
-      }
-      else {
-        ram_inst = 0 ;
-      }
-    //}
+    // Grab opa
+    opa = READ_DATA ;
+    if ((chip_select != -1)&&(READ_CM)){
+      // If we are the selected chip for RAM/I/O and cm is on, the CPU is telling us that we are processing a RAM/I/O instruction
+      ram_inst = 1 ;
+    }
+    else {
+      ram_inst = 0 ;
+    }
   }) ;
 
 

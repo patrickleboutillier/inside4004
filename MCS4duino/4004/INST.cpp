@@ -30,13 +30,11 @@ void INST_setup(TIMING *t, DATA *d){
 void INST_timing(){
   timing->A12clk1([]{
     // WARNING: Instruction logic here
-    if (timing->_pass == 0){
-      if (INST_sc && (fin() || fim() || jun() || jms() || jcn() || isz())){
-        INST_sc = 0 ;
-      }
-      else {
-        INST_sc = 1 ;
-      }
+    if (INST_sc && (fin() || fim() || jun() || jms() || jcn() || isz())){
+      INST_sc = 0 ;
+    }
+    else {
+      INST_sc = 1 ;
     }
 
     if (! INST_sc){
