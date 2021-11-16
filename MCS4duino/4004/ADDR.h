@@ -13,5 +13,6 @@ void setPH() ;
 void setPM() ;
 void setPL() ;
 void decSP() ;
+unsigned int getPC() ;
 
 #endif

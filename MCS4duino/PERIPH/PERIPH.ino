@@ -2,7 +2,7 @@
 #include "PRINTER.h"
 #include "KEYBOARD.h"
 
-// #define DEBUG
+#define DEBUG
 
 #define RESET_ON              PORTC |=  0b00000100
 #define RESET_OFF             PORTC &= ~0b00000100
@@ -47,6 +47,9 @@ void reset(){
 
 
 void setup(){
+  RESET_OUTPUT ;
+  RESET_ON ;
+  
   Serial.begin(2000000) ;
   Serial.println("Welcome to Busicom 141-PF!") ;
   
@@ -58,9 +61,7 @@ void setup(){
   KEYBOARD.setup() ;
   PRINTER.setup() ;
 
-  RESET_OUTPUT ;
   Serial.print("Sending reset signal... ") ;
-  RESET_ON ;
   delay(1000) ;
   reset() ;
   delay(1000) ;
@@ -89,9 +90,9 @@ void loop(){
       unsigned long dur = micros() - start ;
       if (dur > max_dur){
         max_dur = dur ;
-        Serial.print("Max loop: ") ;
-        Serial.print(max_dur) ;
-        Serial.println("us ") ;
+        //Serial.print("Max loop: ") ;
+        //Serial.print(max_dur) ;
+        //Serial.println("us ") ;
       }
     #endif
   }

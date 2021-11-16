@@ -8,7 +8,7 @@
 #define CM_OFF    PORTB &= ~0b00000001
 #define CM_OUTPUT DDRB  |=  0b00000001
 
-#define TEST_ON       (PINB  &   0b00000010)
+#define TEST_ON       (PINB &   0b00000010)
 #define TEST_INPUT    DDRB  &= ~0b00000010
 
 

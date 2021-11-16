@@ -24,7 +24,7 @@ KEYBOARD::KEYBOARD(i4003 *input, PRINTER *printer){
 void KEYBOARD::reset(){
   WRITE_KBD_ROW(0) ;
   
-  for (int i = 0 ; i < 10  ; i++){
+  for (int i = 0 ; i < 10 ; i++){
     _buffer[i] = 0 ; 
   }
   
@@ -49,7 +49,9 @@ bool KEYBOARD::loop(){
   bool ret = 0 ;
   if (KBD_SEND_KEY_ON){
     if (! _cur_send_key){
+      noInterrupts() ;
       sendKey() ;
+      interrupts() ;
       _cur_send_key = 1 ;
       ret = 1 ;
     }
@@ -67,8 +69,13 @@ void KEYBOARD::writeKey(){
   int mask = 1 ;
   for (int i = 0 ; i < 10 ; i++){
     if ((reg & mask) == 0){
-      WRITE_KBD_ROW(_buffer[i]) ;           
+      WRITE_KBD_ROW(_buffer[i]) ;      
       if (i < 8){   // Don't reset the switches!
+        if (_buffer[i] != 0){
+          Serial.print(" wk:") ;
+          Serial.print(i, HEX) ;
+          Serial.println(_buffer[i]) ;  
+        }   
         _buffer[i] = 0 ;
       }
     }
@@ -91,9 +98,6 @@ void KEYBOARD::sendKey(){
       }
 
       _buffer[8] = _cur_prec ;
-
-      key_buffer_idx++ ;
-      kc = key_buffer[key_buffer_idx] ;
     }
     else {
       if (_cur_round == 0){
@@ -107,10 +111,10 @@ void KEYBOARD::sendKey(){
       }
       
       _buffer[9] = _cur_round ;
-
-      key_buffer_idx++ ;
-      kc = key_buffer[key_buffer_idx] ;
     }
+    
+    key_buffer_idx++ ;
+    kc = key_buffer[key_buffer_idx] ;
   }
 
   if (kc == KEND){
@@ -135,4 +139,7 @@ void KEYBOARD::sendKey(){
   byte c = kc >> 4 ;
   _buffer[c] |= kc & 0xF ;
   key_buffer_idx++ ;
+  
+  Serial.print("sk:") ;
+  Serial.println(kc, HEX) ;
 }

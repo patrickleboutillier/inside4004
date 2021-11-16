@@ -17,7 +17,7 @@ class KEYBOARD {
   private:
     i4003 *_input ;
     PRINTER *_printer ;
-    byte _buffer[10] ;
+    volatile byte _buffer[10] ;
     bool _cur_send_key ;
     byte _cur_round ;
     byte _cur_prec ;

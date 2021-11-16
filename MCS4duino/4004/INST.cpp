@@ -1,6 +1,7 @@
 #include "INST.h"
 #include "IO.h"
 #include "ALU.h"
+#include "ADDR.h"
 
 
 static TIMING *timing ;
@@ -58,9 +59,11 @@ void INST_timing(){
   timing->M22clk2([]{
     if (INST_sc){
       INST_opa = data->read() ;
+      /* Serial.print(getPC(), HEX) ;
+      Serial.print(":") ;
+      Serial.print(INST_opr, HEX) ;
+      Serial.println(INST_opa, HEX) ; */
     }
-    //Serial.print(INST_opr, HEX) ;
-    //Serial.println(INST_opa, HEX) ;
   }) ;
 }
 

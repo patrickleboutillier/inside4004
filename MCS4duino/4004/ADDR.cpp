@@ -161,3 +161,8 @@ void setPL(){
 void decSP(){
   sp = (sp - 1) & 0b11 ;
 }
+
+
+unsigned int getPC(){
+  return ph << 8 | pm << 4 | pl ; 
+}

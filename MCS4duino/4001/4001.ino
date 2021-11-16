@@ -31,17 +31,15 @@
 
 TIMING TIMING ;
 
-byte addrh = 0 ;  // The high nibble of the ROM address
-byte addrl = 0 ;  // The low nibble of the ROM address
-byte rom_select = 0 ;
-int io_select = -1 ;
-bool io_inst = 0 ;
-bool src = 0 ;
-bool rdr = 0 ;
-bool wrr = 0 ;
-byte rom = 0 ;
-byte opr = 0 ;
-byte opa = 0 ;
+byte addrh = 0 ;        // The high nibble of the ROM address
+byte addrl = 0 ;        // The low nibble of the ROM address
+byte rom_select = 0 ;   // Which ROM chip is currently selected for instructions, default 0
+int io_select = -1 ;    // Which ROM chip is currently selected for IO, default -1 (none) 
+bool src = 0 ;          // An SRC instruction is under way
+bool rdr = 0 ;          // An RDR instruction is under way
+bool wrr = 0 ;          // A WRR instruction is under way
+byte opr = 0 ;          // The OPR for the current instruction
+byte opa = 0 ;          // The OPA for the current instruction
 unsigned long max_dur = 0 ;
 
 
@@ -55,11 +53,9 @@ void reset(){
   addrl = 0 ;
   rom_select = 0 ;
   io_select = -1 ;
-  io_inst = 0 ;
   src = 0 ; 
   rdr = 0 ;
   wrr = 0 ;
-  rom = 0 ;
   opr = 0 ;
   opa = 0 ;
   max_dur = 0 ;
@@ -93,40 +89,47 @@ void setup(){
 
   
   TIMING.A32clk1([]{
-    // If cm is on, we are the selected ROM chip for instructions if chipnum == data
-    //if (CM_ON){
-    rom_select = READ_DATA ;
-    //}
+    // If CM is on, the id of the selected ROM chip is on the bus
+    if (CM_ON){
+      rom_select = READ_DATA ;
+    }
   }) ;  
 
 
   TIMING.M12clk1([]{
-    // If we are the selected chip for instructions, send out opr
-    int addr = rom_select << 8 | addrh << 4 | addrl ;
-    rom = pgm_read_byte(ROM + addr) ;
+    // Send out OPR
+    int pc = rom_select << 8 | addrh << 4 | addrl ;
+    byte rom = pgm_read_byte(ROM + pc) ;
     opr = rom >> 4 ;
+    opa = rom & 0xF ;
     DATA_OUTPUT ;
     WRITE_DATA(opr) ;
-  }) ;
-
-
-  TIMING.M12clk2([]{
-    // opr is on the bus, no matter who put it there (us or another ROM chip). Check if an I/O instruction is in progress
-    io_inst = (opr == 0b1110) ;
+    #ifdef DEBUG
+      Serial.print(pc, HEX) ;
+      Serial.print(":") ;
+      Serial.print(opr, HEX) ;
+      Serial.println(opa, HEX) ;
+    #endif
   }) ;
 
           
   TIMING.M22clk1([]{
-    // If we are the selected chip for instructions, send out opa
-    opa = rom & 0xF ;
+    // Send out opa
     WRITE_DATA(opa) ;
   }) ;
 
 
   TIMING.M22clk2([]{
-    // opa is on the bus, no matter who put it there (us or another ROM chip). 
-    rdr = (io_inst && (opa == 0b1010)) ;
-    wrr = (io_inst && (opa == 0b0010)) ;
+    // If there is a selected chip for IO and CM is on, check OPA to see the type of IO instruction
+    // to be performed.
+    if ((io_select != -1)&&(CM_ON)){
+      rdr = (opa == 0b1010) ;
+      wrr = (opa == 0b0010) ;
+    }
+    else {
+      rdr = 0 ;
+      wrr = 0 ;
+    }
   }) ;
 
    
@@ -137,9 +140,11 @@ void setup(){
 
 
   TIMING.X22clk1([]{
+    // Is CM is on, an SRC instruction is being processed. Or else, perform the secified IO instruction
+    // if required.
     if (CM_ON){
-      io_select = READ_DATA ;
       src = 1 ;
+      io_select = READ_DATA ;
     }
     else {
       src = 0 ;
