@@ -1,6 +1,6 @@
 #include "i4003.h"
 #include "PRINTER.h"
-#include "KEYBOARD.h"
+//#include "KEYBOARD.h"
 
 #define DEBUG
 
@@ -19,17 +19,17 @@
 #define PRN_SHIFT_CLK_INPUT   DDRD &= ~PRN_SHIFT_CLK
 
 i4003 PSHIFT(0xFFFFF) ;
-i4003 KSHIFT(0x3FF) ;
+//i4003 KSHIFT(0x3FF) ;
 PRINTER PRINTER(&PSHIFT) ;
-KEYBOARD KEYBOARD(&KSHIFT, &PRINTER) ;
+//KEYBOARD KEYBOARD(&KSHIFT, &PRINTER) ;
 
 unsigned long max_dur = 0 ;
 
 
-void kbd_clk(){  
-  KSHIFT.onClock(READ_SHIFT_DATA) ; 
-  KEYBOARD.writeKey() ;
-}
+//void kbd_clk(){  
+//  KSHIFT.onClock(READ_SHIFT_DATA) ; 
+//  KEYBOARD.writeKey() ;
+//}
 
 
 void prn_clk(){ 
@@ -40,8 +40,8 @@ void prn_clk(){
 void reset(){
   PSHIFT.reset() ;
   PRINTER.reset() ;
-  KSHIFT.reset() ;
-  KEYBOARD.reset() ;
+  //KSHIFT.reset() ;
+  //KEYBOARD.reset() ;
   max_dur = 0 ;
 }
 
@@ -55,10 +55,10 @@ void setup(){
   
   SHIFT_DATA_INPUT ;
   KBD_SHIFT_CLK_INPUT ;
-  attachInterrupt(digitalPinToInterrupt(3), kbd_clk, RISING) ;
+  //attachInterrupt(digitalPinToInterrupt(3), kbd_clk, RISING) ;
   PRN_SHIFT_CLK_INPUT ;
   attachInterrupt(digitalPinToInterrupt(2), prn_clk, RISING) ;
-  KEYBOARD.setup() ;
+  //KEYBOARD.setup() ;
   PRINTER.setup() ;
 
   Serial.print("Sending reset signal... ") ;
@@ -79,7 +79,7 @@ void loop(){
 
     bool worked = 0 ;
     worked |= PRINTER.loop() ;  
-    worked |= KEYBOARD.loop() ;
+    //worked |= KEYBOARD.loop() ;
 
     if (! worked){
       // We did nothing in this loop, so lets print a char from the output buffer if there is any.  

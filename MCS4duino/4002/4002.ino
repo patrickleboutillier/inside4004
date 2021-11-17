@@ -59,6 +59,7 @@ void reset(){
 }
 
 
+#ifdef DEBUG
 void dump_reg(byte reg){
   Serial.print(chip_select) ;
   Serial.print("/") ;
@@ -73,7 +74,7 @@ void dump_reg(byte reg){
   }
   Serial.println() ;
 }
-
+#endif
 
 void setup(){
   #ifdef DEBUG
@@ -86,13 +87,13 @@ void setup(){
   TIMING.setup() ;
   reset() ;
 
+  #ifdef DEBUG
   TIMING.A12clk1([]{
     if (dump){ 
       dump_reg(0) ;
     }
   }) ;
 
-  #ifdef DEBUG
   TIMING.A12clk2([]{
     if (dump){ 
       dump_reg(1) ;

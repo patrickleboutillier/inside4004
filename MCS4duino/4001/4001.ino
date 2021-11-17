@@ -1,7 +1,9 @@
 #include "TIMING.h"
 #include "ROM.h"
+#include "i4003.h"
+#include "KEYBOARD.h"
 
-// #define DEBUG
+#define DEBUG
 
 #define RESET_ON                PINC &   0b00100000
 #define RESET_INPUT             DDRC &= ~0b00100000
@@ -30,6 +32,8 @@
 #define SHIFT_CLKS_OUTPUT       DDRC  |=  0b00001100
 
 TIMING TIMING ;
+i4003 KSHIFT(0x3FF) ;
+KEYBOARD KEYBOARD(&KSHIFT) ;
 
 byte addrh = 0 ;        // The high nibble of the ROM address
 byte addrl = 0 ;        // The low nibble of the ROM address
@@ -40,6 +44,7 @@ bool rdr = 0 ;          // An RDR instruction is under way
 bool wrr = 0 ;          // A WRR instruction is under way
 byte opr = 0 ;          // The OPR for the current instruction
 byte opa = 0 ;          // The OPA for the current instruction
+bool kb_toggle = 0 ;
 unsigned long max_dur = 0 ;
 
 
@@ -49,6 +54,9 @@ void reset(){
   WRITE_SHIFT_CLKS(0, 0) ;
             
   TIMING.reset() ;
+  KSHIFT.reset() ;
+  KEYBOARD.reset() ;
+    
   addrh = 0 ;
   addrl = 0 ;
   rom_select = 0 ;
@@ -58,6 +66,7 @@ void reset(){
   wrr = 0 ;
   opr = 0 ;
   opa = 0 ;
+  kb_toggle = 0 ;
   max_dur = 0 ;
 }
 
@@ -73,8 +82,9 @@ void setup(){
   SHIFT_CLKS_OUTPUT ;
   PRN_INDEX_INPUT ;
   PRN_ADV_BTN_INPUT ;
-  KBD_ROW_INPUT ;
+  //KBD_ROW_INPUT ;
   TIMING.setup() ;
+  KEYBOARD.setup() ;
   reset() ;
 
   
@@ -105,11 +115,18 @@ void setup(){
     DATA_OUTPUT ;
     WRITE_DATA(opr) ;
     #ifdef DEBUG
-      Serial.print(pc, HEX) ;
-      Serial.print(":") ;
-      Serial.print(opr, HEX) ;
-      Serial.println(opa, HEX) ;
+      //Serial.print(pc, HEX) ;
+      //Serial.print(":") ;
+      //Serial.print(opr, HEX) ;
+      //Serial.println(opa, HEX) ;
     #endif
+ 
+    /* if (pc == 3)){ // Before keyboard scanning in main loop
+      kb_toggle = !kb_toggle ;
+      if (! kb_toggle){
+        sendKey() ;
+      }
+    } */
   }) ;
 
           
@@ -153,14 +170,21 @@ void setup(){
         // Grab data for WRR
         if (io_select == 0){
           byte data = READ_DATA ;
-          WRITE_SHIFT_DATA(bitRead(data, 1)) ;
-          WRITE_SHIFT_CLKS(bitRead(data, 2), bitRead(data, 0)) ;
+          bool shift_data = bitRead(data, 1) ;
+          bool kbd_clk = bitRead(data, 0) ;
+          bool prn_clk = bitRead(data, 2) ;
+          WRITE_SHIFT_DATA(shift_data) ;
+          WRITE_SHIFT_CLKS(prn_clk, kbd_clk) ;
+          if (kbd_clk){
+              KSHIFT.onClock(shift_data) ; 
+              KEYBOARD.setKbdRow() ;
+          }
         }
       }
       else if (rdr){
         // Send data for RDR
         if (io_select == 1){
-          byte data = READ_KBD_ROW ;
+          byte data = KEYBOARD.getKbdRow() ; // READ_KBD_ROW ;
           DATA_OUTPUT ;
           WRITE_DATA(data) ;
         }
@@ -193,6 +217,8 @@ void loop(){
     }
 
     TIMING.loop() ;
+    KEYBOARD.loop() ;
+    
     #ifdef DEBUG
       unsigned long dur = micros() - start ;
       if (dur > max_dur){
