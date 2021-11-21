@@ -5,9 +5,6 @@
 #define M 1 
 #define L 2
 
-#define SEND_KEY_ON       PORTC |=  0b00000100
-#define SEND_KEY_OFF      PORTC &= ~0b00000100
-#define SEND_KEY_OUTPUT   DDRC  |=  0b00000100
 
 static TIMING *timing ;
 static DATA *data ;
@@ -20,7 +17,6 @@ static byte pm = 0 ;                // The low nibble of the program counter
 static byte sp = 0 ;                // The stack pointer
 static byte row_num = 0 ;           // The working row in the stack
 static byte stack[4][3] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}} ;
-static bool kb_toggle = 0 ;
 
 
 void ADDR_reset(){
@@ -37,7 +33,6 @@ void ADDR_reset(){
       stack[i][j] = 0 ;
     }
   }
-  kb_toggle = 0 ;
 }
 
 
@@ -46,7 +41,6 @@ void ADDR_setup(TIMING *t, DATA *d){
   data = d ;
   ADDR_reset() ;
   ADDR_timing() ;
-  SEND_KEY_OUTPUT ;
 }
 
 
@@ -65,16 +59,6 @@ void ADDR_timing(){
 
   timing->A11([]{        // Output pl to the data bus.
     data->write(pl) ;
-  }) ;
-
-  timing->A12clk1([]{
-    SEND_KEY_OFF ; 
-    if ((ph == 0) && (pm == 0) && (pl == 3)){ // Before keyboard scanning in main loop
-      kb_toggle = !kb_toggle ;
-      if (! kb_toggle){
-        SEND_KEY_ON ;
-      }
-    }
   }) ;
   
   timing->A21([]{        // Output pm to the data bus.

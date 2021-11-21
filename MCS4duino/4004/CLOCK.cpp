@@ -2,7 +2,7 @@
 
 #define CLK1      0b000010000   // PORTB
 #define CLK2      0b000001000   // PORTB
-#define CLK_US    500
+#define CLK_US    300
 
 static TIMING *timing ;
 static unsigned long n = 0 ;
@@ -40,9 +40,9 @@ void CLOCK_tick(){
       PORTB &= ~CLK2 ;
       timing->tick(0, 0) ;      
   }
-  int delay = CLK_US - (micros() - start) ;
-  if (delay > 0){
-    delayMicroseconds(delay < CLK_US ? delay : CLK_US) ; 
+  int dly = CLK_US - (micros() - start) ;
+  if (dly > 0){
+    delayMicroseconds(dly < CLK_US ? dly : CLK_US) ; 
   }
   
   n++ ; 

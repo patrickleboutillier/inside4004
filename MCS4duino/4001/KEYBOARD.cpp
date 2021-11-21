@@ -1,10 +1,6 @@
 #include "KEYBOARD.h"
 #include "TESTS.h"
 
-#define KBD_SEND_KEY         0b00000010
-#define KBD_SEND_KEY_ON      PINB &   KBD_SEND_KEY
-#define KBD_SEND_KEY_INPUT   DDRB &= ~KBD_SEND_KEY
-
 static int test_idx = 0 ;
 static const byte *key_buffer = tests[test_idx] ;
 static int key_buffer_idx = 0 ;
@@ -21,7 +17,6 @@ void KEYBOARD::reset(){
     _buffer[i] = 0 ; 
   }
   
-  _cur_send_key = 0 ;
   _cur_round = 0 ;
   _cur_prec = 0 ;
   _kbd_row = 0 ;
@@ -29,29 +24,6 @@ void KEYBOARD::reset(){
   test_idx = 0 ;
   key_buffer = tests[test_idx] ;
   key_buffer_idx = 0 ;
-}
-
-
-void KEYBOARD::setup(){
-  KBD_SEND_KEY_INPUT ;
-}
-
-
-bool KEYBOARD::loop(){
-  // Check the send key signal
-  bool ret = 0 ;
-  if (KBD_SEND_KEY_ON){
-    if (! _cur_send_key){
-      sendKey() ;
-      _cur_send_key = 1 ;
-      ret = 1 ;
-    }
-  }
-  else {
-    _cur_send_key = 0 ;
-  }
-
-  return ret ;
 }
 
 
@@ -129,8 +101,10 @@ void KEYBOARD::sendKey(){
   
   byte c = kc >> 4 ;
   _buffer[c] |= kc & 0xF ;
+  Serial.print(key_buffer_idx) ;
   key_buffer_idx++ ;
-  
-  Serial.print("sk:") ;
+  Serial.print("@") ;
+  Serial.print(test_idx) ;
+  Serial.print("=") ;
   Serial.println(kc, HEX) ;
 }

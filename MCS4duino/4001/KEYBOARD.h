@@ -8,8 +8,6 @@ class KEYBOARD {
   public:
     KEYBOARD(i4003 *input) ;
     void reset() ;
-    void setup() ;
-    bool loop() ;
     void setKbdRow() ;
     void sendKey() ;
     byte getKbdRow() ;
@@ -17,7 +15,6 @@ class KEYBOARD {
   private:
     i4003 *_input ;
     byte _buffer[10] ;
-    bool _cur_send_key ;
     byte _cur_round ;
     byte _cur_prec ;
     byte _kbd_row ;

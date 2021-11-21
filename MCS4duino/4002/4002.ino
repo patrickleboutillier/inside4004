@@ -1,8 +1,8 @@
 #include "TIMING.h"
 
-// #define DEBUG
+#define DEBUG
 
-#define READ_RESET                  PINC &   0b00000010
+#define RESET_ON                    PINC &   0b00000010
 #define RESET_INPUT                 DDRC &= ~0b00000010
 #define CM_ON                       PINC &   0b00000001
 #define CM_INPUT                    DDRC &= ~0b00000001
@@ -28,7 +28,9 @@ bool ram_inst = 0 ;
 byte RAM[4][4][16] ;
 byte STATUS[4][4][4] ;
 unsigned long max_dur = 0 ;
-bool dump = 0 ;
+byte dump = 0 ;
+byte dump_data = 0 ;
+
 
 
 void reset(){
@@ -43,6 +45,7 @@ void reset(){
   chip_select = -1 ;
   max_dur = 0 ;
   dump = 0 ;
+  dump_data = 0 ;
   
   for (int i = 0 ; i < 4  ; i++){
     for (int j = 0 ; j < 4 ; j++){
@@ -59,7 +62,6 @@ void reset(){
 }
 
 
-#ifdef DEBUG
 void dump_reg(byte reg){
   Serial.print(chip_select) ;
   Serial.print("/") ;
@@ -74,7 +76,16 @@ void dump_reg(byte reg){
   }
   Serial.println() ;
 }
-#endif
+
+
+void dump_io(){
+  bool s = (dump >= 8) ;
+  Serial.print(s ? "S" : "W") ; 
+  Serial.print(chip_select) ;
+  Serial.print(reg, HEX) ;
+  Serial.print((s ? dump & 0b11 : chr), HEX) ; 
+  Serial.println(dump_data, HEX) ;
+}
 
 void setup(){
   #ifdef DEBUG
@@ -87,14 +98,13 @@ void setup(){
   TIMING.setup() ;
   reset() ;
 
-  #ifdef DEBUG
   TIMING.A12clk1([]{
     if (dump){ 
-      dump_reg(0) ;
+      dump_io() ;
     }
   }) ;
 
-  TIMING.A12clk2([]{
+  /* TIMING.A12clk2([]{
     if (dump){ 
       dump_reg(1) ;
     }
@@ -110,8 +120,7 @@ void setup(){
     if (dump){ 
       dump_reg(3) ;
     }
-  }) ;
-  #endif
+  }) ; */
 
   TIMING.M12clk2([]{
     opr = READ_DATA ;
@@ -124,11 +133,6 @@ void setup(){
     if ((chip_select != -1)&&(CM_ON)){
       // If we are the selected chip for RAM/I/O and cm is on, the CPU is telling us that we are processing a RAM/I/O instruction
       ram_inst = 1 ;
-      #ifdef DEBUG
-        if (opr != 0b1110){
-          Serial.println("WTF!") ;
-        }
-      #endif
     }
     else {
       ram_inst = 0 ;
@@ -145,13 +149,16 @@ void setup(){
       // Grab the selected RAM register
       reg = data & 0b0011 ;
       src = 1 ;
+      if (chip_select > 1){
+        Serial.println("WTF1") ;
+      }
     }
     else {
       src = 0 ;                 
       if (ram_inst){
         // A RAM/I/O instruction is in progress, execute the proper operation according to the value of opa
         
-        // Read instructions
+        // Write instructions
         bool w = 0 ; 
         switch (opa){
           case 0b0000:
@@ -178,26 +185,26 @@ void setup(){
             break ;
           case 0b0100:
             STATUS[chip_select][reg][0] = READ_DATA ;
-            dump = 1 ;
+            dump = 8 ;
             w = 1 ;
             break ;
           case 0b0101:
             STATUS[chip_select][reg][1] = READ_DATA ;
-            dump = 1 ;
+            dump = 9 ;
             w = 1 ;
             break ;
           case 0b0110:
             STATUS[chip_select][reg][2] = READ_DATA ;
-            dump = 1 ;
+            dump = 10 ;
             w = 1 ;
             break ;
           case 0b0111:
             STATUS[chip_select][reg][3] = READ_DATA ;
-            dump = 1 ;
+            dump = 11 ;
             w = 1 ;
             break ;
   
-          // Write instructions        
+          // Read instructions        
           case 0b1000: 
             DATA_OUTPUT ;  
             WRITE_DATA(RAM[chip_select][reg][chr]) ;
@@ -227,6 +234,10 @@ void setup(){
             WRITE_DATA(STATUS[chip_select][reg][3]) ;
             break ;
         }
+
+        if (dump){
+          dump_data = READ_DATA ;
+        }
       }
     }
   }) ;
@@ -254,18 +265,19 @@ void loop(){
     #ifdef DEBUG
       unsigned long start = micros() ;
     #endif
-    if (READ_RESET){
+    if (RESET_ON){
       return reset() ;
     }
 
     TIMING.loop() ;
+
     #ifdef DEBUG
       unsigned long dur = micros() - start ;
       if (dur > max_dur){
         max_dur = dur ;
-        Serial.print("Max loop duration: ") ;
-        Serial.print(max_dur) ;
-        Serial.println("us") ;
+        //Serial.print("Max loop: ") ;
+        //Serial.print(max_dur) ;
+        //Serial.println("us") ;
       }
     #endif
   }

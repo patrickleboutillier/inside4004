@@ -9,11 +9,10 @@ class i4003 {
     i4003(long mask) ;
     void reset() ;
     bool loop(bool clk, bool data) ;
-    void onClock(bool data) ;
     long getReg() ;
   private:
     long _mask ;
-    volatile long _reg ;
+    long _reg ;
     bool _cur_clock ;
 } ;
 

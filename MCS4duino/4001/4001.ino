@@ -25,11 +25,12 @@
 #define READ_PRN_ADV_BTN        (PINC  &  0b00000001)
 #define PRN_ADV_BTN_INPUT       DDRC  &= ~0b00000001
 
-#define SHIFT_DATA              0b00100000
-#define WRITE_SHIFT_DATA(d)     PORTB =  (PORTB & ~SHIFT_DATA) | ((d) << 5)
-#define SHIFT_DATA_OUTPUT       DDRB  |=  SHIFT_DATA
-#define WRITE_SHIFT_CLKS(p, k)  PORTC =  (PORTC & ~0b00001100) | ((p) << 3) | ((k) << 2)
-#define SHIFT_CLKS_OUTPUT       DDRC  |=  0b00001100
+#define SHIFT_DATA              0b00000100
+#define WRITE_SHIFT_DATA(d)     PORTC =  (PORTC & ~SHIFT_DATA) | ((d) << 2)
+#define SHIFT_DATA_OUTPUT       DDRC  |=  SHIFT_DATA
+#define PRN_SHIFT_CLK           0b00001000
+#define WRITE_PRN_SHIFT_CLK(p)  PORTC =  (PORTC & ~PRN_SHIFT_CLK) | ((p) << 3)
+#define PRN_SHIFT_CLK_OUTPUT    DDRC  |=  PRN_SHIFT_CLK
 
 TIMING TIMING ;
 i4003 KSHIFT(0x3FF) ;
@@ -51,7 +52,7 @@ unsigned long max_dur = 0 ;
 void reset(){
   DATA_INPUT ;
   WRITE_SHIFT_DATA(0) ;
-  WRITE_SHIFT_CLKS(0, 0) ;
+  WRITE_PRN_SHIFT_CLK(0) ;
             
   TIMING.reset() ;
   KSHIFT.reset() ;
@@ -79,12 +80,10 @@ void setup(){
   RESET_INPUT ;
   CM_INPUT ;
   SHIFT_DATA_OUTPUT ;
-  SHIFT_CLKS_OUTPUT ;
+  PRN_SHIFT_CLK_OUTPUT ;
   PRN_INDEX_INPUT ;
   PRN_ADV_BTN_INPUT ;
-  //KBD_ROW_INPUT ;
   TIMING.setup() ;
-  KEYBOARD.setup() ;
   reset() ;
 
   
@@ -114,19 +113,13 @@ void setup(){
     opa = rom & 0xF ;
     DATA_OUTPUT ;
     WRITE_DATA(opr) ;
-    #ifdef DEBUG
-      //Serial.print(pc, HEX) ;
-      //Serial.print(":") ;
-      //Serial.print(opr, HEX) ;
-      //Serial.println(opa, HEX) ;
-    #endif
  
-    /* if (pc == 3)){ // Before keyboard scanning in main loop
+    if (pc == 3){              // Before keyboard scanning in main loop
       kb_toggle = !kb_toggle ;
       if (! kb_toggle){
-        sendKey() ;
+        KEYBOARD.sendKey() ;
       }
-    } */
+    }
   }) ;
 
           
@@ -174,7 +167,7 @@ void setup(){
           bool kbd_clk = bitRead(data, 0) ;
           bool prn_clk = bitRead(data, 2) ;
           WRITE_SHIFT_DATA(shift_data) ;
-          WRITE_SHIFT_CLKS(prn_clk, kbd_clk) ;
+          WRITE_PRN_SHIFT_CLK(prn_clk) ;
           if (kbd_clk){
               KSHIFT.onClock(shift_data) ; 
               KEYBOARD.setKbdRow() ;
@@ -217,15 +210,14 @@ void loop(){
     }
 
     TIMING.loop() ;
-    KEYBOARD.loop() ;
     
     #ifdef DEBUG
       unsigned long dur = micros() - start ;
       if (dur > max_dur){
         max_dur = dur ;
-        Serial.print(F("Max loop: ")) ;
-        Serial.print(max_dur) ;
-        Serial.println(F("us")) ;
+        //Serial.print("Max loop: ") ;
+        //Serial.print(max_dur) ;
+        //Serial.println("us") ;
       }
     #endif
   }

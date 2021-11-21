@@ -7,18 +7,18 @@ const char *dot = "." ;
 const char *dash = "-" ;
 
 // Units are CPU cycles
-const long sector_pulse =  (10 * 1000) / 22 ;
+const long sector_pulse =  (14 * 1000) / 22 ;
 const long sector_period = (28 * 1000) / 22 ;
 
-#define SYNC_INPUT  DDRD &= ~0b00010000
-#define SYNC_ON     PIND &   0b00010000
+#define SYNC_INPUT          DDRD &= ~0b00010000
+#define SYNC_ON             PIND &   0b00010000
 
-#define PRN_ADV          0b00001000
-#define PRN_ADV_INPUT    DDRC &= ~PRN_ADV
-#define PRN_FIRE         0b00010000
-#define PRN_FIRE_INPUT   DDRC &= ~PRN_FIRE
-#define PRN_COLOR        0b00100000
-#define PRN_COLOR_INPUT  DDRC &= ~PRN_COLOR
+#define PRN_ADV             0b00001000
+#define PRN_ADV_INPUT       DDRC &= ~PRN_ADV
+#define PRN_FIRE            0b00010000
+#define PRN_FIRE_INPUT      DDRC &= ~PRN_FIRE
+#define PRN_COLOR           0b00100000
+#define PRN_COLOR_INPUT     DDRC &= ~PRN_COLOR
 
 #define PRN_INDEX           0b00100000
 #define PRN_INDEX_ON        PORTD |=  PRN_INDEX
@@ -49,7 +49,6 @@ void PRINTER::reset(){
   _cur_advance = 0 ;
   strcpy(_cur_color, " ") ;
   _cur_sync = 0 ;  
-
   _output_buffer[0] = '\0' ;
   _output_buffer_idx = 0 ;
   
@@ -129,18 +128,14 @@ bool PRINTER::loop(){
     ret = 1 ;
   }  
 
-  /* if (_input->getReg() != _reg){
-    _reg = _input->getReg() ;
-    Serial.print("prn reg ") ;
-    Serial.println(_reg | 0b100000000000000000000, BIN) ;
-  } */
-
   return ret ;
 }
 
 
 void PRINTER::startSectorPulse(){
   PRN_SECTOR_ON ;
+  Serial.print(_cur_sector, HEX) ;
+  Serial.print("^") ;
   if (_cur_sector == 0){
       PRN_INDEX_ON ;
   }
@@ -150,6 +145,7 @@ void PRINTER::startSectorPulse(){
 
 void PRINTER::endSectorPulse(){
   PRN_SECTOR_OFF ;
+  Serial.print("v") ;
   _cur_cycle += 1 ;
 }
 
@@ -162,7 +158,7 @@ void PRINTER::endSectorPeriod(){
   if (_cur_sector == 13){
     _cur_sector = 0 ;
   }
-  //Serial.print("SECTOR ") ;
+  Serial.println(".") ;
   _cur_cycle = 0 ;
 }
 
@@ -178,7 +174,7 @@ void PRINTER::fireHammers(){
     mask = mask << 1 ;
   }
   //Serial.print("  ") ;
-  //Serial.println(_line) ;
+  Serial.print("!") ;
 }
 
 
@@ -194,6 +190,7 @@ void PRINTER::advanceLine(){
   for (int i = 0 ; _line[i] != '\0' ; i++){
     _line[i] = ' ' ;
   }
+  Serial.println("a") ;
 }
 
 

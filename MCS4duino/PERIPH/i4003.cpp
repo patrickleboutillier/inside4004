@@ -17,7 +17,7 @@ bool i4003::loop(bool clk, bool data){
   bool ret = 0 ;
   if (clk){
     if (! _cur_clock){
-      onClock(data) ;
+      _reg = ((_reg << 1) | data) & _mask ;
      _cur_clock = 1 ;
      ret = 1 ;  
     }
@@ -30,15 +30,6 @@ bool i4003::loop(bool clk, bool data){
 }
 
 
-void i4003::onClock(bool data){
-  _reg = ((_reg << 1) | data) & _mask ;
-}
-
-
 long i4003::getReg(){
-  noInterrupts() ;
-  // critical, time-sensitive code here
-  long ret = _reg ;
-  interrupts() ;
-  return ret ;
+  return _reg ;
 }
