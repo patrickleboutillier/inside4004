@@ -109,6 +109,7 @@ void setup(){
     // Send out OPR
     int pc = rom_select << 8 | addrh << 4 | addrl ;
     byte rom = pgm_read_byte(ROM + pc) ;
+    //Serial.println(pc, HEX) ;
     opr = rom >> 4 ;
     opa = rom & 0xF ;
     DATA_OUTPUT ;

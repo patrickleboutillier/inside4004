@@ -7,8 +7,8 @@ const char *dot = "." ;
 const char *dash = "-" ;
 
 // Units are CPU cycles
-const long sector_pulse =  (14 * 1000) / 22 ;
-const long sector_period = (28 * 1000) / 22 ;
+const long sector_pulse =  (11 * 1000) / 22 ;
+const long sector_period = (22 * 1000) / 22 ;
 
 #define SYNC_INPUT          DDRD &= ~0b00010000
 #define SYNC_ON             PIND &   0b00010000

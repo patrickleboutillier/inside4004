@@ -34,11 +34,11 @@ void KEYBOARD::setKbdRow(){
     if ((reg & mask) == 0){
       _kbd_row = _buffer[i] ;      
       if (i < 8){   // Don't reset the switches!
-        if (_buffer[i] != 0){
+        /* if (_buffer[i] != 0){
           Serial.print(" wk:") ;
           Serial.print(i, HEX) ;
           Serial.println(_buffer[i]) ;  
-        }
+        } */
         _buffer[i] = 0 ;
       }
     }

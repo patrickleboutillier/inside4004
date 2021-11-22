@@ -25,12 +25,14 @@ byte opa = 0 ;
 byte opr = 0 ;
 int chip_select = -1 ;
 bool ram_inst = 0 ;
-byte RAM[4][4][16] ;
-byte STATUS[4][4][4] ;
+byte RAM[2][4][16] ;
+byte STATUS[2][4][4] ;
 unsigned long max_dur = 0 ;
 byte dump = 0 ;
 byte dump_data = 0 ;
-
+byte addrh = 0 ; 
+byte addrl = 0 ; 
+byte rom_select = 0 ;
 
 
 void reset(){
@@ -47,7 +49,7 @@ void reset(){
   dump = 0 ;
   dump_data = 0 ;
   
-  for (int i = 0 ; i < 4  ; i++){
+  for (int i = 0 ; i < 2 ; i++){
     for (int j = 0 ; j < 4 ; j++){
       for (int k = 0 ; k < 16 ; k++){
         RAM[i][j][k] = 0 ; 
@@ -122,10 +124,30 @@ void setup(){
     }
   }) ; */
 
+  // From 4001
+  TIMING.A12clk1([]{ 
+    addrl = READ_DATA ;
+  }) ;
+
+  // From 4001
+  TIMING.A22clk1([]{
+    addrh = READ_DATA ;
+  }) ;
+
+  // From 4001
+  TIMING.A32clk1([]{
+    // If CM is on, the id of the selected ROM chip is on the bus
+    if (CM_ON){
+      rom_select = READ_DATA ;
+    }
+    int pc = rom_select << 8 | addrh << 4 | addrl ;
+    Serial.print(pc, HEX) ;
+    Serial.print(":") ;
+  }) ;  
+
   TIMING.M12clk2([]{
     opr = READ_DATA ;
   }) ;
-
 
   TIMING.M22clk2([]{
     // Grab opa
@@ -137,24 +159,29 @@ void setup(){
     else {
       ram_inst = 0 ;
     }
+    Serial.print(opr, HEX) ;
+    Serial.println(opa, HEX) ;
   }) ;
 
 
   TIMING.X22clk1([]{
     dump = 0 ;
+    src = 0 ;
     if (CM_ON){
       // An SRC instruction is in progress
       byte data = READ_DATA ;
-      chip_select = data >> 2 ;
-      // Grab the selected RAM register
-      reg = data & 0b0011 ;
-      src = 1 ;
-      if (chip_select > 1){
-        Serial.println("WTF1") ;
+      byte chip = data >> 2 ;
+      if (chip < 2){
+        chip_select = chip ;
+        // Grab the selected RAM register
+        reg = data & 0b0011 ;
+        src = 1 ;
+      }
+      else {
+        chip_select = -1 ;
       }
     }
-    else {
-      src = 0 ;                 
+    else {                 
       if (ram_inst){
         // A RAM/I/O instruction is in progress, execute the proper operation according to the value of opa
         
