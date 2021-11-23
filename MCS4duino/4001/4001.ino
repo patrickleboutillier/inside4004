@@ -38,7 +38,7 @@ KEYBOARD KEYBOARD(&KSHIFT) ;
 
 byte addrh = 0 ;        // The high nibble of the ROM address
 byte addrl = 0 ;        // The low nibble of the ROM address
-byte rom_select = 0 ;   // Which ROM chip is currently selected for instructions, default 0
+int rom_select = -1 ;   // Which ROM chip is currently selected for instructions, default 0
 int io_select = -1 ;    // Which ROM chip is currently selected for IO, default -1 (none) 
 bool src = 0 ;          // An SRC instruction is under way
 bool rdr = 0 ;          // An RDR instruction is under way
@@ -60,9 +60,8 @@ void reset(){
     
   addrh = 0 ;
   addrl = 0 ;
-  rom_select = 0 ;
+  rom_select = -1 ;
   io_select = -1 ;
-  src = 0 ; 
   rdr = 0 ;
   wrr = 0 ;
   opr = 0 ;
@@ -100,25 +99,34 @@ void setup(){
   TIMING.A32clk1([]{
     // If CM is on, the id of the selected ROM chip is on the bus
     if (CM_ON){
-      rom_select = READ_DATA ;
+      byte chip = READ_DATA ;
+      if (chip < 5){
+        rom_select = chip ;
+      }
+      else {
+        rom_select = -1 ;
+        Serial.println("R?!") ;
+      }
     }
   }) ;  
 
 
   TIMING.M12clk1([]{
     // Send out OPR
-    int pc = rom_select << 8 | addrh << 4 | addrl ;
-    byte rom = pgm_read_byte(ROM + pc) ;
-    //Serial.println(pc, HEX) ;
-    opr = rom >> 4 ;
-    opa = rom & 0xF ;
-    DATA_OUTPUT ;
-    WRITE_DATA(opr) ;
- 
-    if (pc == 3){              // Before keyboard scanning in main loop
-      kb_toggle = !kb_toggle ;
-      if (! kb_toggle){
-        KEYBOARD.sendKey() ;
+    if (rom_select != -1){
+      int pc = rom_select << 8 | addrh << 4 | addrl ;
+      byte rom = pgm_read_byte(ROM + pc) ;
+      //Serial.println(pc, HEX) ;
+      opr = rom >> 4 ;
+      opa = rom & 0xF ;
+      DATA_OUTPUT ;
+      WRITE_DATA(opr) ;
+    
+      if (pc == 3){              // Before keyboard scanning in main loop
+        kb_toggle = !kb_toggle ;
+        if (! kb_toggle){
+          KEYBOARD.sendKey() ;
+        }
       }
     }
   }) ;
@@ -154,12 +162,16 @@ void setup(){
     // Is CM is on, an SRC instruction is being processed. Or else, perform the secified IO instruction
     // if required.
     if (CM_ON){
-      src = 1 ;
-      io_select = READ_DATA ;
+      byte chip = READ_DATA ;
+      if (chip < 5){
+        io_select = chip ;
+      }
+      else {
+        io_select = -1 ;
+      }
+
     }
     else {
-      src = 0 ;
-
       if (wrr){
         // Grab data for WRR
         if (io_select == 0){
@@ -193,10 +205,8 @@ void setup(){
 
                         
   TIMING.X32clk1([]{
-    if (rdr){
-      // Disconnect from bus
-      DATA_INPUT ;
-    }
+    // Disconnect from bus
+    DATA_INPUT ;
   }) ;
 }
 

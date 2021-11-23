@@ -89,6 +89,7 @@ void dump_io(){
   Serial.println(dump_data, HEX) ;
 }
 
+
 void setup(){
   #ifdef DEBUG
     Serial.begin(2000000) ;
@@ -139,10 +140,10 @@ void setup(){
     // If CM is on, the id of the selected ROM chip is on the bus
     if (CM_ON){
       rom_select = READ_DATA ;
+      int pc = rom_select << 8 | addrh << 4 | addrl ;
+      //Serial.print(pc, HEX) ;
+      //Serial.print(":") ;
     }
-    int pc = rom_select << 8 | addrh << 4 | addrl ;
-    Serial.print(pc, HEX) ;
-    Serial.print(":") ;
   }) ;  
 
   TIMING.M12clk2([]{
@@ -159,8 +160,13 @@ void setup(){
     else {
       ram_inst = 0 ;
     }
-    Serial.print(opr, HEX) ;
-    Serial.println(opa, HEX) ;
+    //Serial.print(opr, HEX) ;
+    //Serial.print(opa, HEX) ;
+  }) ;
+
+
+  TIMING.X12clk1([]{
+    //Serial.println(DDRD) ;
   }) ;
 
 
@@ -187,9 +193,13 @@ void setup(){
         
         // Write instructions
         bool w = 0 ; 
+        byte prev = 0 ;
+        byte data = 0 ;
         switch (opa){
           case 0b0000:
-            RAM[chip_select][reg][chr] = READ_DATA ;
+            prev = RAM[chip_select][reg][chr] ;
+            data = READ_DATA ;
+            RAM[chip_select][reg][chr] = data ;
             dump = 1 ;
             w = 1 ;
             break ;
@@ -211,22 +221,30 @@ void setup(){
             w = 1 ;
             break ;
           case 0b0100:
-            STATUS[chip_select][reg][0] = READ_DATA ;
+            prev = STATUS[chip_select][reg][0] ;
+            data = READ_DATA ;
+            STATUS[chip_select][reg][0] = data ;
             dump = 8 ;
             w = 1 ;
             break ;
           case 0b0101:
-            STATUS[chip_select][reg][1] = READ_DATA ;
+            prev = STATUS[chip_select][reg][1] ;
+            data = READ_DATA ;
+            STATUS[chip_select][reg][1] = data ;
             dump = 9 ;
             w = 1 ;
             break ;
           case 0b0110:
-            STATUS[chip_select][reg][2] = READ_DATA ;
+            prev = STATUS[chip_select][reg][2] ;
+            data = READ_DATA ;
+            STATUS[chip_select][reg][2] = data ;
             dump = 10 ;
             w = 1 ;
             break ;
           case 0b0111:
-            STATUS[chip_select][reg][3] = READ_DATA ;
+            prev = STATUS[chip_select][reg][3] ;
+            data = READ_DATA ;
+            STATUS[chip_select][reg][3] = data ;
             dump = 11 ;
             w = 1 ;
             break ;
@@ -262,8 +280,11 @@ void setup(){
             break ;
         }
 
-        if (dump){
-          dump_data = READ_DATA ;
+        if ((dump)&&(data != prev)){
+          dump_data = data ;
+        }
+        else {
+          dump = 0 ;
         }
       }
     }
@@ -272,9 +293,7 @@ void setup(){
 
   TIMING.X32clk1([]{
     // Disconnect from bus
-    if (ram_inst){
-      DATA_INPUT ;
-    }
+    DATA_INPUT ;
   }) ;
 
 
