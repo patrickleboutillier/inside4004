@@ -43,9 +43,18 @@ const byte test41[] = {KCL, KD, KD, KD, KD, KD, KD, KD, KD, KR, KR, K4, K0, K0, 
 const byte test42[] = {KCL, KD, KD, KD, KD, KD, KD, KD, KD, KR, KR, K4, K0, K0, K0, K0, K0, K0, KDIV, K3, KEQ, KEND} ;
 
 const byte *tests[] = {
-  //test0,
-  //test1,
-  //test2,
+  // test0,
+  test1,
+  test1,
+  test1,
+  test1,
+  test1,
+  test1,
+  test1,
+  test1,
+  test1,
+  test1,
+  /* test2,
   test3,
   test4,
   test5,
@@ -53,5 +62,15 @@ const byte *tests[] = {
   test7,
   test8,
   test9,
+  test10,
+  test11,
+  test12,
+  test13,
+  test14,
+  test15,
+  test16,
+  test17,
+  test18,
+  test19, */
   NULL
 } ;

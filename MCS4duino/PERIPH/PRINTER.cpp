@@ -7,8 +7,8 @@ const char *dot = "." ;
 const char *dash = "-" ;
 
 // Units are CPU cycles
-const long sector_pulse =  (11 * 1000) / 22 ;
-const long sector_period = (22 * 1000) / 22 ;
+const long sector_pulse =  (14 * 1000) / 22 ;
+const long sector_period = (28 * 1000) / 22 ;
 
 #define SYNC_INPUT          DDRD &= ~0b00010000
 #define SYNC_ON             PIND &   0b00010000
@@ -134,8 +134,8 @@ bool PRINTER::loop(){
 
 void PRINTER::startSectorPulse(){
   PRN_SECTOR_ON ;
-  Serial.print(_cur_sector, HEX) ;
-  Serial.print("^") ;
+  //Serial.print(_cur_sector, HEX) ;
+  //Serial.print("^") ;
   if (_cur_sector == 0){
       PRN_INDEX_ON ;
   }
@@ -145,7 +145,7 @@ void PRINTER::startSectorPulse(){
 
 void PRINTER::endSectorPulse(){
   PRN_SECTOR_OFF ;
-  Serial.print("v") ;
+  //Serial.print("v") ;
   _cur_cycle += 1 ;
 }
 
@@ -158,13 +158,12 @@ void PRINTER::endSectorPeriod(){
   if (_cur_sector == 13){
     _cur_sector = 0 ;
   }
-  Serial.println(".") ;
+  //Serial.println(".") ;
   _cur_cycle = 0 ;
 }
 
 
 void PRINTER::fireHammers(){
-  //Serial.println(_input->getReg() | 0b100000000000000000000, BIN) ;
   long reg = _input->getReg() ;
   long mask = 1L ;
   for (int i = 0 ; i < 20 ; i++){
@@ -173,8 +172,7 @@ void PRINTER::fireHammers(){
     }
     mask = mask << 1 ;
   }
-  //Serial.print("  ") ;
-  Serial.print("!") ;
+  //Serial.print("!") ;
 }
 
 
@@ -190,7 +188,7 @@ void PRINTER::advanceLine(){
   for (int i = 0 ; _line[i] != '\0' ; i++){
     _line[i] = ' ' ;
   }
-  Serial.println("a") ;
+  //Serial.println("a") ;
 }
 
 

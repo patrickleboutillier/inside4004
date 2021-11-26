@@ -74,8 +74,8 @@ void SRC_X21(){
 } ;
 
 void SRC_X31(){
-  enableRegPairL() ;
   CMoff() ;
+  enableRegPairL() ;
 } ;
 
 void FIN_M12clk2(){

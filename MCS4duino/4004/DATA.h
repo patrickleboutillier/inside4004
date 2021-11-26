@@ -11,6 +11,10 @@
 
 
 class DATA {
+  private:
+    bool _z ;
+    byte _cache ;
+    
   public:
     DATA(){    
       reset() ;
@@ -18,19 +22,30 @@ class DATA {
     
     void reset(){
       z() ;
+      _cache = 0 ;
     }
     
     void write(byte data){
       DATA_OUTPUT ;
-      WRITE_DATA(data) ;     
+      _z = 0 ;
+      WRITE_DATA(data) ;
+      _cache = data ;     
     }
 
     byte read(){
-      return READ_DATA ; 
+      if (_z){
+        // We are disconnected from bus, so we read the real value
+        return READ_DATA ;
+      }
+      else {
+        // We are the one driving the bus, so get it from _cache.
+        return _cache ;
+      }
     }
 
     void z(){
       DATA_INPUT ;
+      _z = 1 ;
     }
 } ;
 

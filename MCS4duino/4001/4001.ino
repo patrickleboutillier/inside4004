@@ -105,7 +105,6 @@ void setup(){
       }
       else {
         rom_select = -1 ;
-        Serial.println("R?!") ;
       }
     }
   }) ;  
@@ -116,7 +115,6 @@ void setup(){
     if (rom_select != -1){
       int pc = rom_select << 8 | addrh << 4 | addrl ;
       byte rom = pgm_read_byte(ROM + pc) ;
-      //Serial.println(pc, HEX) ;
       opr = rom >> 4 ;
       opa = rom & 0xF ;
       DATA_OUTPUT ;
@@ -134,7 +132,9 @@ void setup(){
           
   TIMING.M22clk1([]{
     // Send out opa
-    WRITE_DATA(opa) ;
+    if (rom_select != -1){
+      WRITE_DATA(opa) ;
+    }
   }) ;
 
 
@@ -226,9 +226,8 @@ void loop(){
       unsigned long dur = micros() - start ;
       if (dur > max_dur){
         max_dur = dur ;
-        //Serial.print("Max loop: ") ;
-        //Serial.print(max_dur) ;
-        //Serial.println("us") ;
+        //Serial.print("Max:") ;
+        //Serial.println(max_dur) ;
       }
     #endif
   }

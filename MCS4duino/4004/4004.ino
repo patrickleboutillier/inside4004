@@ -16,7 +16,7 @@
 TIMING TIMING ;
 DATA DATA ;
 
-unsigned long max_dur = 0 ;
+unsigned int max_dur = 0 ;
 
 
 void reset(){  
@@ -54,27 +54,26 @@ void setup(){
 
 void loop(){
   while (1){
-    #ifdef DEBUG
-      unsigned long start = micros() ;
-    #endif
+    unsigned long start = micros() ;
     if (READ_RESET){
       return reset() ;
     }
 
     CLOCK_tick() ;
-
+    unsigned int dur = micros() - start ;    
     #ifdef DEBUG
-      unsigned long dur = micros() - start ;
       if (dur > max_dur){
         max_dur = dur ;
-        Serial.print("Max loop: ") ;
-        Serial.print(max_dur) ;
-        Serial.print("us ") ;
-        Serial.print(INST_opr, HEX) ;
-        Serial.print(INST_opa, HEX) ;
-        Serial.print(" ") ;
-        Serial.println(TIMING._cycle) ;
+        Serial.print("Max: ") ;
+        Serial.println(max_dur) ;
+        //Serial.print("us ") ;
+        //Serial.print(INST_opr, HEX) ;
+        //Serial.print(INST_opa, HEX) ;
+        //Serial.print(" ") ;
+        //Serial.println(TIMING._cycle) ;
       }
     #endif
+    
+    CLOCK_sleep(dur) ;
   }
 }

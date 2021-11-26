@@ -55,7 +55,7 @@ void loop(){
 
     bool data = SHIFT_DATA_ON ;
     if (PSHIFT.loop(PRN_SHIFT_CLK_ON, data)){
-      Serial.print(data) ;
+      //Serial.print(data) ;
     }
     if (! PRINTER.loop()){  
       PRINTER.printChar() ;
@@ -65,9 +65,8 @@ void loop(){
       unsigned long dur = micros() - start ;
       if (dur > max_dur){
         max_dur = dur ;
-        //Serial.print("Max loop: ") ;
-        //Serial.print(max_dur) ;
-        //Serial.println("us ") ;
+        //Serial.print("Max:") ;
+        //Serial.println(max_dur) ;
       }
     #endif
   }

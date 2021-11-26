@@ -12,8 +12,7 @@ class i4003 {
     long getReg() ;
   private:
     long _mask ;
-    volatile long _reg ;
-    bool _cur_clock ;
+    long _reg ;
 } ;
 
 

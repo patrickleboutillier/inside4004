@@ -9,7 +9,6 @@ i4003::i4003(long mask){
 
 void i4003::reset(){
   _reg = 0 ;
-  _cur_clock = 0 ;
 }
 
 

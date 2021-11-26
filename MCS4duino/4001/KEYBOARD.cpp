@@ -34,11 +34,6 @@ void KEYBOARD::setKbdRow(){
     if ((reg & mask) == 0){
       _kbd_row = _buffer[i] ;      
       if (i < 8){   // Don't reset the switches!
-        /* if (_buffer[i] != 0){
-          Serial.print(" wk:") ;
-          Serial.print(i, HEX) ;
-          Serial.println(_buffer[i]) ;  
-        } */
         _buffer[i] = 0 ;
       }
     }
@@ -100,11 +95,10 @@ void KEYBOARD::sendKey(){
   }
   
   byte c = kc >> 4 ;
-  _buffer[c] |= kc & 0xF ;
-  Serial.print(key_buffer_idx) ;
+  _buffer[c] |= kc & 0xF ; 
   key_buffer_idx++ ;
-  Serial.print("@") ;
-  Serial.print(test_idx) ;
-  Serial.print("=") ;
-  Serial.println(kc, HEX) ;
+  //Serial.print("@") ;
+  //Serial.print(test_idx) ;
+  //Serial.print("=") ;
+  //Serial.println(kc, HEX) ;
 }

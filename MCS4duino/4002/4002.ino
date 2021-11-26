@@ -16,6 +16,9 @@
 #define WRITE_ADV_FIRE_COLOR(data)  PORTC =  ((PORTC & ~PRN_ADV_FIRE_COLOR) | (data << 3))  
 #define PRN_ADV_FIRE_COLOR_OUTPUT   DDRC  |= PRN_ADV_FIRE_COLOR
 
+void io_write(byte data) ;
+byte io_read() ;
+
 TIMING TIMING ;
 
 byte reg = 0 ;
@@ -28,11 +31,7 @@ bool ram_inst = 0 ;
 byte RAM[2][4][16] ;
 byte STATUS[2][4][4] ;
 unsigned long max_dur = 0 ;
-byte dump = 0 ;
-byte dump_data = 0 ;
-byte addrh = 0 ; 
-byte addrl = 0 ; 
-byte rom_select = 0 ;
+byte dump_data = 255 ;
 
 
 void reset(){
@@ -46,12 +45,11 @@ void reset(){
   opr = 0 ;
   chip_select = -1 ;
   max_dur = 0 ;
-  dump = 0 ;
-  dump_data = 0 ;
+  dump_data = 255 ;
   
-  for (int i = 0 ; i < 2 ; i++){
-    for (int j = 0 ; j < 4 ; j++){
-      for (int k = 0 ; k < 16 ; k++){
+  for (byte i = 0 ; i < 2 ; i++){
+    for (byte j = 0 ; j < 4 ; j++){
+      for (byte k = 0 ; k < 16 ; k++){
         RAM[i][j][k] = 0 ; 
         if (k < 4){
           STATUS[i][j][k] = 0 ; 
@@ -80,16 +78,6 @@ void dump_reg(byte reg){
 }
 
 
-void dump_io(){
-  bool s = (dump >= 8) ;
-  Serial.print(s ? "S" : "W") ; 
-  Serial.print(chip_select) ;
-  Serial.print(reg, HEX) ;
-  Serial.print((s ? dump & 0b11 : chr), HEX) ; 
-  Serial.println(dump_data, HEX) ;
-}
-
-
 void setup(){
   #ifdef DEBUG
     Serial.begin(2000000) ;
@@ -102,53 +90,21 @@ void setup(){
   reset() ;
 
   TIMING.A12clk1([]{
-    if (dump){ 
-      dump_io() ;
-    }
-  }) ;
-
-  /* TIMING.A12clk2([]{
-    if (dump){ 
-      dump_reg(1) ;
-    }
-  }) ;
-
-  TIMING.A22clk1([]{
-    if (dump){ 
-      dump_reg(2) ;
-    }
-  }) ;
-
-  TIMING.A22clk2([]{
-    if (dump){ 
-      dump_reg(3) ;
-    }
-  }) ; */
-
-  // From 4001
-  TIMING.A12clk1([]{ 
-    addrl = READ_DATA ;
-  }) ;
-
-  // From 4001
-  TIMING.A22clk1([]{
-    addrh = READ_DATA ;
-  }) ;
-
-  // From 4001
-  TIMING.A32clk1([]{
-    // If CM is on, the id of the selected ROM chip is on the bus
-    if (CM_ON){
-      rom_select = READ_DATA ;
-      int pc = rom_select << 8 | addrh << 4 | addrl ;
-      //Serial.print(pc, HEX) ;
-      //Serial.print(":") ;
+    if (dump_data != 255){ 
+      Serial.print(opr, HEX) ; 
+      Serial.print(opa, HEX) ; 
+      Serial.print(chip_select, HEX) ;
+      Serial.print(reg, HEX) ;
+      Serial.print(chr, HEX) ; 
+      Serial.println(dump_data, HEX) ;
     }
   }) ;  
+
 
   TIMING.M12clk2([]{
     opr = READ_DATA ;
   }) ;
+
 
   TIMING.M22clk2([]{
     // Grab opa
@@ -165,23 +121,21 @@ void setup(){
   }) ;
 
 
-  TIMING.X12clk1([]{
-    //Serial.println(DDRD) ;
-  }) ;
-
-
   TIMING.X22clk1([]{
-    dump = 0 ;
+    dump_data = 255 ;
     src = 0 ;
     if (CM_ON){
       // An SRC instruction is in progress
       byte data = READ_DATA ;
       byte chip = data >> 2 ;
+      Serial.print("!") ;
       if (chip < 2){
         chip_select = chip ;
         // Grab the selected RAM register
         reg = data & 0b0011 ;
         src = 1 ;
+        dump_data = 0 ;
+        Serial.print("*") ;
       }
       else {
         chip_select = -1 ;
@@ -191,102 +145,24 @@ void setup(){
       if (ram_inst){
         // A RAM/I/O instruction is in progress, execute the proper operation according to the value of opa
         
-        // Write instructions
-        bool w = 0 ; 
-        byte prev = 0 ;
-        byte data = 0 ;
-        switch (opa){
-          case 0b0000:
-            prev = RAM[chip_select][reg][chr] ;
-            data = READ_DATA ;
-            RAM[chip_select][reg][chr] = data ;
-            dump = 1 ;
-            w = 1 ;
-            break ;
-          case 0b0001:
-            if (chip_select == 0){
-              byte data = READ_DATA ;
-              byte d = 0 ;
-              if ((data >> 3) & 1){ // A3
-                d |= 0b001 ;
-              }
-              if ((data >> 1) & 1){ // A4
-                d |= 0b010 ;
-              }
-              if (data & 1){        // A5
-                d |= 0b100 ;
-              }
-              WRITE_ADV_FIRE_COLOR(d) ;
-            }
-            w = 1 ;
-            break ;
-          case 0b0100:
-            prev = STATUS[chip_select][reg][0] ;
-            data = READ_DATA ;
-            STATUS[chip_select][reg][0] = data ;
-            dump = 8 ;
-            w = 1 ;
-            break ;
-          case 0b0101:
-            prev = STATUS[chip_select][reg][1] ;
-            data = READ_DATA ;
-            STATUS[chip_select][reg][1] = data ;
-            dump = 9 ;
-            w = 1 ;
-            break ;
-          case 0b0110:
-            prev = STATUS[chip_select][reg][2] ;
-            data = READ_DATA ;
-            STATUS[chip_select][reg][2] = data ;
-            dump = 10 ;
-            w = 1 ;
-            break ;
-          case 0b0111:
-            prev = STATUS[chip_select][reg][3] ;
-            data = READ_DATA ;
-            STATUS[chip_select][reg][3] = data ;
-            dump = 11 ;
-            w = 1 ;
-            break ;
-  
-          // Read instructions        
-          case 0b1000: 
-            DATA_OUTPUT ;  
-            WRITE_DATA(RAM[chip_select][reg][chr]) ;
-            break ;
-          case 0b1001:
-            DATA_OUTPUT ;  
-            WRITE_DATA(RAM[chip_select][reg][chr]) ;
-            break ;
-          case 0b1011:
-            DATA_OUTPUT ;  
-            WRITE_DATA(RAM[chip_select][reg][chr]) ;
-            break ;
-          case 0b1100:
-            DATA_OUTPUT ;  
-            WRITE_DATA(STATUS[chip_select][reg][0]) ;
-            break ;
-          case 0b1101:
-            DATA_OUTPUT ;  
-            WRITE_DATA(STATUS[chip_select][reg][1]) ;
-            break ;
-          case 0b1110:
-            DATA_OUTPUT ;  
-            WRITE_DATA(STATUS[chip_select][reg][2]) ;
-            break ;
-          case 0b1111:
-            DATA_OUTPUT ;  
-            WRITE_DATA(STATUS[chip_select][reg][3]) ;
-            break ;
-        }
-
-        if ((dump)&&(data != prev)){
-          dump_data = data ;
+        if ((opa & 0b1000) == 0){   // Write instructions
+          io_write(READ_DATA) ;
         }
         else {
-          dump = 0 ;
+          byte data = io_read() ;
+          if (data != 255){
+            DATA_OUTPUT ;
+            WRITE_DATA(data) ;
+          }
         }
       }
+    }
+  }) ;
+
+  
+  TIMING.X22clk2([]{
+    if (src){
+      Serial.print("x") ;
     }
   }) ;
 
@@ -294,15 +170,74 @@ void setup(){
   TIMING.X32clk1([]{
     // Disconnect from bus
     DATA_INPUT ;
+    if (src){
+      Serial.print("y") ;
+      chr = READ_DATA ;
+      Serial.print("c") ;
+      Serial.print(chr, HEX) ;
+      Serial.print(":") ;
+    }
   }) ;
 
 
-  TIMING.X32clk2([]{
+  /*TIMING.X32clk2([]{
     // If we are processing an SRC instruction, grab the selected RAM character
     if (src){
       chr = READ_DATA ;
+      Serial.print("c") ;
+      Serial.print(chr, HEX) ;
+      Serial.print(":") ;
     }
-  }) ;
+  }) ; */
+}
+
+
+void io_write(byte data){
+  byte prev = 255 ;
+
+  if (opa == 0b0000){
+    prev = RAM[chip_select][reg][chr] ;
+    RAM[chip_select][reg][chr] = data ;
+  }
+  else if (opa == 0b0001){
+    if (chip_select == 0){
+      byte d = 0 ;
+      if ((data >> 3) & 1){ // A3
+        d |= 0b001 ;
+      }
+      if ((data >> 1) & 1){ // A4
+        d |= 0b010 ;
+      }
+      if (data & 1){        // A5
+        d |= 0b100 ;
+      }
+      WRITE_ADV_FIRE_COLOR(d) ;
+    }
+  }
+  else if (opa >= 0b0100){
+    byte i = opa & 0b0011 ;
+    prev = STATUS[chip_select][reg][i] ;
+    STATUS[chip_select][reg][i] = data ;
+  }
+
+  dump_data = (prev != data ? data : 255) ;
+}
+
+
+byte io_read(){
+  byte data = 255 ;
+
+  if ((opa == 0b1000)||(opa == 0b1001)||(opa == 0b1011)){
+      data = RAM[chip_select][reg][chr] ;
+  }
+  else if (opa >= 0b1100){
+    byte i = opa & 0b0011 ;
+    data = STATUS[chip_select][reg][i] ;
+  }
+
+  dump_data = data  ;
+
+  return data ;
 }
 
 
@@ -321,9 +256,8 @@ void loop(){
       unsigned long dur = micros() - start ;
       if (dur > max_dur){
         max_dur = dur ;
-        //Serial.print("Max loop: ") ;
-        //Serial.print(max_dur) ;
-        //Serial.println("us") ;
+        //Serial.print("Max:") ;
+        //Serial.println(max_dur) ;
       }
     #endif
   }
