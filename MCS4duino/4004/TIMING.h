@@ -16,8 +16,6 @@ class TIMING {
     int _phase ;
     bool _reset ;
     void (*_dispatch[8][4][8])() ;
-  public:
-    unsigned long _cycle ;
         
   public:
     TIMING(){  
@@ -43,21 +41,16 @@ class TIMING {
       _master = 0 ;
       _phase = -1 ;
       _reset = 1 ;
-      _cycle = 0 ;
     }
 
    
     void tick(bool clk1, bool clk2){
-      int cur_phase ;
+      int cur_phase = _phase ;
       if ((clk1)&&(!clk2)){
         _slave = _master ;
         if ((_slave == 0)&&(_reset)){   // 0 == state A1!
           _reset = 0 ;
           _phase = -1 ;
-          _cycle = 0 ;
-        }
-        if (_phase != 0){
-          _cycle++ ;
         }
         cur_phase = 0 ;
       }

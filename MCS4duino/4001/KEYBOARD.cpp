@@ -97,8 +97,4 @@ void KEYBOARD::sendKey(){
   byte c = kc >> 4 ;
   _buffer[c] |= kc & 0xF ; 
   key_buffer_idx++ ;
-  //Serial.print("@") ;
-  //Serial.print(test_idx) ;
-  //Serial.print("=") ;
-  //Serial.println(kc, HEX) ;
 }

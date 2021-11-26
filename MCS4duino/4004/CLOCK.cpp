@@ -2,7 +2,7 @@
 
 #define CLK1      0b000010000   // PORTB
 #define CLK2      0b000001000   // PORTB
-#define CLK_US    500
+#define CLK_US    75
 
 static TIMING *timing ;
 static unsigned long n = 0 ;

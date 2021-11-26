@@ -42,7 +42,6 @@ void reset(){
   chr = 0 ;
   src = 0 ;
   opa = 0 ;
-  opr = 0 ;
   chip_select = -1 ;
   max_dur = 0 ;
   dump_data = 255 ;
@@ -89,7 +88,7 @@ void setup(){
   TIMING.setup() ;
   reset() ;
 
-  TIMING.A12clk1([]{
+  /* TIMING.A12clk1([]{
     if (dump_data != 255){ 
       Serial.print(opr, HEX) ; 
       Serial.print(opa, HEX) ; 
@@ -98,12 +97,7 @@ void setup(){
       Serial.print(chr, HEX) ; 
       Serial.println(dump_data, HEX) ;
     }
-  }) ;  
-
-
-  TIMING.M12clk2([]{
-    opr = READ_DATA ;
-  }) ;
+  }) ; */  
 
 
   TIMING.M22clk2([]{
@@ -116,8 +110,6 @@ void setup(){
     else {
       ram_inst = 0 ;
     }
-    //Serial.print(opr, HEX) ;
-    //Serial.print(opa, HEX) ;
   }) ;
 
 
@@ -160,22 +152,22 @@ void setup(){
   }) ;
 
   
-  TIMING.X22clk2([]{
+  /* TIMING.X22clk2([]{
     if (src){
       Serial.print("x") ;
     }
-  }) ;
+  }) ; */
 
 
   TIMING.X32clk1([]{
     // Disconnect from bus
     DATA_INPUT ;
     if (src){
-      Serial.print("y") ;
+      //Serial.print("y") ;
       chr = READ_DATA ;
-      Serial.print("c") ;
-      Serial.print(chr, HEX) ;
-      Serial.print(":") ;
+      //Serial.print("c") ;
+      //Serial.print(chr, HEX) ;
+      //Serial.print(":") ;
     }
   }) ;
 }

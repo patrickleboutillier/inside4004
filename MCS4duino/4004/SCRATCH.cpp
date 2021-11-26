@@ -40,11 +40,6 @@ void SCRATCH_timing(){
   timing->A32clk1(f1) ;
   timing->X12clk1(f1) ;
   timing->X22clk1(f1) ;
-  auto f1b = []{
-    if (! src()){
-      data_in = data->read() ;  
-    }
-  } ;
   timing->X32clk1(f1) ;    // Sample data from the bus at these times.
 
 

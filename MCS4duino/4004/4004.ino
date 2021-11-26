@@ -66,11 +66,6 @@ void loop(){
         max_dur = dur ;
         Serial.print("Max: ") ;
         Serial.println(max_dur) ;
-        //Serial.print("us ") ;
-        //Serial.print(INST_opr, HEX) ;
-        //Serial.print(INST_opa, HEX) ;
-        //Serial.print(" ") ;
-        //Serial.println(TIMING._cycle) ;
       }
     #endif
     
