@@ -97,7 +97,7 @@ void setup(){
       Serial.print(chr, HEX) ; 
       Serial.println(dump_data, HEX) ;
     }
-  }) ; */  
+  }) ; */   
 
 
   TIMING.M22clk2([]{
@@ -120,14 +120,14 @@ void setup(){
       // An SRC instruction is in progress
       byte data = READ_DATA ;
       byte chip = data >> 2 ;
-      Serial.print("!") ;
+      //Serial.print("!") ;
       if (chip < 2){
         chip_select = chip ;
         // Grab the selected RAM register
         reg = data & 0b0011 ;
         src = 1 ;
         dump_data = 0 ;
-        Serial.print("*") ;
+        //Serial.print("*") ;
       }
       else {
         chip_select = -1 ;
