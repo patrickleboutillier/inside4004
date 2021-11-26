@@ -46,7 +46,7 @@ class TIMING {
 
     
     void loop(){
-      byte clk = PIND ;
+      byte clk = CLK_REG ;
       bool clk1 = clk & CLK1 ;
       bool clk2 = clk & CLK2 ;
 
@@ -64,7 +64,7 @@ class TIMING {
         cur_phase = 0 ;
       }
       else if ((!clk1)&&(clk2)){
-        if (READ_SYNC){
+        if (SYNC_ON){
           _master = 0 ;
         }
         else {

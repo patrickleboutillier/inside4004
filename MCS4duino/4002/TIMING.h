@@ -49,6 +49,7 @@ class TIMING {
       byte clk = CLK_REG ;
       bool clk1 = clk & CLK1 ;
       bool clk2 = clk & CLK2 ;
+      bool sync = clk & SYNC ;
 
       int cur_phase = _phase ;
       if ((clk1)&&(!clk2)){

@@ -178,17 +178,6 @@ void setup(){
       Serial.print(":") ;
     }
   }) ;
-
-
-  /*TIMING.X32clk2([]{
-    // If we are processing an SRC instruction, grab the selected RAM character
-    if (src){
-      chr = READ_DATA ;
-      Serial.print("c") ;
-      Serial.print(chr, HEX) ;
-      Serial.print(":") ;
-    }
-  }) ; */
 }
 
 
@@ -219,7 +208,12 @@ void io_write(byte data){
     prev = STATUS[chip_select][reg][i] ;
     STATUS[chip_select][reg][i] = data ;
   }
-
+  else {
+    // The instruction is for the ROM chips or is not implemented.
+    // Nothing happened from our perspective
+    prev = data ;  
+  }
+  
   dump_data = (prev != data ? data : 255) ;
 }
 
@@ -235,7 +229,7 @@ byte io_read(){
     data = STATUS[chip_select][reg][i] ;
   }
 
-  dump_data = data  ;
+  dump_data = data ;
 
   return data ;
 }
