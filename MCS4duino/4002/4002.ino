@@ -1,6 +1,6 @@
 #include "TIMING.h"
 
-#define DEBUG
+// #define DEBUG
 
 #define RESET_ON                    PINC &   0b00000010
 #define RESET_INPUT                 DDRC &= ~0b00000010
@@ -31,7 +31,6 @@ bool ram_inst = 0 ;
 byte RAM[2][4][16] ;
 byte STATUS[2][4][4] ;
 unsigned long max_dur = 0 ;
-byte dump_data = 255 ;
 
 
 void reset(){
@@ -44,7 +43,6 @@ void reset(){
   opa = 0 ;
   chip_select = -1 ;
   max_dur = 0 ;
-  dump_data = 255 ;
   
   for (byte i = 0 ; i < 2 ; i++){
     for (byte j = 0 ; j < 4 ; j++){
@@ -61,22 +59,6 @@ void reset(){
 }
 
 
-void dump_reg(byte reg){
-  Serial.print(chip_select) ;
-  Serial.print("/") ;
-  Serial.print(reg) ;
-  Serial.print(":") ;
-  for (int k = 0 ; k < 16 ; k++){
-    Serial.print(RAM[chip_select][reg][k], HEX) ; 
-  }
-  Serial.print("/") ;
-  for (int k = 0 ; k < 4 ; k++){
-    Serial.print(STATUS[chip_select][reg][k], HEX) ; 
-  }
-  Serial.println() ;
-}
-
-
 void setup(){
   #ifdef DEBUG
     Serial.begin(2000000) ;
@@ -87,18 +69,7 @@ void setup(){
   PRN_ADV_FIRE_COLOR_OUTPUT ;
   TIMING.setup() ;
   reset() ;
-
-  /* TIMING.A12clk1([]{
-    if (dump_data != 255){ 
-      Serial.print(opr, HEX) ; 
-      Serial.print(opa, HEX) ; 
-      Serial.print(chip_select, HEX) ;
-      Serial.print(reg, HEX) ;
-      Serial.print(chr, HEX) ; 
-      Serial.println(dump_data, HEX) ;
-    }
-  }) ; */   
-
+  
 
   TIMING.M22clk2([]{
     // Grab opa
@@ -114,20 +85,16 @@ void setup(){
 
 
   TIMING.X22clk1([]{
-    dump_data = 255 ;
     src = 0 ;
     if (CM_ON){
       // An SRC instruction is in progress
       byte data = READ_DATA ;
       byte chip = data >> 2 ;
-      //Serial.print("!") ;
       if (chip < 2){
         chip_select = chip ;
         // Grab the selected RAM register
         reg = data & 0b0011 ;
         src = 1 ;
-        dump_data = 0 ;
-        //Serial.print("*") ;
       }
       else {
         chip_select = -1 ;
@@ -151,33 +118,19 @@ void setup(){
     }
   }) ;
 
-  
-  /* TIMING.X22clk2([]{
-    if (src){
-      Serial.print("x") ;
-    }
-  }) ; */
-
 
   TIMING.X32clk1([]{
     // Disconnect from bus
     DATA_INPUT ;
     if (src){
-      //Serial.print("y") ;
       chr = READ_DATA ;
-      //Serial.print("c") ;
-      //Serial.print(chr, HEX) ;
-      //Serial.print(":") ;
     }
   }) ;
 }
 
 
 void io_write(byte data){
-  byte prev = 255 ;
-
   if (opa == 0b0000){
-    prev = RAM[chip_select][reg][chr] ;
     RAM[chip_select][reg][chr] = data ;
   }
   else if (opa == 0b0001){
@@ -197,16 +150,8 @@ void io_write(byte data){
   }
   else if (opa >= 0b0100){
     byte i = opa & 0b0011 ;
-    prev = STATUS[chip_select][reg][i] ;
     STATUS[chip_select][reg][i] = data ;
   }
-  else {
-    // The instruction is for the ROM chips or is not implemented.
-    // Nothing happened from our perspective
-    prev = data ;  
-  }
-  
-  dump_data = (prev != data ? data : 255) ;
 }
 
 
@@ -220,8 +165,6 @@ byte io_read(){
     byte i = opa & 0b0011 ;
     data = STATUS[chip_select][reg][i] ;
   }
-
-  dump_data = data ;
 
   return data ;
 }

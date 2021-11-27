@@ -18,6 +18,7 @@ const byte test16[] = {KCL, K1, K2, K3, KDIV, K6, KDIV, KDOT, K7, K8, K9, KEQ, K
 const byte test17[] = {KCL, KD, KD, KR, K4, K5, K7, K8, KDIV, K3, K6, K0, KEQ, K2, K9, K0, K2, KEQ, K8, K7, K1, K6, KEQ, KEND} ;
 const byte test18[] = {KCL, KD, KD, KR, K1, K2, K3, KDOT, K4, K5, KMP, KDIV, K3, K6, KDOT, K9, KEQ, KRM, KDIV, K2, K8, KDOT, K4, KEQ, KRM, KDIV, K3, K1, KDOT, K5, K5, KEQ, KEND} ;
 const byte test19[] = {KCL, K1, K2, K3, K4, K5, KMULT, K2, KPCT, KEND} ;
+
 const byte test20[] = {KCL, K2, KDIV, K3, KPCT, KEND} ;
 const byte test21[] = {KCL, KD, KD, KR, KCL, K1, KDOT, K5, KPLUS, K1, K2, K9, KDOT, K0, K5, KPLUS, K1, K1, KDOT, K0, K8, KMIN, KMULT, K1, K2, KDOT, K4, KDIV, KDOT, K5, K5, KDIV, K1, K2, KDOT, K9, K6, KPLUS, K3, KDOT, K5, K6, KMIN, KEQ, KDIV, K0, KDOT, K8, K7, KEQ, KEND} ;
 const byte test22[] = {KCL, KD, KD, KR, KCL, K1, K2, K3, KDIV, K1, K2, K3, KPLUS, K4, K5, K6, KPLUS, K7, K8, K9, KPLUS, KEQ, KPCT, KPLUS, K4, K5, K6, KPCT, KPLUS, K7, K8, K9, KPCT, KPLUS, KEQ, KEND} ;
@@ -43,18 +44,9 @@ const byte test41[] = {KCL, KD, KD, KD, KD, KD, KD, KD, KD, KR, KR, K4, K0, K0, 
 const byte test42[] = {KCL, KD, KD, KD, KD, KD, KD, KD, KD, KR, KR, K4, K0, K0, K0, K0, K0, K0, KDIV, K3, KEQ, KEND} ;
 
 const byte *tests[] = {
-  // test0,
+  test0,
   test1,
-  test1,
-  test1,
-  test1,
-  test1,
-  test1,
-  test1,
-  test1,
-  test1,
-  test1,
-  /* test2,
+  test2,
   test3,
   test4,
   test5,
@@ -71,6 +63,6 @@ const byte *tests[] = {
   test16,
   test17,
   test18,
-  test19, */
+  test19,
   NULL
 } ;

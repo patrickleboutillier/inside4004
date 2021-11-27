@@ -3,7 +3,7 @@
 #include "i4003.h"
 #include "KEYBOARD.h"
 
-#define DEBUG
+// #define DEBUG
 
 #define RESET_ON                PINC &   0b00100000
 #define RESET_INPUT             DDRC &= ~0b00100000
@@ -190,7 +190,7 @@ void setup(){
       else if (rdr){
         // Send data for RDR
         if (io_select == 1){
-          byte data = KEYBOARD.getKbdRow() ; // READ_KBD_ROW ;
+          byte data = KEYBOARD.getKbdRow() ;
           DATA_OUTPUT ;
           WRITE_DATA(data) ;
         }
