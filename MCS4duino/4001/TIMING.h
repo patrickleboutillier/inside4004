@@ -11,13 +11,13 @@ class TIMING {
     byte _master ;
     int _phase ;
     bool _reset ;
-    void (*_dispatch[8][4][4])() ;
+    void (*_dispatch[8][4][3])() ;
         
   public:
     TIMING(){  
       for (int i = 0 ; i < 8 ; i++){
         for (int j = 0 ; j < 4 ; j++){
-          for (int k = 0 ; k < 4 ; k++){
+          for (int k = 0 ; k < 3 ; k++){
             _dispatch[i][j][k] = NULL ;     
           }
         }

@@ -16,6 +16,11 @@
 #define WRITE_ADV_FIRE_COLOR(data)  PORTC =  ((PORTC & ~PRN_ADV_FIRE_COLOR) | (data << 3))  
 #define PRN_ADV_FIRE_COLOR_OUTPUT   DDRC  |= PRN_ADV_FIRE_COLOR
 
+#define LIGHTS_MEM                  0b10000000   // PORTD
+#define LIGHTS_NEG_OVF              0b00000011   // PORTB
+#define WRITE_MEM_NEG_OVF(m, n, o)  PORTD |= ((PORTD & ~LIGHTS_MEM) | ((m) << 7)) ; PORTB |= ((PORTB & ~LIGHTS_NEG_OVF) | ((o) << 1) | (n)) 
+#define LIGHTS_MEM_NEG_OVF_OUTPUT   DDRD  |= LIGHTS_MEM ; DDRB |= LIGHTS_NEG_OVF
+
 void io_write(byte data) ;
 byte io_read() ;
 
@@ -56,6 +61,7 @@ void reset(){
   }
   
   WRITE_ADV_FIRE_COLOR(0) ;
+  WRITE_MEM_NEG_OVF(0, 0, 0) ;
 }
 
 
@@ -67,6 +73,7 @@ void setup(){
   RESET_INPUT ;
   CM_INPUT ;
   PRN_ADV_FIRE_COLOR_OUTPUT ;
+  LIGHTS_MEM_NEG_OVF_OUTPUT ;
   TIMING.setup() ;
   reset() ;
   
@@ -134,18 +141,24 @@ void io_write(byte data){
     RAM[chip_select][reg][chr] = data ;
   }
   else if (opa == 0b0001){
-    if (chip_select == 0){
+    if (chip_select == 0){        // Printer
       byte d = 0 ;
-      if ((data >> 3) & 1){ // A3
+      if ((data >> 3) & 1){ 
         d |= 0b001 ;
       }
-      if ((data >> 1) & 1){ // A4
+      if ((data >> 1) & 1){
         d |= 0b010 ;
       }
-      if (data & 1){        // A5
+      if (data & 1){        
         d |= 0b100 ;
       }
       WRITE_ADV_FIRE_COLOR(d) ;
+    }
+    else if (chip_select == 1){   // Lights
+      bool mem = data & 0b0001 ;
+      bool ovf = data & 0b0010 ;
+      bool neg = data & 0b0100 ;
+      WRITE_MEM_NEG_OVF(mem, neg, ovf) ;
     }
   }
   else if (opa >= 0b0100){

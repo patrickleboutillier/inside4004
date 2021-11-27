@@ -134,8 +134,6 @@ bool PRINTER::loop(){
 
 void PRINTER::startSectorPulse(){
   PRN_SECTOR_ON ;
-  //Serial.print(_cur_sector, HEX) ;
-  //Serial.print("^") ;
   if (_cur_sector == 0){
       PRN_INDEX_ON ;
   }
@@ -145,7 +143,6 @@ void PRINTER::startSectorPulse(){
 
 void PRINTER::endSectorPulse(){
   PRN_SECTOR_OFF ;
-  //Serial.print("v") ;
   _cur_cycle += 1 ;
 }
 
@@ -158,7 +155,6 @@ void PRINTER::endSectorPeriod(){
   if (_cur_sector == 13){
     _cur_sector = 0 ;
   }
-  //Serial.println(".") ;
   _cur_cycle = 0 ;
 }
 
@@ -172,7 +168,6 @@ void PRINTER::fireHammers(){
     }
     mask = mask << 1 ;
   }
-  //Serial.print("!") ;
 }
 
 
@@ -188,7 +183,6 @@ void PRINTER::advanceLine(){
   for (int i = 0 ; _line[i] != '\0' ; i++){
     _line[i] = ' ' ;
   }
-  //Serial.println("a") ;
 }
 
 
