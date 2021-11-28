@@ -115,8 +115,10 @@ class keyboard(sensor):
                 sys.exit()
             if k == 'd':
                 self.incDP()
+                self.readKey()
             elif k == 'r':
                 self.incRND()
+                self.readKey()
             elif k == 'a':
                 self.advance.v = 1
             elif k == 'h':

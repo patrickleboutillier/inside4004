@@ -57,9 +57,6 @@ class alu:
         co = self.add >> 4
         self.add = self.add & 0xF
 
-        # print("acc:{} ada:{} tmp:{} adb:{} cy:{}, adc:{}".format(self.acc, self.ada, self.tmp, self.adb, self.cy, self.adc))
-        # print("add:{} co:{}".format(self.add, co))
-
         if shiftL:
             self.cy = self.add >> 3
             self.acc = (self.add << 1 | self.cy_out) & 0xF

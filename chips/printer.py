@@ -7,7 +7,7 @@ specialChars = [
 ]
 
 # Units are CPU cycles
-sector_pulse =  int((5 * 1000) / 22)
+sector_pulse =  int((14 * 1000) / 22)
 sector_period = int((28 * 1000) / 22)
 
 
