@@ -82,11 +82,11 @@ def callback(nb):
     else:
         printer.doCycle()
 
-    if CPU.addr.isPCin([0x003]) and RAM[0].status[0][3] == 0:   # Before keyboard scanning in main loop, and a button is not currently held down)
+    if CPU.addr.isPCin([0x003]):   # Before keyboard scanning in main loop, and a button is not currently held down)
         keyboard.clearAdvance()                                 # In case we "pressed" the paper advance button
         kb_toggle = not kb_toggle
         if not kb_toggle:
-            keyboard.readKey()
+          keyboard.readKey()
 
     if step:
         MCS4.dump(nb)
