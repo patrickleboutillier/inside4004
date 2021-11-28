@@ -17,9 +17,6 @@
 #define DATA_INPUT              DDRB &= ~DATA_3 ; DDRD &= ~DATA_210
 #define DATA_OUTPUT             DDRB |=  DATA_3 ; DDRD |=  DATA_210
 
-#define READ_KBD_ROW            ((PINB &  0b00011110) >> 1)
-#define KBD_ROW_INPUT           DDRB  &= ~0b00011110
-
 #define READ_PRN_INDEX          ((PINC &  0b00000010) >> 1)
 #define PRN_INDEX_INPUT         DDRC  &= ~0b00000010
 #define READ_PRN_ADV_BTN        (PINC  &  0b00000001)

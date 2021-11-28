@@ -13,12 +13,12 @@
 #define DATA_OUTPUT                 DDRD |=  DATA
 
 #define PRN_ADV_FIRE_COLOR          0b00111000
-#define WRITE_ADV_FIRE_COLOR(data)  PORTC =  ((PORTC & ~PRN_ADV_FIRE_COLOR) | (data << 3))  
+#define WRITE_ADV_FIRE_COLOR(a, f, c)  PORTC =  ((PORTC & ~PRN_ADV_FIRE_COLOR) | ((c) << 3) | ((f) << 2) | (a))  
 #define PRN_ADV_FIRE_COLOR_OUTPUT   DDRC  |= PRN_ADV_FIRE_COLOR
 
 #define LIGHTS_MEM                  0b10000000   // PORTD
 #define LIGHTS_NEG_OVF              0b00000011   // PORTB
-#define WRITE_MEM_NEG_OVF(m, n, o)  PORTD |= ((PORTD & ~LIGHTS_MEM) | ((m) << 7)) ; PORTB |= ((PORTB & ~LIGHTS_NEG_OVF) | ((o) << 1) | (n)) 
+#define WRITE_MEM_NEG_OVF(m, n, o)  PORTD =  ((PORTD & ~LIGHTS_MEM) | ((m) << 7)) ; PORTB = ((PORTB & ~LIGHTS_NEG_OVF) | ((o) << 1) | (n)) 
 #define LIGHTS_MEM_NEG_OVF_OUTPUT   DDRD  |= LIGHTS_MEM ; DDRB |= LIGHTS_NEG_OVF
 
 void io_write(byte data) ;
@@ -60,7 +60,7 @@ void reset(){
     }
   }
   
-  WRITE_ADV_FIRE_COLOR(0) ;
+  WRITE_ADV_FIRE_COLOR(0, 0, 0) ;
   WRITE_MEM_NEG_OVF(0, 0, 0) ;
 }
 
@@ -82,7 +82,8 @@ void setup(){
     // Grab opa
     opa = READ_DATA ;
     if ((chip_select != -1)&&(CM_ON)){
-      // If we are the selected chip for RAM/I/O and cm is on, the CPU is telling us that we are processing a RAM/I/O instruction
+      // If we are the selected chip for RAM/I/O and cm is on, the CPU is telling us that 
+      // we are processing a RAM/I/O instruction
       ram_inst = 1 ;
     }
     else {
@@ -109,8 +110,8 @@ void setup(){
     }
     else {                 
       if (ram_inst){
-        // A RAM/I/O instruction is in progress, execute the proper operation according to the value of opa
-        
+        // A RAM/I/O instruction is in progress, execute the proper operation according 
+        // to the value of opa
         if ((opa & 0b1000) == 0){   // Write instructions
           io_write(READ_DATA) ;
         }
@@ -142,17 +143,10 @@ void io_write(byte data){
   }
   else if (opa == 0b0001){
     if (chip_select == 0){        // Printer
-      byte d = 0 ;
-      if ((data >> 3) & 1){ 
-        d |= 0b001 ;
-      }
-      if ((data >> 1) & 1){
-        d |= 0b010 ;
-      }
-      if (data & 1){        
-        d |= 0b100 ;
-      }
-      WRITE_ADV_FIRE_COLOR(d) ;
+      bool adv = data & 0b1000 ;
+      bool fire = data & 0b0010 ;
+      bool color = data & 0b0001 ;
+      WRITE_ADV_FIRE_COLOR(adv, fire, color) ;
     }
     else if (chip_select == 1){   // Lights
       bool mem = data & 0b0001 ;

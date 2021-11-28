@@ -1,7 +1,7 @@
 #include "i4003.h"
 #include "PRINTER.h"
 
-#define DEBUG
+// #define DEBUG
 
 #define RESET_ON              PORTC |=  0b00000100
 #define RESET_OFF             PORTC &= ~0b00000100
