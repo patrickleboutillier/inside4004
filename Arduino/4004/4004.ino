@@ -54,21 +54,10 @@ void setup(){
 
 void loop(){
   while (1){
-    unsigned long start = micros() ;
     if (READ_RESET){
       return reset() ;
     }
 
-    CLOCK_tick() ;
-    unsigned int dur = micros() - start ;    
-    #ifdef DEBUG
-      if (dur > max_dur){
-        max_dur = dur ;
-        Serial.print("Max: ") ;
-        Serial.println(max_dur) ;
-      }
-    #endif
-    
-    CLOCK_sleep(dur) ;
+    CLOCK_period() ;
   }
 }

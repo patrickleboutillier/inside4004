@@ -11,12 +11,12 @@
 
 class TIMING {
   private:
-    byte _slave ;
     byte _master ;
     int _phase ;
-    bool _reset ;
     void (*_dispatch[8][4][8])() ;
-        
+  public:
+    byte _slave ;
+              
   public:
     TIMING(){  
       for (int i = 0 ; i < 8 ; i++){
@@ -40,53 +40,47 @@ class TIMING {
       _slave = 0 ;
       _master = 0 ;
       _phase = -1 ;
-      _reset = 1 ;
     }
 
-   
-    void tick(bool clk1, bool clk2){
-      int cur_phase = _phase ;
-      if ((clk1)&&(!clk2)){
-        _slave = _master ;
-        if ((_slave == 0)&&(_reset)){   // 0 == state A1!
-          _reset = 0 ;
-          _phase = -1 ;
-        }
-        cur_phase = 0 ;
+
+    void tick0(){
+      _phase = 0 ;
+      _slave = _master ;
+    }
+
+
+    void tick1(){
+      _phase = 1 ;
+    }
+
+
+    void tick2(){
+      _phase = 2 ;
+      _master = (_slave + 1) & 0x7 ;
+    }
+
+
+    void tick3(){
+      _phase = 3 ;
+    }
+
+
+    void sync(bool on){
+      if (on){
+        SYNC_ON ;  
       }
-      else if ((!clk1)&&(clk2)){
-         _master = (_slave + 1) & 0x7 ;
-        cur_phase = 2 ;
+      else {
+        SYNC_OFF ;
       }
-      else if ((!clk1)&&(!clk2)){
-        if (_slave == _master){
-          cur_phase = 1 ;
-        }
-        else {
-          cur_phase = 3 ;
-          if (_slave == 6){
-            SYNC_ON ;
-          }
-          else if (_slave == 7){
-            SYNC_OFF ;            
-          }
-        }
-      }
-      
-      if (_reset){
-        return ;
-      }
- 
-      if (cur_phase != _phase){
-        _phase = cur_phase ;
-        
-        // Do dispatch
-        int i = 0 ;
-        while (_dispatch[_slave][_phase][i] != NULL){
-          _dispatch[_slave][_phase][i]() ;
-          i++ ;
-        }
-      }
+    }
+
+    
+    void tick_dispatch(){
+      int i = 0 ;
+      while (_dispatch[_slave][_phase][i] != NULL){
+        _dispatch[_slave][_phase][i]() ;
+        i++ ;
+      }      
     }
     
     
