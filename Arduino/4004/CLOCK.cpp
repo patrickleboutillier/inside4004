@@ -3,6 +3,7 @@
 #define CLK1      0b00010000   // PORTB
 #define CLK2      0b00001000   // PORTB
 #define CLK_US    36
+const unsigned int CLK_CYCLES = CLK_US * 16 ; 
 
 
 static TIMING *timing ;
@@ -23,41 +24,59 @@ void CLOCK_setup(TIMING *t){
 
 
 void CLOCK_period(){
-  unsigned long start = micros() ;
+  noInterrupts() ;
+  TCNT1 = 0 ;
+  TCCR1B = 1 ;
   timing->tick0() ;
   PORTB |= CLK1 ;
   timing->tick_dispatch() ;
-  CLOCK_sleep(micros() - start) ;
-
-  start = micros() ;
+  TCCR1B = 0 ; 
+  interrupts() ;
+  CLOCK_delay(TCNT1) ;
+  
+  noInterrupts() ;
+  TCNT1 = 0 ;
+  TCCR1B = 1 ;
   timing->tick1() ;
   PORTB &= ~CLK1 ;
   timing->tick_dispatch() ;
-  CLOCK_sleep(micros() - start) ;
+  TCCR1B = 0 ;
+  interrupts() ;
+  CLOCK_delay(TCNT1) ;
 
-  start = micros() ;
+  noInterrupts() ;
+  TCNT1 = 0 ;
+  TCCR1B = 1 ;
   timing->tick2() ;
   PORTB |= CLK2 ;
   timing->tick_dispatch() ;
-  CLOCK_sleep(micros() - start) ;
+  TCCR1B = 0 ;
+  interrupts() ;
+  CLOCK_delay(TCNT1) ;
 
-  start = micros() ;
+  noInterrupts() ;
+  TCNT1 = 0 ;
+  TCCR1B = 1 ;
   timing->tick3() ;
   PORTB &= ~CLK2 ;
-  if (timing->_slave == 6){
-    timing->sync(1) ;
-  }
-  if (timing->_slave == 7){
-    timing->sync(0) ;            
-  }
+  timing->sync() ;
   timing->tick_dispatch() ;
-  CLOCK_sleep(micros() - start) ;
+  TCCR1B = 0 ;
+  interrupts() ;
+  CLOCK_delay(TCNT1) ;
 }
 
 
-void CLOCK_sleep(unsigned int dur){
-  int dly = CLK_US - dur ;
-  if (dly > 0){
-    delayMicroseconds(dly < CLK_US ? dly : CLK_US) ; 
+unsigned int CLOCK_delay(unsigned int cycles){
+  int target = CLK_CYCLES - cycles ;
+  if (target > 0){
+    TCNT1 = 0 ;
+    TCCR1B = 1 ;
+    while (TCNT1 < target){
+      // waste cycles....
+    }
+    TCCR1B = 0 ;
+    return TCNT1 ;
   }
+  return 0 ;
 }

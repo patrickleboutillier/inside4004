@@ -53,11 +53,13 @@ void loop(){
       unsigned long start = micros() ;
     #endif
 
+    noInterrupts() ;
     bool data = SHIFT_DATA_ON ;
     PSHIFT.loop(PRN_SHIFT_CLK_ON, data) ;
     if (! PRINTER.loop()){  
       PRINTER.printChar() ;
     }
+    interrupts() ;
     
     #ifdef DEBUG
       unsigned long dur = micros() - start ;

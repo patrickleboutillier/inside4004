@@ -47,7 +47,7 @@ byte KEYBOARD::getKbdRow(){
 }
 
 
-void KEYBOARD::sendKey(){
+bool KEYBOARD::sendKey(){
   byte kc = key_buffer[key_buffer_idx] ;
   
   while ((kc == KD)||(kc == KR)){
@@ -84,12 +84,10 @@ void KEYBOARD::sendKey(){
     int t = test_idx ;
     reset() ;
     test_idx = t + 1 ;
+    Serial.print(test_idx, HEX) ;
     key_buffer = tests[test_idx] ;
     if (key_buffer == NULL){
-      Serial.println("HALTED!") ;
-      while(1){
-        delay(1000) ;
-      }
+      return 1 ;
     }
     kc = key_buffer[key_buffer_idx] ;
   }
@@ -97,4 +95,5 @@ void KEYBOARD::sendKey(){
   byte c = kc >> 4 ;
   _buffer[c] |= kc & 0xF ; 
   key_buffer_idx++ ;
+  return 0 ;
 }

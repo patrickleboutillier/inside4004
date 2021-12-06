@@ -9,7 +9,7 @@ class KEYBOARD {
     KEYBOARD(i4003 *input) ;
     void reset() ;
     void setKbdRow() ;
-    void sendKey() ;
+    bool sendKey() ;
     byte getKbdRow() ;
 
   private:

@@ -8,7 +8,7 @@
 #include "ALU.h"
 #include "CLOCK.h"
 
-#define DEBUG
+// #define DEBUG
 
 #define READ_RESET  PIND &   0b01000000
 #define RESET_INPUT DDRD &= ~0b01000000
@@ -38,6 +38,9 @@ void setup(){
     Serial.begin(2000000) ;
     Serial.println("4004") ;
   #endif
+  TCCR1A = 0 ;
+  TCCR1B = 0 ;
+  TCCR1C = 0 ;
   RESET_INPUT ;
 
   INST_setup(&TIMING, &DATA) ;

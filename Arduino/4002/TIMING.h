@@ -9,15 +9,14 @@ class TIMING {
   private:
     byte _slave ;
     byte _master ;
-    int _phase ;
-    bool _reset ;
-    void (*_dispatch[8][4][4])() ;
+    byte _phase ;
+    void (*_dispatch[8][4][3])() ;
         
   public:
     TIMING(){  
       for (int i = 0 ; i < 8 ; i++){
         for (int j = 0 ; j < 4 ; j++){
-          for (int k = 0 ; k < 4 ; k++){
+          for (int k = 0 ; k < 3 ; k++){
             _dispatch[i][j][k] = NULL ;     
           }
         }
@@ -30,8 +29,7 @@ class TIMING {
     void reset(){
       _slave = 0 ;
       _master = 0 ;
-      _phase = -1 ;
-      _reset = 1 ;
+      _phase = 255 ;
     }
 
     
@@ -51,10 +49,6 @@ class TIMING {
       int cur_phase = _phase ;
       if ((clk1)&&(!clk2)){
         _slave = _master ;
-        if ((_slave == 0)&&(_reset)){   // 0 == state A1!
-          _reset = 0 ;
-          _phase = -1 ;
-        }
         cur_phase = 0 ;
       }
       else if ((!clk1)&&(clk2)){
@@ -73,10 +67,6 @@ class TIMING {
         else {
           cur_phase = 3 ;
         }
-      }
-      
-      if (_reset){
-        return ;
       }
       
       if (cur_phase != _phase){

@@ -1,6 +1,6 @@
 #include "TIMING.h"
 
-// #define DEBUG
+#define DEBUG
 
 #define RESET_ON                    PINC &   0b00000010
 #define RESET_INPUT                 DDRC &= ~0b00000010
@@ -139,6 +139,7 @@ void setup(){
 
 void io_write(byte data){
   if (opa == 0b0000){
+    Serial.print(data, HEX) ;
     RAM[chip_select][reg][chr] = data ;
   }
   else if (opa == 0b0001){
@@ -147,6 +148,9 @@ void io_write(byte data){
       bool fire = data & 0b0010 ;
       bool color = data & 0b0001 ;
       WRITE_ADV_FIRE_COLOR(adv, fire, color) ;
+      if (adv){
+        Serial.print("\n") ;
+      }
     }
     else if (chip_select == 1){   // Lights
       bool mem = data & 0b0001 ;
@@ -182,11 +186,14 @@ void loop(){
     #ifdef DEBUG
       unsigned long start = micros() ;
     #endif
+   
     if (RESET_ON){
       return reset() ;
     }
-
+    
+    noInterrupts() ;
     TIMING.loop() ;
+    interrupts() ;
 
     #ifdef DEBUG
       unsigned long dur = micros() - start ;

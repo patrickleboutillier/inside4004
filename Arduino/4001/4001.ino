@@ -3,7 +3,7 @@
 #include "i4003.h"
 #include "KEYBOARD.h"
 
-// #define DEBUG
+#define DEBUG
 
 #define RESET_ON                PINC &   0b00100000
 #define RESET_INPUT             DDRC &= ~0b00100000
@@ -44,7 +44,7 @@ byte opr = 0 ;          // The OPR for the current instruction
 byte opa = 0 ;          // The OPA for the current instruction
 bool kb_toggle = 0 ;
 unsigned long max_dur = 0 ;
-
+bool done = 0 ;
 
 void reset(){
   DATA_INPUT ;
@@ -65,6 +65,7 @@ void reset(){
   opa = 0 ;
   kb_toggle = 0 ;
   max_dur = 0 ;
+  done = 0 ;
 }
 
 
@@ -120,7 +121,7 @@ void setup(){
       if (pc == 3){              // Before keyboard scanning in main loop
         kb_toggle = !kb_toggle ;
         if (! kb_toggle){
-          KEYBOARD.sendKey() ;
+          done = KEYBOARD.sendKey() ;
         }
       }
     }
@@ -213,11 +214,17 @@ void loop(){
     #ifdef DEBUG
         unsigned long start = micros() ;
     #endif
+    
     if (RESET_ON){
       return reset() ;
     }
-
+    if (done){
+      return ;
+    }
+    
+    noInterrupts() ;
     TIMING.loop() ;
+    interrupts() ;
     
     #ifdef DEBUG
       unsigned long dur = micros() - start ;
