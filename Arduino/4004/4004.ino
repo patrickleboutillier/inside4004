@@ -13,6 +13,11 @@
 #define READ_RESET  PIND &   0b01000000
 #define RESET_INPUT DDRD &= ~0b01000000
 
+#define LED                     0b00100000
+#define LED_OUTPUT              DDRB |= LED
+#define LED_ON                  PORTB |= LED
+#define LED_OFF                 PORTB &= ~LED
+
 TIMING TIMING ;
 DATA DATA ;
 
@@ -20,6 +25,9 @@ unsigned int max_dur = 0 ;
 
 
 void reset(){  
+  LED_ON ;
+  max_dur = 0 ;
+
   TIMING.reset() ;
   DATA.reset() ;
   INST_reset() ;
@@ -29,7 +37,8 @@ void reset(){
   SCRATCH_reset() ;
   ALU_reset() ;
   CLOCK_reset() ;
-  max_dur = 0 ;
+  LED_OFF ;
+
 }
 
 
@@ -42,7 +51,8 @@ void setup(){
   TCCR1B = 0 ;
   TCCR1C = 0 ;
   RESET_INPUT ;
-
+  LED_OUTPUT ;
+  
   INST_setup(&TIMING, &DATA) ;
   CONTROL_setup(&TIMING, &DATA) ;
   IO_setup(&TIMING) ;

@@ -29,6 +29,11 @@
 #define WRITE_PRN_SHIFT_CLK(p)  PORTC =  (PORTC & ~PRN_SHIFT_CLK) | ((p) << 3)
 #define PRN_SHIFT_CLK_OUTPUT    DDRC  |=  PRN_SHIFT_CLK
 
+#define LED                     0b00100000
+#define LED_OUTPUT              DDRB |= LED
+#define LED_ON                  PORTB |= LED
+#define LED_OFF                 PORTB &= ~LED
+
 TIMING TIMING ;
 i4003 KSHIFT(0x3FF) ;
 KEYBOARD KEYBOARD(&KSHIFT) ;
@@ -47,6 +52,7 @@ unsigned long max_dur = 0 ;
 bool done = 0 ;
 
 void reset(){
+  LED_ON ;
   DATA_INPUT ;
   WRITE_SHIFT_DATA(0) ;
   WRITE_PRN_SHIFT_CLK(0) ;
@@ -66,6 +72,7 @@ void reset(){
   kb_toggle = 0 ;
   max_dur = 0 ;
   done = 0 ;
+  LED_OFF ;
 }
 
 
@@ -74,12 +81,16 @@ void setup(){
     Serial.begin(2000000) ;
     Serial.println("4001") ;
   #endif
+  TCCR1A = 0 ;
+  TCCR1B = 0 ;
+  TCCR1C = 0 ;
   RESET_INPUT ;
   CM_INPUT ;
   SHIFT_DATA_OUTPUT ;
   PRN_SHIFT_CLK_OUTPUT ;
   PRN_INDEX_INPUT ;
   PRN_ADV_BTN_INPUT ;
+  LED_OUTPUT ;
   TIMING.setup() ;
   reset() ;
 

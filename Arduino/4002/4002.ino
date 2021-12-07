@@ -21,6 +21,11 @@
 #define WRITE_MEM_NEG_OVF(m, n, o)  PORTD =  ((PORTD & ~LIGHTS_MEM) | ((m) << 7)) ; PORTB = ((PORTB & ~LIGHTS_NEG_OVF) | ((o) << 1) | (n)) 
 #define LIGHTS_MEM_NEG_OVF_OUTPUT   DDRD  |= LIGHTS_MEM ; DDRB |= LIGHTS_NEG_OVF
 
+#define LED                     0b00100000
+#define LED_OUTPUT              DDRB |= LED
+#define LED_ON                  PORTB |= LED
+#define LED_OFF                 PORTB &= ~LED
+
 void io_write(byte data) ;
 byte io_read() ;
 
@@ -39,6 +44,7 @@ unsigned long max_dur = 0 ;
 
 
 void reset(){
+  LED_ON ;
   DATA_INPUT ;   
   
   TIMING.reset() ;
@@ -62,6 +68,7 @@ void reset(){
   
   WRITE_ADV_FIRE_COLOR(0, 0, 0) ;
   WRITE_MEM_NEG_OVF(0, 0, 0) ;
+  LED_OFF ;
 }
 
 
@@ -74,6 +81,7 @@ void setup(){
   CM_INPUT ;
   PRN_ADV_FIRE_COLOR_OUTPUT ;
   LIGHTS_MEM_NEG_OVF_OUTPUT ;
+  LED_OUTPUT ;
   TIMING.setup() ;
   reset() ;
   

@@ -46,7 +46,7 @@ class TIMING {
       bool clk2 = clk & CLK2 ;
       bool sync = clk & SYNC ;
 
-      int cur_phase = _phase ;
+      byte cur_phase = _phase ;
       if ((clk1)&&(!clk2)){
         _slave = _master ;
         cur_phase = 0 ;
@@ -72,7 +72,7 @@ class TIMING {
       if (cur_phase != _phase){
         _phase = cur_phase ;
         
-        int i = 0 ;
+        byte i = 0 ;
         while (_dispatch[_slave][_phase][i] != NULL){
           _dispatch[_slave][_phase][i]() ;
           i++ ;
