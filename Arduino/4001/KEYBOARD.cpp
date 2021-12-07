@@ -84,7 +84,6 @@ bool KEYBOARD::sendKey(){
     int t = test_idx ;
     reset() ;
     test_idx = t + 1 ;
-    Serial.print(test_idx, HEX) ;
     key_buffer = tests[test_idx] ;
     if (key_buffer == NULL){
       return 1 ;
