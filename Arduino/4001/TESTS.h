@@ -60,7 +60,7 @@ const byte *tests[] = {
   test13,
   test14,
   test15,
-  /* test16,
+  test16,
   test17,
   test18,
   test19,
@@ -86,6 +86,6 @@ const byte *tests[] = {
   test39,
   test40,
   test41,
-  test42, */
+  test42, 
   NULL
 } ;

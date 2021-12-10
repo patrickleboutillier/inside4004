@@ -3,8 +3,6 @@
 #include "i4003.h"
 #include "KEYBOARD.h"
 
-#define DEBUG
-
 #define RESET_ON                PINC &   0b00100000
 #define RESET_INPUT             DDRC &= ~0b00100000
 #define CM_ON                   PINC &   0b00010000
@@ -77,10 +75,8 @@ void reset(){
 
 
 void setup(){
-  #ifdef DEBUG
-    Serial.begin(2000000) ;
-    Serial.println("4001") ;
-  #endif
+  Serial.begin(2000000) ;
+  Serial.println("4001") ;
   TCCR1A = 0 ;
   TCCR1B = 0 ;
   TCCR1C = 0 ;
@@ -222,10 +218,6 @@ void setup(){
 
 void loop(){
   while (1){
-    #ifdef DEBUG
-        unsigned long start = micros() ;
-    #endif
-    
     if (RESET_ON){
       return reset() ;
     }
@@ -236,14 +228,5 @@ void loop(){
     noInterrupts() ;
     TIMING.loop() ;
     interrupts() ;
-    
-    #ifdef DEBUG
-      unsigned long dur = micros() - start ;
-      if (dur > max_dur){
-        max_dur = dur ;
-        //Serial.print("Max:") ;
-        //Serial.println(max_dur) ;
-      }
-    #endif
   }
 }

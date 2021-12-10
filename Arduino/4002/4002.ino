@@ -1,7 +1,5 @@
 #include "TIMING.h"
 
-#define DEBUG
-
 #define RESET_ON                    PINC &   0b00000010
 #define RESET_INPUT                 DDRC &= ~0b00000010
 #define CM_ON                       PINC &   0b00000001
@@ -73,10 +71,8 @@ void reset(){
 
 
 void setup(){
-  #ifdef DEBUG
-    Serial.begin(2000000) ;
-    Serial.println("4002") ;
-  #endif
+  Serial.begin(2000000) ;
+  Serial.println("4002") ;
   RESET_INPUT ;
   CM_INPUT ;
   PRN_ADV_FIRE_COLOR_OUTPUT ;
@@ -147,7 +143,6 @@ void setup(){
 
 void io_write(byte data){
   if (opa == 0b0000){
-    Serial.print(data, HEX) ;
     RAM[chip_select][reg][chr] = data ;
   }
   else if (opa == 0b0001){
@@ -156,9 +151,6 @@ void io_write(byte data){
       bool fire = data & 0b0010 ;
       bool color = data & 0b0001 ;
       WRITE_ADV_FIRE_COLOR(adv, fire, color) ;
-      if (adv){
-        Serial.print("\n") ;
-      }
     }
     else if (chip_select == 1){   // Lights
       bool mem = data & 0b0001 ;
@@ -191,10 +183,6 @@ byte io_read(){
 
 void loop(){
   while (1){
-    #ifdef DEBUG
-      unsigned long start = micros() ;
-    #endif
-   
     if (RESET_ON){
       return reset() ;
     }
@@ -202,14 +190,5 @@ void loop(){
     noInterrupts() ;
     TIMING.loop() ;
     interrupts() ;
-
-    #ifdef DEBUG
-      unsigned long dur = micros() - start ;
-      if (dur > max_dur){
-        max_dur = dur ;
-        //Serial.print("Max:") ;
-        //Serial.println(max_dur) ;
-      }
-    #endif
   }
 }

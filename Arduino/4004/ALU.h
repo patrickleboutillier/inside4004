@@ -19,5 +19,6 @@ void enableInitializer() ;
 bool accZero() ;
 bool addZero() ;
 bool carryOne() ;
+byte getAcc() ;
 
 #endif

@@ -64,6 +64,7 @@ class TIMING {
       _phase = 3 ;
     }
 
+
     void sync(){
       if (_slave == 6){
         SYNC_ON ;

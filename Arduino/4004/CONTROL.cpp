@@ -21,7 +21,7 @@ void CONTROL_setup(TIMING *t, DATA *d){
 
 
 void CONTROL_timing(){
-  timing->A12([]{     dispatch(0, 0) ; }) ;
+  timing->A12clk1([]{     dispatch(0, 0) ; }) ;
   timing->M12clk2([]{ dispatch(3, 2) ; }) ;
   timing->M22clk2([]{ dispatch(4, 2) ; }) ;
   timing->X12clk1([]{ dispatch(5, 0) ; }) ;
@@ -311,6 +311,10 @@ void LDM_X31(){
 
 void WXX_X21(){
   enableAccOut() ;
+  Serial.print("W") ;
+  Serial.print(get_opr(), HEX) ;
+  Serial.print(get_opa(), HEX) ;
+  Serial.println(data->read(), HEX) ;
 } ;
 
 void SBM_X22clk2(){
@@ -324,6 +328,10 @@ void SBM_A12(){
 
 void RXX_A12(){
   runAdder(0, 1, 0, 0, 0) ;
+  Serial.print("R") ;
+  Serial.print(get_opr(), HEX) ;
+  Serial.print(get_opa(), HEX) ;
+  Serial.println(getAcc(), HEX) ;
 } ;
 
 void ADM_X22clk2(){

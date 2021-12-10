@@ -56,11 +56,12 @@ void loop(){
     noInterrupts() ;
     bool data = SHIFT_DATA_ON ;
     PSHIFT.loop(PRN_SHIFT_CLK_ON, data) ;
-    if (! PRINTER.loop()){  
+    bool worked = PRINTER.loop() ;
+    interrupts() ;
+    if (! worked){  
       PRINTER.printChar() ;
     }
-    interrupts() ;
-    
+
     #ifdef DEBUG
       unsigned long dur = micros() - start ;
       if (dur > max_dur){
