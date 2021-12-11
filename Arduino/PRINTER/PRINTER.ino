@@ -1,8 +1,6 @@
 #include "i4003.h"
 #include "PRINTER.h"
 
-// #define DEBUG
-
 #define RESET_ON              PORTC |=  0b00000100
 #define RESET_OFF             PORTC &= ~0b00000100
 #define RESET_OUTPUT          DDRC  |=  0b00000100
@@ -49,10 +47,6 @@ void setup(){
 
 void loop(){
   while (1){
-    #ifdef DEBUG
-      unsigned long start = micros() ;
-    #endif
-
     noInterrupts() ;
     bool data = SHIFT_DATA_ON ;
     PSHIFT.loop(PRN_SHIFT_CLK_ON, data) ;
@@ -61,14 +55,5 @@ void loop(){
     if (! worked){  
       PRINTER.printChar() ;
     }
-
-    #ifdef DEBUG
-      unsigned long dur = micros() - start ;
-      if (dur > max_dur){
-        max_dur = dur ;
-        //Serial.print("Max:") ;
-        //Serial.println(max_dur) ;
-      }
-    #endif
   }
 }

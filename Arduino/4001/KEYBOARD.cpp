@@ -49,34 +49,26 @@ byte KEYBOARD::getKbdRow(){
 
 bool KEYBOARD::sendKey(){
   byte kc = key_buffer[key_buffer_idx] ;
-  
-  if (kc == KEND){
-    int next_test = test_idx + 1 ;
-    reset() ;
-    test_idx = next_test ;
-    key_buffer = tests[test_idx] ;
-    if (key_buffer == NULL){
-      return 1 ;
-    }
-    else {
-      return 0 ;
-    }
-  }
 
-  bool sw = 0 ;
-  while ((kc == KD)||(kc == KR)){
-    if (kc == KD){
+  switch (kc){
+    case KEND: {
+      int next_test = test_idx + 1 ;
+      reset() ;
+      test_idx = next_test ;
+      key_buffer = tests[test_idx] ;
+      return (key_buffer == NULL) ; 
+    }
+    case KD:
       _cur_prec++ ;
       if (_cur_prec == 9){
         _cur_prec = 0 ;
       }
       else if (_cur_prec == 7){
-        _cur_prec == 8 ;
+        _cur_prec = 8 ;
       }
-
-      _buffer[8] = _cur_prec ;
-    }
-    else {
+      kc = 0b10000000 | _cur_prec ;
+      break ;
+    case KR:
       if (_cur_round == 0){
         _cur_round = 1 ;
       }
@@ -86,20 +78,13 @@ bool KEYBOARD::sendKey(){
       else {
         _cur_round = 0 ;
       }
-      
-      _buffer[9] = _cur_round ;
-    }
-    
-    key_buffer_idx++ ;
-    kc = key_buffer[key_buffer_idx] ;
-    sw = 1 ;
-  }
-  if (sw){
-    return 0 ;
+      kc = 0b10010000 | _cur_round ;
+      break ;
   }
   
   byte c = kc >> 4 ;
   _buffer[c] |= kc & 0xF ; 
   key_buffer_idx++ ;
+
   return 0 ;
 }

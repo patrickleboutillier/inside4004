@@ -8,7 +8,6 @@
 #include "ALU.h"
 #include "CLOCK.h"
 
-
 #define READ_RESET  PIND &   0b01000000
 #define RESET_INPUT DDRD &= ~0b01000000
 
