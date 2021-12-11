@@ -398,7 +398,7 @@ class control:
         opr, opa = 0b1110, [0b0000, 0b0001, 0b0010, 0b0100, 0b0101, 0b0110, 0b0111]
         @X21
         def _():
-            inst.data.v = alu.acc
+            inst.data.v = alu.acc_out
 
         # SBM
         opr, opa = 0b1110, [0b1000]

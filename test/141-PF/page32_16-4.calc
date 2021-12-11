@@ -1,2 +1,2 @@
-export KEY_BUFFER='ddddddddrr,4000000,/,3,=,q'
+export KEY_BUFFER='dddddddrr,4000000,/,3,=,q'
 export EXPECTED='>>>  |...............       |'
