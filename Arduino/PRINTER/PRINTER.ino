@@ -54,9 +54,7 @@ void loop(){
     #endif
 
     bool data = SHIFT_DATA_ON ;
-    if (PSHIFT.loop(PRN_SHIFT_CLK_ON, data)){
-      //Serial.print(data) ;
-    }
+    PSHIFT.loop(PRN_SHIFT_CLK_ON, data) ;
     if (! PRINTER.loop()){  
       PRINTER.printChar() ;
     }

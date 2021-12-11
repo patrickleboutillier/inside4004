@@ -13,7 +13,7 @@
 #define DATA_OUTPUT                 DDRD |=  DATA
 
 #define PRN_ADV_FIRE_COLOR          0b00111000
-#define WRITE_ADV_FIRE_COLOR(a, f, c)  PORTC =  ((PORTC & ~PRN_ADV_FIRE_COLOR) | ((c) << 3) | ((f) << 2) | (a))  
+#define WRITE_ADV_FIRE_COLOR(a, f, c)  PORTC =  ((PORTC & ~PRN_ADV_FIRE_COLOR) | ((c) << 5) | ((f) << 4) | ((a) << 3))  
 #define PRN_ADV_FIRE_COLOR_OUTPUT   DDRC  |= PRN_ADV_FIRE_COLOR
 
 #define LIGHTS_MEM                  0b10000000   // PORTD
