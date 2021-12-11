@@ -135,6 +135,8 @@ class keyboard(sensor):
     def incDP(self):
         n = int("".join(map(str, self.dp_sw)), 2)
         n = (n + 1) % 9
+        if n == 7:
+            n = 8
         self.dp_sw[:] = list(map(int, list("{:04b}".format(n))))
 
     def incRND(self):
