@@ -83,7 +83,7 @@ bool KEYBOARD::sendKey(){
   }
   
   byte c = kc >> 4 ;
-  _buffer[c] |= kc & 0xF ; 
+  _buffer[c] = kc & 0xF ; 
   key_buffer_idx++ ;
 
   return 0 ;
