@@ -21,7 +21,7 @@ void CONTROL_setup(TIMING *t, DATA *d){
 
 
 void CONTROL_timing(){
-  timing->A12([]{     dispatch(0, 0) ; }) ;
+  timing->A12clk1([]{     dispatch(0, 0) ; }) ;
   timing->M12clk2([]{ dispatch(3, 2) ; }) ;
   timing->M22clk2([]{ dispatch(4, 2) ; }) ;
   timing->X12clk1([]{ dispatch(5, 0) ; }) ;

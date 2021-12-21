@@ -1,7 +1,5 @@
 #include "TIMING.h"
 
-// #define DEBUG
-
 #define RESET_ON                    PINC &   0b00000010
 #define RESET_INPUT                 DDRC &= ~0b00000010
 #define CM_ON                       PINC &   0b00000001
@@ -21,6 +19,11 @@
 #define WRITE_MEM_NEG_OVF(m, n, o)  PORTD =  ((PORTD & ~LIGHTS_MEM) | ((m) << 7)) ; PORTB = ((PORTB & ~LIGHTS_NEG_OVF) | ((o) << 1) | (n)) 
 #define LIGHTS_MEM_NEG_OVF_OUTPUT   DDRD  |= LIGHTS_MEM ; DDRB |= LIGHTS_NEG_OVF
 
+#define LED                     0b00100000
+#define LED_OUTPUT              DDRB |= LED
+#define LED_ON                  PORTB |= LED
+#define LED_OFF                 PORTB &= ~LED
+
 void io_write(byte data) ;
 byte io_read() ;
 
@@ -39,6 +42,7 @@ unsigned long max_dur = 0 ;
 
 
 void reset(){
+  LED_ON ;
   DATA_INPUT ;   
   
   TIMING.reset() ;
@@ -62,18 +66,18 @@ void reset(){
   
   WRITE_ADV_FIRE_COLOR(0, 0, 0) ;
   WRITE_MEM_NEG_OVF(0, 0, 0) ;
+  LED_OFF ;
 }
 
 
 void setup(){
-  #ifdef DEBUG
-    Serial.begin(2000000) ;
-    Serial.println("4002") ;
-  #endif
+  Serial.begin(2000000) ;
+  Serial.println("4002") ;
   RESET_INPUT ;
   CM_INPUT ;
   PRN_ADV_FIRE_COLOR_OUTPUT ;
   LIGHTS_MEM_NEG_OVF_OUTPUT ;
+  LED_OUTPUT ;
   TIMING.setup() ;
   reset() ;
   
@@ -179,22 +183,12 @@ byte io_read(){
 
 void loop(){
   while (1){
-    #ifdef DEBUG
-      unsigned long start = micros() ;
-    #endif
     if (RESET_ON){
       return reset() ;
     }
-
+    
+    noInterrupts() ;
     TIMING.loop() ;
-
-    #ifdef DEBUG
-      unsigned long dur = micros() - start ;
-      if (dur > max_dur){
-        max_dur = dur ;
-        //Serial.print("Max:") ;
-        //Serial.println(max_dur) ;
-      }
-    #endif
+    interrupts() ;
   }
 }

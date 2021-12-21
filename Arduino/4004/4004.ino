@@ -8,10 +8,13 @@
 #include "ALU.h"
 #include "CLOCK.h"
 
-#define DEBUG
-
 #define READ_RESET  PIND &   0b01000000
 #define RESET_INPUT DDRD &= ~0b01000000
+
+#define LED                     0b00100000
+#define LED_OUTPUT              DDRB |= LED
+#define LED_ON                  PORTB |= LED
+#define LED_OFF                 PORTB &= ~LED
 
 TIMING TIMING ;
 DATA DATA ;
@@ -20,6 +23,9 @@ unsigned int max_dur = 0 ;
 
 
 void reset(){  
+  LED_ON ;
+  max_dur = 0 ;
+
   TIMING.reset() ;
   DATA.reset() ;
   INST_reset() ;
@@ -29,17 +35,20 @@ void reset(){
   SCRATCH_reset() ;
   ALU_reset() ;
   CLOCK_reset() ;
-  max_dur = 0 ;
+  LED_OFF ;
+
 }
 
 
 void setup(){
-  #ifdef DEBUG
-    Serial.begin(2000000) ;
-    Serial.println("4004") ;
-  #endif
+  Serial.begin(2000000) ;
+  Serial.println("4004") ;
+  TCCR1A = 0 ;
+  TCCR1B = 0 ;
+  TCCR1C = 0 ;
   RESET_INPUT ;
-
+  LED_OUTPUT ;
+  
   INST_setup(&TIMING, &DATA) ;
   CONTROL_setup(&TIMING, &DATA) ;
   IO_setup(&TIMING) ;
@@ -54,21 +63,10 @@ void setup(){
 
 void loop(){
   while (1){
-    unsigned long start = micros() ;
     if (READ_RESET){
       return reset() ;
     }
 
-    CLOCK_tick() ;
-    unsigned int dur = micros() - start ;    
-    #ifdef DEBUG
-      if (dur > max_dur){
-        max_dur = dur ;
-        Serial.print("Max: ") ;
-        Serial.println(max_dur) ;
-      }
-    #endif
-    
-    CLOCK_sleep(dur) ;
+    CLOCK_period() ;
   }
 }
