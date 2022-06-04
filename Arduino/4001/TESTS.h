@@ -33,15 +33,15 @@ const byte test30[] = {KCL, KD, KD, KD, KD, KD, KD, KR, K2, KMP, KMULT, KEQ, KPL
 const byte test31[] = {KCL, KD, KD, KD, KD, KD, KD, KR, KCL, KCM, K1, K2, KMULT, KMEP, K8, KMULT, KMEP, KCM, KSQ, KEND} ;
 const byte test32[] = {KCL, KD, KD, KD, KD, KD, KD, KR, KR, K1, K2, K3, K4, K5, K6, K7, K8, KPLUS, KEQ, KEND} ;
 const byte test33[] = {KCL, KD, KD, KD, KD, KD, KD, KR, KR, K1, K2, K3, K4, K5, K6, K7, K8, K9, KPLUS, KEQ, KEND} ;
-const byte test34[] = {KCL, KD, KD, KD, KD, KD, KD, KD, KD, KR, KR, K9, K0, K0, K0, K0, K0, KPLUS, K1, K0, K0, K0, K0, K0, KPLUS, KCE, KPLUS, KEQ, KEND} ;
+const byte test34[] = {KCL, KD, KD, KD, KD, KD, KD, KD, KR, KR, K9, K0, K0, K0, K0, K0, KPLUS, K1, K0, K0, K0, K0, K0, KPLUS, KCE, KPLUS, KEQ, KEND} ;
 const byte test35[] = {KCL, K1, K2, K3, K4, K5, K6, K7, K8, K9, KMULT, K1, K0, K0, K0, K0, K0, KEQ, KEND} ;
 const byte test36[] = {KCL, K1, K2, K3, K4, K5, K6, K7, K8, K9, KMULT, K1, K0, K0, K0, K0, K0, K0, KEQ, KEND} ;
-const byte test37[] = {KCL, KD, KD, KD, KD, KD, KD, KD, KD, KR, K1, K2, K3, K4, K5, K6, KMULT, K1, KEQ, KEND} ;
-const byte test38[] = {KCL, KD, KD, KD, KD, KD, KD, KD, KD, KR, K1, K2, K3, K4, K5, K6, K7, KMULT, K1, KEQ, KEND} ;
+const byte test37[] = {KCL, KD, KD, KD, KD, KD, KD, KD, KR, K1, K2, K3, K4, K5, K6, KMULT, K1, KEQ, KEND} ;
+const byte test38[] = {KCL, KD, KD, KD, KD, KD, KD, KD, KR, K1, K2, K3, K4, K5, K6, K7, KMULT, K1, KEQ, KEND} ;
 const byte test39[] = {KCL, K4, K0, K0, K0, K0, K0, K0, KDIV, K0, KDOT, K0, K0, K0, K0, K0, K0, K3, KEQ, KEND} ;
 const byte test40[] = {KCL, K4, K0, K0, K0, K0, K0, K0, K0, KDIV, K0, KDOT, K0, K0, K0, K0, K0, K0, K3, KEQ, KEND} ;
-const byte test41[] = {KCL, KD, KD, KD, KD, KD, KD, KD, KD, KR, KR, K4, K0, K0, K0, K0, K0, KDIV, K3, KEQ, KEND} ;
-const byte test42[] = {KCL, KD, KD, KD, KD, KD, KD, KD, KD, KR, KR, K4, K0, K0, K0, K0, K0, K0, KDIV, K3, KEQ, KEND} ;
+const byte test41[] = {KCL, KD, KD, KD, KD, KD, KD, KD, KR, KR, K4, K0, K0, K0, K0, K0, KDIV, K3, KEQ, KEND} ;
+const byte test42[] = {KCL, KD, KD, KD, KD, KD, KD, KD, KR, KR, K4, K0, K0, K0, K0, K0, K0, KDIV, K3, KEQ, KEND} ;
 
 const byte *tests[] = {
   // test0,

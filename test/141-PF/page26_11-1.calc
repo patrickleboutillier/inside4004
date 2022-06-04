@@ -1,2 +1,3 @@
-export KEY_BUFFER='dd,152417543.0625,SQ,q'
-export EXPECTED='>>>  |12345.750000000 SQ    |'
+export KEY_BUFFER='ddr,152417543.0625,SQ,q'
+# There is an error in the manual here, .75 id the right answer
+export EXPECTED='>>>  |       12345.75 SQ    |'
