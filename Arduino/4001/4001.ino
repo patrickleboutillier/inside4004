@@ -3,8 +3,6 @@
 #include "i4003.h"
 #include "KEYBOARD.h"
 
-// #define DEBUG
-
 #define RESET_ON                PINC &   0b00100000
 #define RESET_INPUT             DDRC &= ~0b00100000
 #define CM_ON                   PINC &   0b00010000
@@ -29,6 +27,11 @@
 #define WRITE_PRN_SHIFT_CLK(p)  PORTC =  (PORTC & ~PRN_SHIFT_CLK) | ((p) << 3)
 #define PRN_SHIFT_CLK_OUTPUT    DDRC  |=  PRN_SHIFT_CLK
 
+#define LED                     0b00100000
+#define LED_OUTPUT              DDRB |= LED
+#define LED_ON                  PORTB |= LED
+#define LED_OFF                 PORTB &= ~LED
+
 TIMING TIMING ;
 i4003 KSHIFT(0x3FF) ;
 KEYBOARD KEYBOARD(&KSHIFT) ;
@@ -44,9 +47,10 @@ byte opr = 0 ;          // The OPR for the current instruction
 byte opa = 0 ;          // The OPA for the current instruction
 bool kb_toggle = 0 ;
 unsigned long max_dur = 0 ;
-
+bool done = 0 ;
 
 void reset(){
+  LED_ON ;
   DATA_INPUT ;
   WRITE_SHIFT_DATA(0) ;
   WRITE_PRN_SHIFT_CLK(0) ;
@@ -65,20 +69,24 @@ void reset(){
   opa = 0 ;
   kb_toggle = 0 ;
   max_dur = 0 ;
+  done = 0 ;
+  LED_OFF ;
 }
 
 
 void setup(){
-  #ifdef DEBUG
-    Serial.begin(2000000) ;
-    Serial.println("4001") ;
-  #endif
+  Serial.begin(2000000) ;
+  Serial.println("4001") ;
+  TCCR1A = 0 ;
+  TCCR1B = 0 ;
+  TCCR1C = 0 ;
   RESET_INPUT ;
   CM_INPUT ;
   SHIFT_DATA_OUTPUT ;
   PRN_SHIFT_CLK_OUTPUT ;
   PRN_INDEX_INPUT ;
   PRN_ADV_BTN_INPUT ;
+  LED_OUTPUT ;
   TIMING.setup() ;
   reset() ;
 
@@ -120,7 +128,7 @@ void setup(){
       if (pc == 3){              // Before keyboard scanning in main loop
         kb_toggle = !kb_toggle ;
         if (! kb_toggle){
-          KEYBOARD.sendKey() ;
+          done = KEYBOARD.sendKey() ;
         }
       }
     }
@@ -210,22 +218,15 @@ void setup(){
 
 void loop(){
   while (1){
-    #ifdef DEBUG
-        unsigned long start = micros() ;
-    #endif
     if (RESET_ON){
       return reset() ;
     }
-
-    TIMING.loop() ;
+    if (done){
+      return ;
+    }
     
-    #ifdef DEBUG
-      unsigned long dur = micros() - start ;
-      if (dur > max_dur){
-        max_dur = dur ;
-        //Serial.print("Max:") ;
-        //Serial.println(max_dur) ;
-      }
-    #endif
+    noInterrupts() ;
+    TIMING.loop() ;
+    interrupts() ;
   }
 }

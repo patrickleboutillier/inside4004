@@ -198,3 +198,8 @@ bool addZero(){
 bool carryOne(){
   return cy_out ;
 }
+
+
+byte getAcc(){
+  return acc ; 
+}

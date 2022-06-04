@@ -65,16 +65,16 @@ class TIMING {
     }
 
 
-    void sync(bool on){
-      if (on){
-        SYNC_ON ;  
+    void sync(){
+      if (_slave == 6){
+        SYNC_ON ;
       }
-      else {
-        SYNC_OFF ;
+      else if (_slave == 7){
+        SYNC_OFF ;            
       }
     }
 
-    
+        
     void tick_dispatch(){
       int i = 0 ;
       while (_dispatch[_slave][_phase][i] != NULL){

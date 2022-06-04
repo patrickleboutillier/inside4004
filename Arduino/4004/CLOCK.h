@@ -10,6 +10,6 @@ void CLOCK_setup(TIMING *t) ;
 void CLOCK_timing() ;
 void CLOCK_tick() ;
 void CLOCK_period() ;
-void CLOCK_sleep(unsigned int dur) ;
+unsigned int CLOCK_delay(unsigned int cycles) ;
 
 #endif
