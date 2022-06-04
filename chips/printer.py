@@ -32,7 +32,7 @@ class printer(sensor):
             self.fireHammers()
         if self.advance.v:
             self.advanceLine()
-            self._curcolor = ' '   # Reset line color
+            self.cur_color = ' '   # Reset line color
         if self.color.v:
             self.cur_color = '-'   # Set color to "red", meaning negative value.
 
